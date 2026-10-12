@@ -1211,7 +1211,7 @@ input, select, textarea, .GlassInput input, .GlassInput select, .GlassInput text
 }
 
 /* Location row on the light search card: dark text, light surface (was white-on-white). */
-.location-inline { background: rgb(255 255 255 / 72%); border-color: rgb(40 85 165 / .18); }
-.location-inline strong { color: #102b42; }
-.location-inline span:not(.location-mark) { color: #2f5c9a; }
-.location-inline small { color: #526b73; }
+.location-inline { background: rgb(255 255 255 / 72%) !important; border-color: rgb(40 85 165 / .18) !important; }
+.location-inline strong, #searchLocationName { color: #102b42 !important; }
+.location-inline span:not(.location-mark) { color: #2f5c9a !important; }
+.location-inline small, #searchLocationAddress { color: #526b73 !important; }
