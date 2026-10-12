@@ -7,7 +7,7 @@ const path = require("path");
 const root = path.resolve(__dirname, "..");
 const repository = path.resolve(root, "..");
 const output = path.join(root, "dist");
-const files = ["index.html", "app.js", "config.js", "customer-core.js", "lifecycle.js", "render-runtime.js", "lot-plan.js", "lot-plan-data.js", "styles.css", "liquid-glass.css"];
+const files = ["index.html", "app.js", "config.js", "customer-core.js", "lifecycle.js", "render-runtime.js", "lot-plan.js", "lot-plan-data.js", "styles.css", "liquid-glass.css", "th-chrome.css"];
 const assetSources = new Map([
   ["brand/trucker-heaven-logo-full.png", path.join(repository, "public", "brand", "trucker-heaven-logo-full.png")],
   ["brand/trucker-heaven-logo-nav.png", path.join(repository, "public", "brand", "trucker-heaven-logo-nav.png")],
@@ -16,7 +16,10 @@ const assetSources = new Map([
   ["images/facility-aerial.jpg", path.join(repository, "public", "images", "facility-aerial.jpg")],
   ["images/parking-sky.jpg", path.join(repository, "public", "images", "parking-sky.jpg")],
   ["images/parking-strip.jpg", path.join(repository, "public", "images", "parking-strip.jpg")],
-  ["images/trucker-heaven-aerial.jpg", path.join(root, "assets", "parking", "trucker-heaven-aerial.jpg")]
+  ["images/trucker-heaven-aerial.jpg", path.join(root, "assets", "parking", "trucker-heaven-aerial.jpg")],
+  // main-site header/footer chrome (th-chrome.css)
+  ["assets/logo.svg", path.join(root, "assets", "logo.svg")],
+  ...fs.readdirSync(path.join(root, "assets", "fonts")).filter(name => name.endsWith(".woff2")).map(name => [`assets/fonts/${name}`, path.join(root, "assets", "fonts", name)])
 ]);
 const source = Object.fromEntries(files.map(file => [file, fs.readFileSync(path.join(root, file), "utf8")]));
 const revisionHash = crypto.createHash("sha256").update(files.map(file => `${file}\n${source[file]}`).join("\n"));
