@@ -69,8 +69,11 @@ async function call(method, path, body, extra = {}) {
     };
     const r = await call('POST', '/api/admin/parking/v1/reservation-desk/reservations', body, { 'idempotency-key': `seed-${COMPANY}-${n}-${crypto.randomBytes(8).toString('hex')}` });
     if (r.status === 201) { booked += 1; process.stdout.write(`${n} `); }
-    else { failed += 1; console.error(`\n[seed] space ${n}: ${r.status} ${r.text.slice(0, 160)}`); }
+    else if (r.status === 409) { failed += 1; console.log(`\n[seed] space ${n} skipped: ${(r.json?.error?.message) || r.text.slice(0, 120)}`); }
+    else { console.error(`\n[seed] space ${n}: ${r.status} ${r.text.slice(0, 160)}`); process.exit(1); }
   }
-  console.log(`\n[seed] done: ${booked} booked, ${failed} failed, ${labels.length === 0 ? 'nothing to do' : ''}`);
-  process.exit(failed ? 1 : 0);
+  // A space refused with 409 is simply not free any more (someone booked it, or it is held back for an
+  // area booking that needs somewhere to park). That is a skip, not a failure of the seed.
+  console.log(`\n[seed] done: ${booked} booked, ${failed} skipped${labels.length === 0 ? ' (nothing to do)' : ''}`);
+  process.exit(0);
 })().catch(error => { console.error('[seed] failed:', error.message); process.exit(1); });
