@@ -385,7 +385,9 @@ async function availabilityMapStates(client, request, values) {
     const key = String(candidate.inventory_id);
     const remaining = remainingByInventory.get(key) || 0;
     const available = Boolean(candidate.free) && remaining > 0;
-    states.set(candidate.element_key, { eligible: true, available });
+    // A free space that cannot be sold is held back for a reservation that has no numbered
+    // space yet (area booking) or for a capacity closure: CAPACITY_HOLD, not TAKEN.
+    states.set(candidate.element_key, { eligible: true, available, state: available ? 'AVAILABLE' : candidate.free ? 'CAPACITY_HOLD' : 'TAKEN' });
     if (available) remainingByInventory.set(key, remaining - 1);
   }
   return { categoryCode: request.categoryCode, states };
@@ -471,6 +473,7 @@ async function selectableSpaceStates(client, request, ownQuoteToken = null) {
     const item = {
       available: state === 'AVAILABLE',
       state,
+      inventoryId: Number(row.inventory_id),
       parkingSpotId: Number(row.parking_spot_id),
       number: eligible ? String(row.public_label) : null,
       eligible
@@ -479,6 +482,26 @@ async function selectableSpaceStates(client, request, ownQuoteToken = null) {
     if (eligible) positions.push(item);
   }
   return { categoryCode: request.categoryCode, assignmentMode: 'CUSTOMER_SELECTED_SPOT', states, positions };
+}
+
+// Numbered-space availability already holds spaces back for area reservations and capacity
+// closures (see parkingService.availability). Mirror that on the map: only as many free spaces
+// stay selectable as the slot says are sellable; the rest become CAPACITY_HOLD.
+function applyCapacityHoldback(selection, slots) {
+  const sellable = new Map((slots || []).map(slot => [String(slot.inventory_id), Math.max(0, Number(slot.available ? (slot.available_spots ?? 0) : 0))]));
+  const byInventory = new Map();
+  for (const [key, item] of selection.states) {
+    if (!item.available) continue;
+    const inventory = String(item.inventoryId ?? item.inventory_id ?? '');
+    const list = byInventory.get(inventory) || []; list.push([key, item]); byInventory.set(inventory, list);
+  }
+  for (const [inventory, items] of byInventory) {
+    const keep = sellable.has(inventory) ? sellable.get(inventory) : items.length;
+    // Hold back from the end of the list (highest display order), matching the area map.
+    for (const [, item] of items.slice(keep)) { item.available = false; item.state = 'CAPACITY_HOLD'; }
+  }
+  selection.positions = selection.positions.map(item => item);
+  return selection;
 }
 
 function expose(row, credential) {
@@ -832,7 +855,7 @@ router.post('/availability', publicLimit(config.rateLimits.availability), async 
       const values = await availability(client, request);
       await Promise.all(values.map(async value => { value.rateOffer = await publicRateOfferForInventory(client, request, value); }));
       const mapSelection = request.customerAssignmentMode === 'CUSTOMER_SELECTED_SPOT'
-        ? await selectableSpaceStates(client, request, req.body.quoteToken)
+        ? applyCapacityHoldback(await selectableSpaceStates(client, request, req.body.quoteToken), values)
         : await availabilityMapStates(client, request, values);
       return {
         timezone: request.location.timezone,
@@ -854,6 +877,7 @@ router.post(['/positions', '/monthly-positions'], publicLimit(config.rateLimits.
       const slots = await availability(client, request);
       // When every space is taken the lot is still returned, so the customer sees it full rather than an error.
       const selection = await selectableSpaceStates(client, request, req.body.quoteToken);
+      applyCapacityHoldback(selection, slots);
       return {
         assignmentMode: 'CUSTOMER_SELECTED_SPOT',
         available: slots.some(slot => slot.available),

@@ -39,7 +39,7 @@
     "verify": "npm run check && npm test && node scripts/verifyFrontends.js",
     "verify:launch": "npm run verify && npm run test:postgres && npm run test:auth-concurrency && npm run test:admin-views && npm run test:layout && npm run test:real-lot-importer && npm run test:lot-setup && npm run test:exact && npm run test:area && npm run test:payments && npm run test:reservation-desk && npm run test:customer-accounts && npm run test:customer-lookup && npm run test:pay-on-site && npm run test:demo-bypass-disabled && npm run test:demo-bypass && npm run test:mixed-term",
     "verify:all": "bash scripts/verify-launch.sh",
-    "test:mixed-term": "PARKING_PAYMENT_MODE=PAY_ON_SITE PARKING_ADMIN_LOGIN_RATE_LIMIT_MAX=1000 PARKING_PUBLIC_AVAILABILITY_RATE_LIMIT_MAX=1000 node --test test/mixedTermOccupancy.integration.test.js"
+    "test:mixed-term": "PARKING_PAYMENT_MODE=PAY_ON_SITE PARKING_ADMIN_LOGIN_RATE_LIMIT_MAX=1000 PARKING_PUBLIC_AVAILABILITY_RATE_LIMIT_MAX=1000 PARKING_PUBLIC_BOOKING_RATE_LIMIT_MAX=1000 node --test test/mixedTermOccupancy.integration.test.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.0.0",

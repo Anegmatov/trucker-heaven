@@ -809,6 +809,8 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus{outline:
 .sp.is-open:hover rect { fill: #6fa52f; }
 .sp.is-taken rect { fill: #e2574c; }
 .sp.is-taken text { fill: #ffffff; }
+.sp.is-held rect { fill: #f3c75a; }
+.sp.is-held text { fill: #4a3300; }
 .sp.is-mine rect { fill: #f5a623; stroke: #fff; stroke-width: 5; }
 .sp.is-mine text { fill: #2b1a00; font-weight: 900; }
 .plan-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 12px 16px; font-size: .9rem; color: #33505f; }
@@ -817,6 +819,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus{outline:
 .plan-legend .sw.is-open { background: #8bc34a; border-color: #8bc34a; }
 .plan-legend .sw.is-mine { background: #f5a623; border-color: #f5a623; }
 .plan-legend .sw.is-taken { background: #e2574c; }
+.plan-legend .sw.is-held { background: #f3c75a; border-color: #e0b24a; }
 .plan-legend .sw.is-off { background: #f7f9fa; }
 /* My Parking: what is owed for a stay (from the office ledger). */
 .portal-owed { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; padding: 10px 14px; border-radius: 10px; background: var(--warning-soft, #fff8e7); border: 1px solid #ead9a8; font-size: .95rem; }

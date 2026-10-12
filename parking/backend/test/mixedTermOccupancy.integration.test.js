@@ -117,6 +117,36 @@ test.before(async () => {
 
 test.after(async () => { if (server) await new Promise(resolve => server.close(resolve)); await pool.end(); });
 
+async function publicBook(body) {
+  const quote = await publicPost('/quotes', body); assert.equal(quote.response.status, 200, JSON.stringify(quote.body));
+  const response = await fetch(`${base}/api/public/parking/v1/bookings`, { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': `mixed-${crypto.randomBytes(18).toString('hex')}` },
+    body: JSON.stringify({ ...body, quoteToken: quote.body.quoteToken, termsVersion: quote.body.terms.version }) });
+  const json = await response.json(); assert.equal(response.status, 201, JSON.stringify(json)); return json;
+}
+
+test('an area reservation holds a space back: offer and map agree, and the held space is marked CAPACITY_HOLD, not taken', async () => {
+  // A Daily bobtail booking with no numbered space (area booking) that overlaps the Monthly start.
+  await publicBook({ parkingAreaId: bobtailZone.public_id, categoryCode: 'BOBTAIL', duration: 'DAILY', arrivalLocal: '2035-03-01T08:00', departureLocal: '2035-03-02T08:00',
+    firstName: 'Area', lastName: 'Driver', mobilePhone: '+16155559001', email: `area.${Date.now()}@example.test`, companyName: 'Area Freight',
+    tractorUnitNumber: 'AREA-1', licensePlate: `AR${Date.now() % 10000}`, licensePlateState: 'TN', termsAccepted: true, cancellationTermsAccepted: true });
+  // Monthly bobtail: Amazon has 20, the area booking needs 21 → nothing sellable, and the map must say so too.
+  const availability = await publicPost('/availability', { parkingAreaId: bobtailZone.public_id, categoryCode: 'BOBTAIL', duration: 'MONTHLY', arrivalLocal: monthlyArrival });
+  assert.equal(availability.response.status, 200, JSON.stringify(availability.body));
+  const offer = availability.body.results.find(r => r.categoryCode === 'BOBTAIL');
+  assert.equal(offer.available, false, 'the last free bobtail is held for the area reservation');
+  const positions = await publicPost('/monthly-positions', { parkingAreaId: bobtailZone.public_id, categoryCode: 'BOBTAIL', duration: 'MONTHLY', arrivalLocal: monthlyArrival });
+  assert.equal(positions.response.status, 200, JSON.stringify(positions.body));
+  assert.equal(positions.body.positions.filter(p => p.available).length, 0, 'no position is offered when the offer says none');
+  const space = spaceByNumber(positions.body.layout);
+  assert.equal(space.get('21').selectable, false); assert.equal(space.get('21').selectionState, 'CAPACITY_HOLD', '21 is held back, not taken');
+  assert.match(space.get('20').selectionState, /RESERVED|OCCUPIED/, '20 is physically taken by Amazon');
+  // Daily bobtail on the same day: 21 is the area booking's capacity, so it shows as CAPACITY_HOLD there too.
+  const daily = await publicPost('/availability', { parkingAreaId: bobtailZone.public_id, categoryCode: 'BOBTAIL', duration: 'DAILY', arrivalLocal: '2035-03-01T09:00', departureLocal: '2035-03-02T07:00' });
+  const dailySpace = spaceByNumber(daily.body.layout);
+  assert.equal(dailySpace.get('21').available, false); assert.equal(dailySpace.get('21').selectionState, 'CAPACITY_HOLD');
+  assert.equal(dailySpace.get('20').selectionState, 'TAKEN');
+});
+
 test('Monthly bookings on Monthly spaces do not consume Daily truck capacity', async () => {
   const { response, body } = await publicPost('/availability', { parkingAreaId: truckZone.public_id, categoryCode: 'TRACTOR_TRAILER', duration: 'DAILY', ...dailyInterval });
   assert.equal(response.status, 200, JSON.stringify(body));
