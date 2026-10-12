@@ -7,7 +7,7 @@
  *
  * Usage (against a running Parking API):
  *   node scripts/seedAmazonOccupancy.js --api http://127.0.0.1:3001 --login-file ../../logins/parking-owner.txt
- *     [--from 130] [--to 204] [--company "Amazon"] [--location 1]
+ *     [--from 130] [--to 204] [--category TRACTOR_TRAILER|BOBTAIL] [--company "Amazon"] [--location 1]
  * Idempotent: spaces that already hold an active reservation are skipped.
  */
 'use strict';
@@ -19,6 +19,7 @@ const opt = (name, fallback) => { const i = args.indexOf(`--${name}`); return i 
 const API = String(opt('api', process.env.PARKING_API_URL || 'http://127.0.0.1:3001')).replace(/\/$/, '');
 const FROM = Number(opt('from', 130)); const TO = Number(opt('to', 204));
 const COMPANY = opt('company', 'Amazon'); const LOCATION = Number(opt('location', 1));
+const CATEGORY = String(opt('category', 'TRACTOR_TRAILER')).toUpperCase(); // TRACTOR_TRAILER or BOBTAIL
 const loginFile = opt('login-file', '');
 let username = process.env.PARKING_ADMIN_USERNAME || ''; let password = process.env.PARKING_ADMIN_PASSWORD || '';
 if (loginFile) {
@@ -47,7 +48,7 @@ async function call(method, path, body, extra = {}) {
     .formatToParts(new Date(Date.now() + 60 * 60 * 1000)).map(p => [p.type, p.value]));
   const arrivalLocal = `${parts.year}-${parts.month}-${parts.day}T${parts.hour === '24' ? '00' : parts.hour}:00`;
 
-  const parking = { locationId: LOCATION, duration: 'MONTHLY', categoryCode: 'TRACTOR_TRAILER', arrivalLocal };
+  const parking = { locationId: LOCATION, duration: 'MONTHLY', categoryCode: CATEGORY, arrivalLocal };
   const availability = await call('POST', '/api/admin/parking/v1/reservation-desk/availability', parking);
   if (availability.status !== 200) throw new Error(`Availability failed (${availability.status}): ${availability.text.slice(0, 300)}`);
   const options = availability.json.options.filter(o => o.available);
@@ -56,7 +57,7 @@ async function call(method, path, body, extra = {}) {
     const n = Number(p.label); if (Number.isInteger(n) && n >= FROM && n <= TO) wanted.set(n, { inventoryId: option.inventoryId, spotId: p.id });
   }
   const labels = [...wanted.keys()].sort((a, b) => a - b);
-  console.log(`[seed] ${labels.length} open Monthly spaces between ${FROM} and ${TO}; booking them for ${COMPANY}`);
+  console.log(`[seed] ${labels.length} open Monthly ${CATEGORY} spaces between ${FROM} and ${TO}; booking them for ${COMPANY}`);
   let booked = 0, failed = 0;
   for (const n of labels) {
     const { inventoryId, spotId } = wanted.get(n);
