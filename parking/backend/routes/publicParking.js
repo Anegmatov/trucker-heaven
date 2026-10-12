@@ -103,9 +103,9 @@ async function bookingInput(client, body) {
   const businessInterval = locationInterval(body.arrivalLocal, body.departureLocal, area.rows[0].timezone, { allowOpenEnded: requestedProduct === 'MONTHLY' });
   const duration = requestedDuration(body.duration, businessInterval.start, businessInterval.end, area.rows[0].timezone);
   validateBookingPolicy(businessInterval.start, businessInterval.end, area.rows[0].timezone, duration);
-  // Weekly and Monthly drivers pick their numbered space. Daily books the area: the map shows
+  // Monthly drivers pick their numbered space. Daily and Weekly book the area: the map shows
   // where they can park, and the office places them on a space when they arrive.
-  const customerAssignmentMode = SPOT_PICKING_DURATIONS.includes(duration) ? 'CUSTOMER_SELECTED_SPOT' : 'ZONE_CAPACITY';
+  const customerAssignmentMode = duration === 'MONTHLY' ? 'CUSTOMER_SELECTED_SPOT' : 'ZONE_CAPACITY';
   if (requestedAssignmentModes.some(mode => mode !== customerAssignmentMode)) {
     throw apiError('ASSIGNMENT_BEHAVIOR_MISMATCH', 'The selected parking term determines how parking is assigned.', 409);
   }
@@ -139,9 +139,6 @@ function publicRatePlanName(value) {
   const name = String(value || '').trim();
   return name && !/weekly/i.test(name) ? name : 'Parking rate';
 }
-
-// Terms where the customer chooses a numbered space on the lot map (Daily books the area instead).
-const SPOT_PICKING_DURATIONS = ['WEEKLY', 'MONTHLY'];
 
 function spotAssignmentMode(value) {
   const mode = String(value || '').toUpperCase();
@@ -702,7 +699,6 @@ async function publishedLayout(client, locationId, assignedSpotId = null, availa
         id: Number(element.spot_id),
         number: selection?.number || element.spot_label,
         dailyEligible: Boolean(element.daily_eligible),
-        weeklyEligible: Boolean(element.weekly_eligible),
         monthlyEligible: Boolean(element.monthly_eligible),
         ...(selection ? { eligible: Boolean(selection.eligible) } : {}),
         publicBookable: Boolean(element.parking_purpose === null ? element.public_bookable : element.space_public_bookable),
@@ -877,7 +873,7 @@ router.post(['/positions', '/monthly-positions'], publicLimit(config.rateLimits.
   try {
     const response = await withPendingExpiry(async client => {
       const request = await bookingInput(client, req.body);
-      if (request.customerAssignmentMode !== 'CUSTOMER_SELECTED_SPOT') throw apiError('MONTHLY_TERM_REQUIRED', 'Choose Weekly or Monthly Parking to select a numbered position.');
+      if (request.customerAssignmentMode !== 'CUSTOMER_SELECTED_SPOT') throw apiError('MONTHLY_TERM_REQUIRED', 'Choose Monthly Parking to select a numbered position.');
       const slots = await availability(client, request);
       // When every space is taken the lot is still returned, so the customer sees it full rather than an error.
       const selection = await selectableSpaceStates(client, request, req.body.quoteToken);
@@ -1102,8 +1098,8 @@ router.post('/booking-attempts', bookingLimit, async (req, res, next) => {
       const slots = await availability(client, request, { lock: true });
       const slot = slots.find(value => String(value.inventory_id) === String(quote.inventory_id)
         && (quote.assignment_mode === 'CUSTOMER_SELECTED_SPOT' || value.available));
-      if (!slot) throw apiError(quote.assignment_mode === 'CUSTOMER_SELECTED_SPOT' ? 'MONTHLY_POSITION_UNAVAILABLE' : 'PARKING_NOT_AVAILABLE',
-        quote.assignment_mode === 'CUSTOMER_SELECTED_SPOT' ? 'The selected position is no longer available.' : 'Parking is no longer available for these dates', 409);
+      if (!slot) throw apiError(request.duration === 'MONTHLY' ? 'MONTHLY_POSITION_UNAVAILABLE' : 'PARKING_NOT_AVAILABLE',
+        request.duration === 'MONTHLY' ? 'The selected monthly position is no longer available.' : 'Parking is no longer available for these dates', 409);
       const submittedSpotId = selectedSpotId(req.body.selectedSpotId, { required: quote.assignment_mode === 'CUSTOMER_SELECTED_SPOT' });
       if (quote.assignment_mode !== request.customerAssignmentMode
           || quote.request_hash !== quoteRequestHash(request, slot.inventory_id, quote.assignment_mode, quote.parking_spot_id)
@@ -1163,7 +1159,7 @@ router.post('/booking-attempts', bookingLimit, async (req, res, next) => {
         bookingAttempt: checkoutAttemptView(booking, credential),
         insuranceRequired: false,
         documentUploadOptional: request.duration === 'MONTHLY',
-        hold: quote.assignment_mode === 'CUSTOMER_SELECTED_SPOT' ? { expiresAt: quote.expires_at, selectedSpotId: Number(quote.parking_spot_id) } : null
+        hold: request.duration === 'MONTHLY' ? { expiresAt: quote.expires_at, selectedSpotId: Number(quote.parking_spot_id) } : null
       });
     } catch (error) {
       if (!error.transactionFinalized) await client.query('ROLLBACK').catch(() => {});
@@ -1507,7 +1503,7 @@ router.post('/bookings', bookingLimit, async (req, res, next) => {
       if ((error.code === '40001' || error.code === '23505' || error.code === '23P01') && attempt < 2) continue;
       if (error.code === '40001' || error.code === '23505' || error.code === '23P01') {
         return next(exactModeAttempt
-          ? apiError('MONTHLY_POSITION_UNAVAILABLE', 'The selected position is no longer available. Choose another position.', 409)
+          ? apiError('MONTHLY_POSITION_UNAVAILABLE', 'The selected monthly position is no longer available. Choose another position.', 409)
           : apiError('PARKING_NOT_AVAILABLE', 'Parking is no longer available for these dates', 409));
       }
       return next(error);

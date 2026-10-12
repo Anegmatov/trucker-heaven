@@ -12,8 +12,6 @@
   const assignmentMode = value => String(value?.assignmentMode || '').toUpperCase();
   const exactMode = value => ['EXACT_SPOT','CUSTOMER_SELECTED_SPOT'].includes(assignmentMode(value));
   const monthlySelectedMode = value => assignmentMode(value) === 'CUSTOMER_SELECTED_SPOT';
-  // Weekly and Monthly drivers pick a numbered space on the lot map; Daily books the highlighted area.
-  const picksSpace = duration => ['WEEKLY', 'MONTHLY'].includes(duration);
   const parkingAreaName = value => value?.parkingArea?.name || value?.category || core.categoryMetadata(value?.categoryCode)?.label || 'Parking Area';
   const state = {
     canonicalLot: null, canonicalStatus: 'LOADING', canonicalError: '', supportPhone: config.supportPhone, supportPhoneDisplay: config.supportPhoneDisplay,
@@ -587,17 +585,14 @@
     ['#searchLocationName', '#propertyLocationName'].forEach(selector => { if ($(selector)) $(selector).textContent = name; });
     ['#searchLocationAddress', '#propertyLocationAddress'].forEach(selector => { if ($(selector)) $(selector).textContent = address; });
     const directions = $('#propertyDirectionsLink'); if (lot?.roadDirectionsUrl) { directions.href = lot.roadDirectionsUrl; directions.hidden = false; } else directions.hidden = true;
-    const selectedProduct = state.trip?.duration || state.selectedDuration;
-    const monthlyProduct = selectedProduct === 'MONTHLY'; const pickProduct = picksSpace(selectedProduct);
-    const selectedPeriod = durationName(selectedProduct);
+    const monthlyProduct = (state.trip?.duration || state.selectedDuration) === 'MONTHLY';
+    const selectedPeriod = durationName(state.trip?.duration || state.selectedDuration);
     const assignmentCopy = monthlyProduct
       ? '<span aria-hidden="true">✓</span><div><strong>You pick your space on the lot map.</strong><p>Your space is yours month to month. Pay at the office; the first month is prorated, then it is due on the 1st.</p></div>'
-      : pickProduct
-        ? `<span aria-hidden="true">✓</span><div><strong>You pick your space on the lot map.</strong><p>Your space is yours for the whole ${escapeHtml(selectedPeriod)} stay. Pay at the Trucker Heaven office when you leave.</p></div>`
-        : `<span aria-hidden="true">✓</span><div><strong>Park anywhere in the ${escapeHtml(selectedPeriod)} area.</strong><p>Confirmed right away. Pay at the Trucker Heaven office when you leave.</p></div>`;
+      : `<span aria-hidden="true">✓</span><div><strong>Park anywhere in the ${escapeHtml(selectedPeriod)} area.</strong><p>Confirmed right away. Pay at the Trucker Heaven office when you leave.</p></div>`;
     if ($('#searchAssignmentNote')) $('#searchAssignmentNote').innerHTML = assignmentCopy;
-    if ($('#offerAssignmentNote')) $('#offerAssignmentNote').innerHTML = pickProduct
-      ? `<span aria-hidden="true">✓</span><div><strong>Pick your ${escapeHtml(selectedPeriod)} space</strong><p>Green spaces on the map are open for your dates. Tap one to hold it while you finish.</p></div>`
+    if ($('#offerAssignmentNote')) $('#offerAssignmentNote').innerHTML = monthlyProduct
+      ? '<span aria-hidden="true">✓</span><div><strong>Pick your Monthly space</strong><p>Green spaces on the map are open for your dates. Tap one to hold it while you finish.</p></div>'
       : `<span aria-hidden="true">✓</span><div><strong>Your ${escapeHtml(selectedPeriod)} parking area</strong><p>The highlighted spaces are where you can park. No need to pick one now.</p></div>`;
     const searchButton = $('#searchForm [type="submit"]'); if (searchButton) searchButton.disabled = !lot;
     const phoneRow = $('#propertyPhoneRow'); const phoneLink = $('#propertyPhoneLink');
@@ -649,7 +644,7 @@
   function selectOffer(result, fingerprint = state.search.fingerprint) {
     if (!result || result.categoryCode !== state.trip?.categoryCode) return;
     const key = core.offerKey(result, fingerprint); state.selected = { ...result, tripFingerprint: fingerprint, offerKey: key }; state.bookingKey = null;
-    const monthly = picksSpace(state.trip?.duration); // Weekly/Monthly pick a space; Daily books the area
+    const monthly = state.trip?.duration === 'MONTHLY'; // only Monthly picks a space; Daily/Weekly book the area
     state.quote = result.available && result.pricingAvailable
       ? { status: monthly ? core.QUOTE_STATUS.IDLE : core.QUOTE_STATUS.LOADING, tripFingerprint: fingerprint, offerKey: key, data: null, error: '' }
       : { status: result.available ? core.QUOTE_STATUS.UNAVAILABLE : core.QUOTE_STATUS.IDLE, tripFingerprint: fingerprint, offerKey: key, data: null, error: result.available ? 'Positions may be available, but online pricing is unavailable.' : '' };
@@ -658,7 +653,7 @@
   }
   async function fetchQuote(selected = state.selected) {
     if (!selected || !state.trip) return; state.quoteController?.abort(); const controller = new AbortController(); state.quoteController = controller;
-    if (picksSpace(state.trip.duration) && !state.selectedMonthlySpot) return;
+    if (state.trip.duration === 'MONTHLY' && !state.selectedMonthlySpot) return;
     const fingerprint = state.search.fingerprint; const key = selected.offerKey;
     state.quote = { status: core.QUOTE_STATUS.LOADING, tripFingerprint: fingerprint, offerKey: key, data: null, error: '' }; renderOffers();
     try {
@@ -711,8 +706,8 @@
     const arrival = quote?.arrival ? core.humanTime(quote.arrival, quote.timezone || lot?.timezone) : core.humanLocalTime(state.trip.arrivalLocal, lot?.timezone);
     const monthly = state.trip.duration === 'MONTHLY'; const departure = quote?.departure ? core.humanTime(quote.departure, quote.timezone || lot?.timezone) : core.humanLocalTime(state.trip.departureLocal, lot?.timezone);
     $('#searchOverview').innerHTML = `<dl><div><dt>Location</dt><dd>${escapeHtml(lot?.name || 'Trucker Heaven Parking')}<small>${escapeHtml(lot?.address || '')}</small></dd></div><div><dt>Parking type</dt><dd>${escapeHtml(core.categoryMetadata(state.trip.categoryCode)?.label || 'Unavailable')}</dd></div><div><dt>Start</dt><dd>${escapeHtml(arrival)}</dd></div>${monthly ? '<div><dt>Monthly parking</dt><dd>Open-ended · billed on the 1st</dd></div>' : `<div><dt>Departure</dt><dd>${escapeHtml(departure)}</dd></div>`}<div><dt>Parking period</dt><dd>${escapeHtml(durationName(quote?.quote?.duration || state.trip.duration))}</dd></div></dl>`;
-    $('#offerAssignmentNote').innerHTML = picksSpace(state.trip.duration)
-      ? `<span aria-hidden="true">✓</span><div><strong>Pick your ${escapeHtml(durationName(state.trip.duration))} space</strong><p>Green spaces on the map are open for your dates. Tap one to hold it while you finish.</p></div>`
+    $('#offerAssignmentNote').innerHTML = monthly
+      ? '<span aria-hidden="true">✓</span><div><strong>Pick your Monthly space</strong><p>Green spaces on the map are open for your dates. Tap one to hold it while you finish.</p></div>'
       : `<span aria-hidden="true">✓</span><div><strong>Your ${escapeHtml(durationName(state.trip.duration))} parking area</strong><p>The highlighted spaces are where you can park. No need to pick one now.</p></div>`;
   }
   function offerCount(result) { return result.assignmentMode === 'EXACT_SPOT' ? result.numberedSpacesAvailable : result.remainingCapacity; }
@@ -779,7 +774,7 @@
   }
   // Draws the real lot (traced from the lot diagram) and marks each numbered space by its state.
   function lotPlanSvg(elements) {
-    const pick = picksSpace(state.trip?.duration);
+    const pick = state.trip?.duration === 'MONTHLY';
     const states = new Map(); const ids = new Map();
     for (const element of elements) {
       const spot = element?.space; if (!spot?.number) continue;
@@ -804,10 +799,10 @@
     const map = state.monthly.layout; const elements = Array.isArray(map.elements) ? map.elements : [];
     const selected = state.selectedMonthlySpot; const held = state.quote.status === core.QUOTE_STATUS.SUCCESS && state.quote.data?.hold;
     const holdText = held ? `Held until ${core.humanTime(state.quote.data.hold.expiresAt, state.canonicalLot?.timezone)}.` : '';
-    const term = durationName(state.trip.duration); const pick = picksSpace(state.trip.duration);
+    const term = durationName(state.trip.duration); const pick = state.trip.duration === 'MONTHLY';
     const openCount = elements.filter(element => pick ? element?.space?.selectable : element?.space?.available).length;
     const headline = pick ? (openCount === 0
-        ? `<h3 id="monthlySelectorTitle">All ${escapeHtml(term)} spaces are taken</h3><p><strong>Every ${escapeHtml(term)} space is reserved right now. Red spaces are taken. Try another parking term, different dates, or call the office.</strong></p>`
+        ? `<h3 id="monthlySelectorTitle">All ${escapeHtml(term)} spaces are taken</h3><p><strong>Every ${escapeHtml(term)} space is reserved right now. Red spaces are taken. Try Daily parking, different dates, or call the office.</strong></p>`
         : `<h3 id="monthlySelectorTitle">Pick your space</h3><p><strong>${openCount} green ${openCount === 1 ? 'space is' : 'spaces are'} open for your dates. Tap one.</strong></p>`)
       : (openCount === 0
         ? `<h3 id="monthlySelectorTitle">All ${escapeHtml(term)} spaces are taken</h3><p><strong>Every ${escapeHtml(term)} space is reserved for these dates. Red spaces are taken. Try other dates or call the office.</strong></p>`
@@ -850,8 +845,8 @@
     if (!$('#parkingStep') || state.currentRoute !== 'offers') return;
     renderSearchOverview(); renderAvailability(); renderQuoteSummary(); renderParkingInformation();
     const canContinue = core.bookingCanContinue(state); $('#continueDriver').disabled = !canContinue;
-    $('#parkingSummary').textContent = state.search.status === core.SEARCH_STATUS.LOADING ? 'Checking your dates…' : state.search.status === core.SEARCH_STATUS.SUCCESS_EMPTY ? (picksSpace(state.trip?.duration) ? 'Every space for this parking is taken. The lot map shows what is reserved.' : 'No parking is available for these dates.') : state.search.status === core.SEARCH_STATUS.ERROR ? 'Your search could not be completed.' : picksSpace(state.trip?.duration) ? 'Tap a green space on the lot map.' : 'Your parking area is highlighted on the lot map.';
-    const pick = picksSpace(state.trip?.duration);
+    $('#parkingSummary').textContent = state.search.status === core.SEARCH_STATUS.LOADING ? 'Checking your dates…' : state.search.status === core.SEARCH_STATUS.SUCCESS_EMPTY ? (state.trip?.duration === 'MONTHLY' ? 'Every space for this parking is taken. The lot map shows what is reserved.' : 'No parking is available for these dates.') : state.search.status === core.SEARCH_STATUS.ERROR ? 'Your search could not be completed.' : state.trip?.duration === 'MONTHLY' ? 'Tap a green space on the lot map.' : 'Your parking area is highlighted on the lot map.';
+    const pick = state.trip?.duration === 'MONTHLY';
     if ($('#parkingTitle')) $('#parkingTitle').textContent = pick ? 'Pick your space' : 'Where you can park';
     const waitingForMonthlySpot = pick && !state.selectedMonthlySpot;
     const readyMessage = pick ? `Space ${state.selectedMonthlySpot?.label || ''} is held for you. Continue to enter your details.` : `Your ${durationName(state.trip?.duration)} parking is available. Continue to enter your details.`;
@@ -871,23 +866,23 @@
     state.monthly = { status: 'LOADING', layout: null, positions: [], error: '' };
     const generation = ++state.searchGeneration; const controller = new AbortController(); state.availabilityController = controller;
     setMessage($('#searchMessage')); navigate('offers');
-    // Daily needs no space choice, so ask for the price at the same time as availability
+    // Daily / Weekly need no space choice, so ask for the price at the same time as availability
     // instead of after it — the Continue button is then ready as soon as the map shows.
-    state.quotePrefetch = picksSpace(trip.duration) ? null
+    state.quotePrefetch = trip.duration === 'MONTHLY' ? null
       : { fingerprint, promise: request('/quotes', { method: 'POST', body: JSON.stringify(trip), signal: controller.signal }).catch(error => ({ __error: error })) };
     try {
       const response = await request('/availability', { method: 'POST', body: JSON.stringify(trip), signal: controller.signal });
       if (generation !== state.searchGeneration || controller !== state.availabilityController || fingerprint !== currentFormFingerprint()) return;
       const results = core.validateAvailabilityResults(response, trip.categoryCode, trip.duration); if (results === null) throw new Error('Invalid availability response.');
-      if (picksSpace(trip.duration)) {
-        const monthly = await request('/positions', { method: 'POST', body: JSON.stringify(trip), signal: controller.signal });
+      if (trip.duration === 'MONTHLY') {
+        const monthly = await request('/monthly-positions', { method: 'POST', body: JSON.stringify(trip), signal: controller.signal });
         if (generation !== state.searchGeneration || controller !== state.availabilityController || fingerprint !== currentFormFingerprint()) return;
         if (monthly?.assignmentMode !== 'CUSTOMER_SELECTED_SPOT' || !monthly.layout || !Array.isArray(monthly.positions)) {
           throw new Error('Invalid monthly parking-position response.');
         }
         state.monthly = { status: 'SUCCESS', layout: monthly.layout, positions: monthly.positions, error: '' };
       } else {
-        // Daily: the lot map just shows the area they can park in.
+        // Daily / Weekly: the lot map just shows the area they can park in.
         state.monthly = { status: 'SUCCESS', layout: response.layout || { elements: [] }, positions: [], error: '' };
       }
       state.availability = results; state.search.status = results.length ? core.SEARCH_STATUS.SUCCESS_RESULTS : core.SEARCH_STATUS.SUCCESS_EMPTY;
@@ -1136,7 +1131,7 @@
       if (exact) { if (element.assigned) mine = String(number); states.set(String(number), 'off'); }
       else {
         // The inventory covers every truck space; only the ones eligible for this term are the area.
-        const eligible = booking.price?.duration === 'MONTHLY' ? element.space.monthlyEligible !== false : booking.price?.duration === 'WEEKLY' ? element.space.weeklyEligible !== false : element.space.dailyEligible !== false;
+        const eligible = booking.price?.duration === 'MONTHLY' ? element.space.monthlyEligible !== false : element.space.dailyEligible !== false;
         states.set(String(number), element.permitted && eligible ? 'area' : 'off');
       }
     }

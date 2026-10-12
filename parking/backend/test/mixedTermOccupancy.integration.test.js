@@ -182,19 +182,3 @@ test('a full Monthly lot comes back as a lot with every space taken, not an erro
   const space = spaceByNumber(positions.body.layout);
   for (const n of ['130', '131']) { assert.equal(space.get(n).selectable, false, `${n} is taken`); assert.match(String(space.get(n).selectionState), /RESERVED|OCCUPIED|HELD|UNAVAILABLE/); }
 });
-
-test('Weekly drivers pick a numbered space like Monthly; Daily still books the area', async () => {
-  const weekly = { parkingAreaId: truckZone.public_id, categoryCode: 'TRACTOR_TRAILER', duration: 'WEEKLY', arrivalLocal: '2035-03-10T09:00', departureLocal: '2035-03-17T09:00' };
-  const availability = await publicPost('/availability', weekly);
-  assert.equal(availability.response.status, 200, JSON.stringify(availability.body));
-  assert.ok(availability.body.results.every(r => r.assignmentMode === 'CUSTOMER_SELECTED_SPOT'), 'Weekly offers are customer-selected');
-  const positions = await publicPost('/positions', weekly);
-  assert.equal(positions.response.status, 200, JSON.stringify(positions.body));
-  assert.equal(positions.body.assignmentMode, 'CUSTOMER_SELECTED_SPOT');
-  const space = spaceByNumber(positions.body.layout);
-  for (const n of ['101', '102']) assert.equal(space.get(n).selectable, true, `${n} is open for a Weekly pick`);
-  for (const n of ['130', '131']) assert.equal(space.get(n).selectable, false, `${n} is Amazon's`);
-  const daily = await publicPost('/positions', { parkingAreaId: truckZone.public_id, categoryCode: 'TRACTOR_TRAILER', duration: 'DAILY', ...dailyInterval });
-  assert.equal(daily.response.status, 400, 'Daily does not pick a space');
-  assert.equal(daily.body.error?.code || daily.body.code, 'MONTHLY_TERM_REQUIRED');
-});
