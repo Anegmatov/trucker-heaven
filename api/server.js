@@ -121,14 +121,16 @@ function build() {
   for (const [host, mod] of hosts) if (!modules[mod]) hosts.delete(host);
 
   function router(req, res) {
-    const mod = hosts.get(hostOf(req));
-    if (mod) return modules[mod].app(req, res);
-    // Single-link mode: /parking/..., /rentals/..., /food/... on any hostname (e.g. the *.onrender.com URL).
+    // Single-link mode first: /parking/..., /rentals/..., /food/... work on any hostname
+    // (the *.onrender.com URL, or a hostname that is mapped to one module). No module
+    // serves routes under those prefixes itself, so this never shadows a real route.
     const prefixed = /^\/(parking|rentals|food)(\/|$)/.exec(req.url);
     if (prefixed && modules[prefixed[1]]) {
       req.url = req.url.slice(prefixed[1].length + 1) || "/";
       return modules[prefixed[1]].app(req, res);
     }
+    const mod = hosts.get(hostOf(req));
+    if (mod) return modules[mod].app(req, res);
     // Single-module deployments and health checks don't need a hostname.
     if (ENABLED.length === 1) return modules[ENABLED[0]].app(req, res);
     if (req.url === "/health" || req.url === "/") {
