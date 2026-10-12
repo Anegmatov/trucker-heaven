@@ -785,7 +785,11 @@
       const spot = element?.space; if (!spot?.number) continue;
       const number = String(spot.number); const selection = String(spot.selectionState || '');
       ids.set(number, spot.id);
-      if (!pick) { states.set(number, spot.available ? 'area' : 'off'); continue; }
+      // Daily / Weekly: green = your area and open, red = in your area but taken, grey = not for this booking.
+      if (!pick) {
+        const eligible = spot.eligible !== undefined ? Boolean(spot.eligible) : state.trip?.duration === 'DAILY' ? Boolean(spot.dailyEligible) : Boolean(spot.publicBookable);
+        states.set(number, spot.available ? 'area' : eligible ? 'taken' : 'off'); continue;
+      }
       states.set(number, spot.selectable ? 'open' : /HELD|RESERVED|OCCUPIED|UNAVAILABLE/.test(selection) ? 'taken' : 'off');
     }
     const selected = pick && state.selectedMonthlySpot ? String(state.selectedMonthlySpot.label) : null;
@@ -805,8 +809,10 @@
     const headline = pick ? (openCount === 0
         ? `<h3 id="monthlySelectorTitle">All ${escapeHtml(term)} spaces are taken</h3><p><strong>Every ${escapeHtml(term)} space is reserved right now. Red spaces are taken. Try Daily parking, different dates, or call the office.</strong></p>`
         : `<h3 id="monthlySelectorTitle">Pick your space</h3><p><strong>${openCount} green ${openCount === 1 ? 'space is' : 'spaces are'} open for your dates. Tap one.</strong></p>`)
-      : `<h3 id="monthlySelectorTitle">Where you can park</h3><p><strong>The highlighted spaces are the ${escapeHtml(term)} area for your truck. Park in any open one when you arrive.</strong></p>`;
-    return `<section class="monthly-selector" aria-labelledby="monthlySelectorTitle"><div class="monthly-selector-head"><div><p class="card-kicker">${escapeHtml(term.toUpperCase())} PARKING</p>${headline}<p>The whole lot is drawn so you can see where you'll be. The Entrance / Exit is on Eastgate Blvd.</p></div>${selected ? `<div class="selected-monthly-position"><span>Your space</span><strong>✓ Space ${escapeHtml(selected.label)}</strong><small>${escapeHtml(holdText || 'Holding it for you…')}</small>${held ? `<span class="hold-countdown" data-hold-countdown>Space ${escapeHtml(selected.label)} held for you — ${holdCountdownText()}</span>` : ''}<button type="button" class="text-button" data-change-monthly>Pick a different space</button></div>` : ''}</div><div class="map-stage monthly-map-stage" data-map-stage tabindex="0" aria-label="Monthly parking position selector. Use plus and minus to zoom, and Fit lot to restore the whole property."><div class="map-controls" aria-label="Map controls"><button type="button" data-map-zoom="in" aria-label="Zoom in">+</button><button type="button" data-map-zoom="out" aria-label="Zoom out">−</button><button type="button" data-map-zoom="fit" aria-label="Fit entire lot">Fit lot</button></div><div class="plan-canvas" style="height:${Math.round(100 * state.mapZoom)}%">${lotPlanSvg(elements)}</div></div><div class="map-area-label">${escapeHtml(parkingAreaName(state.selected))}</div><div class="plan-legend">${pick ? '<span><i class="sw is-open"></i>Open</span><span><i class="sw is-mine"></i>Your pick</span><span><i class="sw is-taken"></i>Taken or held</span>' : '<span><i class="sw is-area"></i>Your parking area</span>'}<span><i class="sw is-off"></i>Not for this booking</span></div></section>`;
+      : (openCount === 0
+        ? `<h3 id="monthlySelectorTitle">All ${escapeHtml(term)} spaces are taken</h3><p><strong>Every ${escapeHtml(term)} space is reserved for these dates. Red spaces are taken. Try other dates or call the office.</strong></p>`
+        : `<h3 id="monthlySelectorTitle">Where you can park</h3><p><strong>The highlighted spaces are the ${escapeHtml(term)} area for your truck. Park in any open one when you arrive.</strong></p>`);
+    return `<section class="monthly-selector" aria-labelledby="monthlySelectorTitle"><div class="monthly-selector-head"><div><p class="card-kicker">${escapeHtml(term.toUpperCase())} PARKING</p>${headline}<p>The whole lot is drawn so you can see where you'll be. The Entrance / Exit is on Eastgate Blvd.</p></div>${selected ? `<div class="selected-monthly-position"><span>Your space</span><strong>✓ Space ${escapeHtml(selected.label)}</strong><small>${escapeHtml(holdText || 'Holding it for you…')}</small>${held ? `<span class="hold-countdown" data-hold-countdown>Space ${escapeHtml(selected.label)} held for you — ${holdCountdownText()}</span>` : ''}<button type="button" class="text-button" data-change-monthly>Pick a different space</button></div>` : ''}</div><div class="map-stage monthly-map-stage" data-map-stage tabindex="0" aria-label="Monthly parking position selector. Use plus and minus to zoom, and Fit lot to restore the whole property."><div class="map-controls" aria-label="Map controls"><button type="button" data-map-zoom="in" aria-label="Zoom in">+</button><button type="button" data-map-zoom="out" aria-label="Zoom out">−</button><button type="button" data-map-zoom="fit" aria-label="Fit entire lot">Fit lot</button></div><div class="plan-canvas" style="height:${Math.round(100 * state.mapZoom)}%">${lotPlanSvg(elements)}</div></div><div class="map-area-label">${escapeHtml(parkingAreaName(state.selected))}</div><div class="plan-legend">${pick ? '<span><i class="sw is-open"></i>Open</span><span><i class="sw is-mine"></i>Your pick</span><span><i class="sw is-taken"></i>Taken or held</span>' : '<span><i class="sw is-area"></i>Your parking area</span><span><i class="sw is-taken"></i>Taken</span>'}<span><i class="sw is-off"></i>Not for this booking</span></div></section>`;
   }
   async function releaseMonthlyQuote() {
     const quoteToken = state.quote.data?.quoteToken;
@@ -832,7 +838,7 @@
 
   function renderParkingInformation() {
     // Nothing selectable (every space taken): still draw the lot so the customer sees what is reserved.
-    if (!state.selected) { $('#parkingInformation').innerHTML = state.trip?.duration === 'MONTHLY' && state.monthly.status === 'SUCCESS' ? renderMonthlySelector() : ''; return; }
+    if (!state.selected) { $('#parkingInformation').innerHTML = state.monthly.status === 'SUCCESS' ? renderMonthlySelector() : ''; return; }
     const count = offerCount(state.selected);
     const area = !exactMode(state.selected); const monthly = monthlySelectedMode(state.selected);
     const availabilityUnit = area ? `capacity unit${count === 1 ? '' : 's'}`

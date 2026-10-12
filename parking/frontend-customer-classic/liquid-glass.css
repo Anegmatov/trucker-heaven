@@ -1209,3 +1209,9 @@ input, select, textarea, .GlassInput input, .GlassInput select, .GlassInput text
   .GlassActionBar { background: rgb(12 49 81 / 92%); }
   .GlassActionBar .button, .GlassActionBar .secondary-button { color: #f4f9fc; }
 }
+
+/* Location row on the light search card: dark text, light surface (was white-on-white). */
+.location-inline { background: rgb(255 255 255 / 72%); border-color: rgb(40 85 165 / .18); }
+.location-inline strong { color: #102b42; }
+.location-inline span:not(.location-mark) { color: #2f5c9a; }
+.location-inline small { color: #526b73; }

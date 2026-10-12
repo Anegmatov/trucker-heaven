@@ -114,7 +114,14 @@ async function availability(client, input, { lock = false, excludeBookingId = nu
       WHERE block.released_at IS NULL AND block.starts_at >= $2 AND block.starts_at < $3
     ), measured AS (
       SELECT p.inventory_id,
-        (SELECT count(*)::int FROM parking_bookings b WHERE ${activeAtPoint}) commitments,
+        -- Only bookings that occupy this term's eligible spaces count against its capacity:
+        -- area bookings (no numbered space), and numbered bookings whose space is eligible for
+        -- the requested term. A Monthly booking on a Monthly space never consumes Daily capacity.
+        (SELECT count(*)::int FROM parking_bookings b WHERE ${activeAtPoint}
+          AND (b.assignment_mode_snapshot='ZONE_CAPACITY'
+            OR NOT EXISTS (SELECT 1 FROM reservation_spot_assignments a WHERE a.booking_id=b.id AND a.released_at IS NULL)
+            OR EXISTS (SELECT 1 FROM reservation_spot_assignments a JOIN eligible_spots e ON e.parking_spot_id=a.parking_spot_id
+              WHERE a.booking_id=b.id AND a.released_at IS NULL AND e.inventory_id=p.inventory_id))) commitments,
         (SELECT count(*)::int FROM parking_bookings b WHERE ${activeAtPoint}
           AND b.assignment_mode_snapshot='ZONE_CAPACITY') area_commitments,
         (SELECT count(DISTINCT eligible.parking_spot_id)::int FROM eligible_spots eligible
