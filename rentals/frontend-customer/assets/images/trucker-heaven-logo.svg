@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="311.3875" height="40" viewBox="0 0 311.3875 40" role="img" aria-labelledby="title desc">
+  <title id="title">Trucker Heaven</title>
+  <desc id="desc">Official blue and green Trucker Heaven TH mark and wordmark.</desc>
+  <svg x="0" y="0" width="40" height="40" viewBox="466 583 836 756" preserveAspectRatio="xMidYMid meet">
+    <g transform="matrix(4.619385, 0, 0, 4.619385, 474.370894, 978.483183)">
+      <path fill-rule="nonzero" d="M 57.089 42.887 L 22.988 42.887 L 50.068 -51.907 L 4.434 -51.907 L 27 -81.343 L 122.281 -81.343 L 115.26 -52.406 L 82.663 -52.406 L 57.089 42.887"/>
+      <path fill-rule="nonzero" d="M 107.206 73.519 L 140.781 73.519 L 174.866 -54.78 L 143.835 -54.78 L 134.168 -21.19 L 85.839 -21.19 L 77.701 7.35 L 126.283 7.35 L 107.206 73.519"/>
+    </g>
+    <g transform="matrix(4.408455, 0, 0, 4.408455, 467.441939, 973.93228)">
+      <path fill="#145bac" fill-rule="nonzero" d="M 57.565 46.185 L 22.971 46.185 L 50.443 -50.475 L 4.148 -50.475 L 27.041 -80.49 L 123.701 -80.49 L 116.579 -50.983 L 83.51 -50.983 L 57.565 46.185"/>
+      <path fill="#9dbc62" fill-rule="nonzero" d="M 111.487 78.238 L 145.062 78.238 L 179.147 -50.978 L 148.116 -50.978 L 138.449 -17.148 L 90.12 -17.148 L 81.982 11.596 L 130.564 11.596 L 111.487 78.238"/>
+    </g>
+  </svg>
+  <text x="52" y="30.5" fill="#3256ab" font-family="Segoe UI, Tahoma, Geneva, Verdana, sans-serif" font-size="30" font-weight="700">TRUCKER</text>
+  <text x="192.8875" y="30.5" fill="#9bbb65" font-family="Segoe UI, Tahoma, Geneva, Verdana, sans-serif" font-size="30" font-weight="700">HEAVEN</text>
+</svg>

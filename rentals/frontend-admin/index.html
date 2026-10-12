@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trucker Heaven Rentals Admin</title>
+    <meta name="theme-color" content="#071820" />
+    <link rel="icon" href="./assets/images/trucker-heaven-logo.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css?v=driveops-admin-20260902-redesign" />
+    <script src="./render-runtime.js?v=driveops-render-20260725a" defer></script>
+    <script src="./config.js?v=driveops-admin-20260902-same-origin" defer></script>
+    <script src="./workflow-policy.js?v=driveops-admin-20260717-phase7c" defer></script>
+    <script src="./app.js?v=driveops-admin-20260902-redesign" defer></script>
+  </head>
+  <body>
+    <section class="login-gate" id="loginGate">
+      <div class="login-story">
+        <a class="login-story-brand" href="https://truckerheaven.com" aria-label="Visit Trucker Heaven">
+          <img class="brand-logo" src="./assets/images/trucker-heaven-logo.svg" alt="Trucker Heaven" width="311" height="40" />
+          <span class="brand-service">Rental Operations</span>
+        </a>
+        <div>
+          <p class="eyebrow">Operations workspace</p>
+          <h2>Fleet clarity.<br />Faster decisions.</h2>
+          <p>Manage rental inventory, reservations, inspections, documents, and staff access from one secure workspace.</p>
+        </div>
+        <p class="login-location">Trucker Heaven · Mt. Juliet, Tennessee</p>
+      </div>
+      <form class="panel login-panel" id="loginForm">
+        <div class="login-brand" aria-label="Trucker Heaven Rental Operations"><img class="brand-logo" src="./assets/images/trucker-heaven-logo.svg" alt="Trucker Heaven" width="311" height="40" /><span class="brand-service">Rental Operations</span></div>
+        <p class="eyebrow">Employee sign in</p><h1>Rental operations</h1>
+        <p>Use your Trucker Heaven employee credentials to continue.</p>
+        <label>Username<input id="loginEmail" type="text" autocomplete="username" required /></label>
+        <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required /></label>
+        <p class="form-error" id="loginError" role="alert"></p>
+        <button class="button primary" type="submit">Sign in</button>
+      </form>
+    </section>
+    <div class="admin-shell" id="adminShell" hidden>
+      <aside class="sidebar">
+        <a class="brand" href="#dashboard" data-view="dashboard" aria-label="Trucker Heaven Rentals Admin dashboard">
+          <img class="brand-logo" src="./assets/images/trucker-heaven-logo.svg" alt="Trucker Heaven" width="311" height="40" />
+          <span class="brand-service">Rental Operations</span>
+        </a>
+
+        <p class="sidebar-label">Workspace</p>
+
+        <nav class="nav-list" aria-label="Admin sections">
+          <button class="nav-item active" type="button" data-view="dashboard">Overview</button>
+          <button class="nav-item" type="button" data-view="fleet">Fleet</button>
+          <button class="nav-item" type="button" data-view="reservations">Reservations</button>
+          <button class="nav-item" type="button" data-view="food">Food orders</button>
+          <button class="nav-item" type="button" data-view="employees">Employee accounts</button>
+          <button class="nav-item" type="button" data-view="settings">Settings</button>
+        </nav>
+
+        <section class="office-card">
+          <small>Mt. Juliet operations</small>
+          <strong>Trucker Heaven Rentals</strong>
+          <span>Fleet, reservations, inspections, and photo management.</span>
+        </section>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="pageEyebrow">Rental operations</p>
+            <h1 id="pageTitle">Rental operations dashboard</h1>
+          </div>
+          <div class="topbar-actions">
+            <div class="employee-summary" aria-label="Authenticated employee">
+              <strong id="authenticatedUser"></strong>
+              <span id="authenticatedRole"></span>
+            </div>
+            <span class="connection-pill read-only-pill" id="readOnlyBadge" hidden>Read-only access</span>
+            <span class="connection-pill" id="apiStatus">API not checked</span>
+            <button class="button secondary" type="button" id="refreshButton">Refresh</button>
+            <button class="button secondary" type="button" id="logoutButton">Sign out</button>
+          </div>
+        </header>
+
+        <section class="view active" id="dashboardView">
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Total fleet</span>
+              <strong id="metricTotal">0</strong>
+              <small>Vehicles in inventory</small>
+            </article>
+            <article class="metric-card">
+              <span>Ready</span>
+              <strong id="metricAvailable">0</strong>
+              <small>Shown to customers</small>
+            </article>
+            <article class="metric-card">
+              <span>Out of service</span>
+              <strong id="metricBusy">0</strong>
+              <small>Committed or checked out</small>
+            </article>
+            <article class="metric-card">
+              <span>Maintenance</span>
+              <strong id="metricService">0</strong>
+              <small>Needs staff action</small>
+            </article>
+            <article class="metric-card">
+              <span>Reservations</span>
+              <strong id="metricReservations">0</strong>
+              <small>Current reservation records</small>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Fleet mix</p>
+                  <h2>Inventory by status</h2>
+                </div>
+              </div>
+              <div class="status-board" id="statusBoard"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Next reservations</p>
+                  <h2>Reservation queue</h2>
+                </div>
+                <button class="button ghost" type="button" data-view="reservations">Open table</button>
+              </div>
+              <div class="queue-list" id="reservationQueue"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="fleetView">
+          <div class="fleet-layout">
+            <form class="panel vehicle-form" id="vehicleForm">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Fleet record</p>
+                  <h2 id="vehicleFormTitle">Add vehicle</h2>
+                </div>
+              </div>
+
+              <input type="hidden" id="editingVehicleId" />
+
+              <div class="form-grid compact">
+                <label>Make<input id="make" required placeholder="Ford" /></label>
+                <label>Model<input id="model" required placeholder="Transit" /></label>
+                <label>Year<input id="year" type="number" min="1990" max="2035" required placeholder="2026" /></label>
+                <label>Color<input id="color" placeholder="White" /></label>
+                <label>Plate<input id="plateNumber" placeholder="TN-1234" /></label>
+                <label>VIN<input id="vin" placeholder="Optional" /></label>
+                <label>
+                  Category
+                  <select id="category" required>
+                    <option>Sedan</option>
+                    <option>SUV</option>
+                    <option>Economy</option>
+                    <option>Luxury</option>
+                    <option>Van</option>
+                    <option>Truck</option>
+                  </select>
+                </label>
+                <label>Seats<input id="seats" type="number" min="1" max="15" value="5" /></label>
+                <label>
+                  Transmission
+                  <select id="transmission">
+                    <option>Automatic</option>
+                    <option>Manual</option>
+                  </select>
+                </label>
+                <label>
+                  Fuel
+                  <select id="fuelType">
+                    <option>Gasoline</option>
+                    <option>Hybrid</option>
+                    <option>Electric</option>
+                    <option>Diesel</option>
+                  </select>
+                </label>
+                <label>Mileage<input id="mileage" type="number" min="0" value="0" /></label>
+                <label>Daily rate<input id="dailyRate" type="number" min="1" step="0.01" required placeholder="79" /></label>
+                <label>Deposit<input id="depositAmount" type="number" min="0" step="0.01" value="250" /></label>
+                <label>
+                  Status
+                  <select id="status">
+                    <option>READY</option>
+                    <option>MAINTENANCE</option>
+                    <option>OUT_OF_SERVICE</option>
+                    <option>RETIRED</option>
+                  </select>
+                </label>
+              </div>
+
+              <label>Location<input id="locationName" value="Trucker Heaven Rentals - Mt. Juliet" /></label>
+              <label>Notes<textarea id="notes" rows="3" placeholder="Internal notes"></textarea></label>
+              <label>Vehicle photos<input id="photos" type="file" accept="image/*" multiple /></label>
+              <div class="photo-preview" id="photoPreview"></div>
+
+              <div class="form-actions">
+                <button class="button primary" type="submit">Save vehicle</button>
+                <button class="button secondary" type="button" id="clearFormButton">Clear</button>
+              </div>
+            </form>
+
+            <section class="panel fleet-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Fleet board</p>
+                  <h2>Vehicles and photos</h2>
+                </div>
+                <div class="fleet-tools">
+                  <input id="fleetSearch" type="search" placeholder="Search fleet" />
+                  <select id="statusFilter" aria-label="Filter by status">
+                    <option value="">All statuses</option>
+                    <option>READY</option>
+                    <option>MAINTENANCE</option>
+                    <option>OUT_OF_SERVICE</option>
+                    <option>RETIRED</option>
+                  </select>
+                </div>
+              </div>
+              <div class="fleet-board" id="fleetBoard"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="reservationsView">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Reservation desk</p>
+                <h2>Reservations table</h2>
+              </div>
+            </div>
+            <div class="reservation-table" id="reservationTable"></div>
+          </section>
+        </section>
+
+        <section class="view" id="employeesView">
+          <section class="panel">
+            <div class="panel-header"><div><p class="eyebrow">Employee access</p><h2>Employee accounts</h2></div></div>
+            <p class="settings-note">Passwords are managed only with protected operator commands. Account changes revoke the affected employee’s active sessions when required.</p>
+            <div class="employee-table" id="employeeTable"></div>
+          </section>
+        </section>
+
+        <section class="view" id="foodView">
+          <div class="dashboard-grid">
+            <section class="panel"><div class="panel-header"><div><p class="eyebrow">Food desk</p><h2>Order queue</h2></div></div><div id="foodOrderQueue"></div></section>
+            <section class="panel" id="foodMenuPanel"><div class="panel-header"><div><p class="eyebrow">Menu</p><h2>Availability</h2></div></div><div id="foodMenuList"></div></section>
+          </div>
+          <div class="food-admin-grid" id="foodOwnerTools" hidden>
+            <form class="panel" id="foodCategoryForm">
+              <div class="panel-header"><div><p class="eyebrow">Owner menu controls</p><h2 id="foodCategoryTitle">Add category</h2></div></div>
+              <input id="foodCategoryId" type="hidden" />
+              <label>Name<input id="foodCategoryName" maxlength="100" required /></label>
+              <label>Display order<input id="foodCategoryOrder" type="number" min="0" step="1" value="0" required /></label>
+              <label class="check-label"><input id="foodCategoryActive" type="checkbox" checked /> Active on public menu</label>
+              <p class="form-error" id="foodCategoryError" role="alert"></p>
+              <div class="form-actions"><button class="button primary" type="submit">Save category</button><button class="button secondary" id="clearFoodCategory" type="button">Clear</button></div>
+            </form>
+            <form class="panel" id="foodItemForm">
+              <div class="panel-header"><div><p class="eyebrow">Owner menu controls</p><h2 id="foodItemTitle">Add menu item</h2></div></div>
+              <input id="foodItemId" type="hidden" />
+              <div class="form-grid compact"><label>Category<select id="foodItemCategory" required></select></label><label>Name<input id="foodItemName" maxlength="140" required /></label><label>Price<input id="foodItemPrice" type="number" min="0" max="10000" step="0.01" inputmode="decimal" required /></label><label>Display order<input id="foodItemOrder" type="number" min="0" step="1" value="0" required /></label></div>
+              <label>Description<textarea id="foodItemDescription" maxlength="1000" rows="2"></textarea></label>
+              <label>Image reference<input id="foodItemImage" maxlength="1024" placeholder="https://… or existing image URL" /></label>
+              <div class="food-checks"><label class="check-label"><input id="foodItemActive" type="checkbox" checked /> Active on public menu</label><label class="check-label"><input id="foodItemSoldOut" type="checkbox" /> Sold out</label></div>
+              <p class="form-error" id="foodItemError" role="alert"></p>
+              <div class="form-actions"><button class="button primary" type="submit">Save menu item</button><button class="button secondary" id="clearFoodItem" type="button">Clear</button></div>
+            </form>
+          </div>
+        </section>
+
+        <section class="view" id="settingsView">
+          <section class="panel settings-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Connection</p>
+                <h2>Admin settings</h2>
+              </div>
+            </div>
+            <label>Backend API base URL<input id="apiBaseInput" placeholder="http://localhost:3000" /></label>
+            <div class="form-actions">
+              <button class="button primary" type="button" id="saveSettingsButton">Use API URL</button>
+              <button class="button secondary" type="button" id="testApiButton">Test API</button>
+            </div>
+            <p class="settings-note">The API URL is kept only for this page session. Your sign-in session is stored in an HttpOnly cookie and expires automatically.</p>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <dialog class="details-modal reservation-modal" id="reservationDialog" aria-labelledby="reservationDialogTitle">
+      <div class="details-shell">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow" id="reservationDialogEyebrow">Reservation</p>
+            <h2 id="reservationDialogTitle">Reservation</h2>
+          </div>
+          <button class="icon-button" type="button" id="closeReservationDialog" aria-label="Close reservation">×</button>
+        </div>
+        <div class="details-content" id="reservationDialogContent"></div>
+      </div>
+    </dialog>
+
+    <dialog class="details-modal" id="detailsDialog">
+      <div class="details-shell">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Vehicle details</p>
+            <h2 id="detailsTitle">Vehicle details</h2>
+          </div>
+          <button class="icon-button" type="button" id="closeDetailsButton" aria-label="Close details">×</button>
+        </div>
+        <div class="details-content" id="detailsContent"></div>
+      </div>
+    </dialog>
+
+    <template id="emptyTemplate">
+      <div class="empty-state">
+        <strong>No records yet</strong>
+        <span>Add vehicles or refresh the dashboard.</span>
+      </div>
+    </template>
+  </body>
+</html>

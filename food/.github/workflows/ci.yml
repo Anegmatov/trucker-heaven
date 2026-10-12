@@ -1,0 +1,91 @@
+name: FoodOps CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, production]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: foodops_ci
+          POSTGRES_PASSWORD: foodops_ci_only
+          POSTGRES_DB: foodops_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U foodops_ci -d foodops_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://foodops_ci:foodops_ci_only@127.0.0.1:5432/foodops_test
+      TEST_DATABASE_URL: postgresql://foodops_ci:foodops_ci_only@127.0.0.1:5432/foodops_test
+      DATABASE_SSL: "false"
+      COOKIE_SECURE: "false"
+      PUBLIC_ORIGINS: http://localhost:5190
+      ADMIN_ORIGINS: http://localhost:5191
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend-public/package-lock.json
+
+      - name: Reject tracked secrets and runtime data
+        shell: bash
+        run: |
+          tracked_forbidden="$(git ls-files 'backend/.env' 'backend/uploads/menu-items/*' 'backend/uploads/tmp/*' '*.pem' '*.key' | grep -vE '^backend/uploads/(menu-items|tmp)/\.gitignore$' || true)"
+          test -z "$tracked_forbidden"
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Audit backend dependencies
+        working-directory: backend
+        run: npm audit --audit-level=high
+
+      - name: Backend syntax and unit tests
+        working-directory: backend
+        run: npm run check && npm run test:unit
+
+      - name: Migrate an empty PostgreSQL database
+        working-directory: backend
+        run: npm run migrate
+
+      - name: PostgreSQL integration tests
+        working-directory: backend
+        run: npm run test:integration
+
+      - name: Install customer frontend dependencies
+        working-directory: frontend-public
+        run: npm ci
+
+      - name: Audit customer frontend dependencies
+        working-directory: frontend-public
+        run: npm audit --audit-level=high
+
+      - name: Build customer frontend
+        working-directory: frontend-public
+        run: npm run build
+
+      - name: Frontend contracts
+        working-directory: backend
+        run: npm run frontend:check

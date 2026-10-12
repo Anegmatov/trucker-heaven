@@ -1,0 +1,30 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Synthetic configuration pepper used only by the config parser test"
+condition = "AND"
+paths = ['''backend/test/config\.test\.js''']
+regexTarget = "match"
+regexes = ['''0123456789abcdef0123456789abcdef''']
+
+[[allowlists]]
+description = "Clearly synthetic integration credentials for disposable PostgreSQL fixtures"
+condition = "AND"
+paths = [
+  '''backend/test/adminReservationDesk\.integration\.test\.js''',
+  '''backend/test/areaCapacity\.integration\.test\.js''',
+  '''backend/scripts/verifyCrossFrontendE2E\.js'''
+]
+regexTarget = "match"
+regexes = [
+  '''ParkingOps-reservation-desk-2040''',
+  '''ParkingOps-area-capacity-test-2034'''
+]
+
+[[allowlists]]
+description = "Public browser storage key name; it is not a credential"
+condition = "AND"
+paths = ['''frontend-customer/lifecycle\.js''']
+regexTarget = "match"
+regexes = ['''thParking\.recentReservations\.v1''']

@@ -1,0 +1,18 @@
+{
+  "name": "trucker-heaven-parking-customer",
+  "version": "1.0.0",
+  "private": true,
+  "engines": { "node": "22.23.2" },
+  "scripts": {
+    "check": "node --check app.js && node --check config.js && node --check customer-core.js && node --check lifecycle.js && node --check render-runtime.js && node --check tests/customer-core.test.js && node --check scripts/build.js && node --check scripts/verify-build.js && node --check scripts/verify-responsive.js && node --check scripts/verify-map-presentation.js && node --check scripts/verify-customer-flow.js && node --check scripts/verify-security-headers.js && node --check scripts/visual-fixture.js",
+    "build": "node scripts/build.js",
+    "test": "node tests/customer-core.test.js",
+    "verify:build": "node scripts/verify-build.js",
+    "verify:responsive": "node scripts/verify-responsive.js",
+    "verify:map": "node scripts/verify-map-presentation.js",
+    "verify:flow": "node scripts/verify-customer-flow.js",
+    "verify:security-headers": "node scripts/verify-security-headers.js",
+    "serve:dist": "node scripts/static-server.js",
+    "serve:visual-fixture": "node scripts/visual-fixture.js"
+  }
+}

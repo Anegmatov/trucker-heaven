@@ -1,0 +1,5 @@
+node_modules/
+.env
+uploads/vehicles/*
+!uploads/vehicles/.gitkeep
+.DS_Store

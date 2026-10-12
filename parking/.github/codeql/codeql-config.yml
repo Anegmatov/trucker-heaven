@@ -1,0 +1,5 @@
+name: ParkingOps release analysis
+
+paths-ignore:
+  - frontend-customer/dist/**
+  - frontend-admin/dist/**

@@ -1,0 +1,47 @@
+# Canonical ParkingOps deployment: the existing shared backend and customer
+# services remain unchanged; this Blueprint manages the one employee frontend.
+services:
+  - type: web
+    runtime: static
+    name: trucker-heaven-parking-admin
+    branch: parking-management-mvp
+    autoDeployTrigger: checksPass
+    rootDir: frontend-admin
+    buildCommand: npm run verify:all
+    staticPublishPath: dist
+    envVars:
+      - key: PARKING_ADMIN_ENVIRONMENT
+        value: production
+      - key: PARKING_ADMIN_API_BASE
+        value: https://trucker-heaven-parking-api-vkf9.onrender.com/api
+      - key: PARKING_ADMIN_CUSTOMER_APP_URL
+        value: https://trucker-heaven-parking-a437.onrender.com
+      - key: PARKING_ADMIN_PARENT_SITE_URL
+        value: https://truckerheaven.com
+    buildFilter:
+      paths:
+        - frontend-admin/**
+        - render.yaml
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: "no-store, max-age=0, must-revalidate"
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; connect-src 'self' https://trucker-heaven-parking-api-vkf9.onrender.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
+      - path: /*
+        name: X-Frame-Options
+        value: "DENY"
+      - path: /*
+        name: Referrer-Policy
+        value: "no-referrer"
+      - path: /*
+        name: X-Content-Type-Options
+        value: "nosniff"
+      - path: /*
+        name: Permissions-Policy
+        value: "camera=(), microphone=(), geolocation=()"

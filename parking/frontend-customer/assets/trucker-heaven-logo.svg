@@ -1,0 +1,11 @@
+<svg width="360" height="60" viewBox="0 0 360 60" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Trucker Heaven</title>
+  <desc id="desc">Trucker Heaven wordmark with blue and green TH monogram.</desc>
+  <g transform="translate(2 5)">
+    <path d="M7 7H40L37 18H27L19 52H7L15 18H3.8L7 7Z" fill="#2855A5"/>
+    <path d="M42 7H54.5L50 26H68.2L72.7 7H85.5L74 52H61.2L65.5 35.5H47.2L43 52H30.2L42 7Z" fill="#95B85A"/>
+    <path d="M53.4 7H76.5L73.4 17.9H50.3L53.4 7Z" fill="#2855A5" opacity="0.92"/>
+  </g>
+  <text x="92" y="39" font-family="Inter, Aptos, Segoe UI, Arial, sans-serif" font-size="25" font-weight="850" letter-spacing="0.2" fill="#2855A5">TRUCKER</text>
+  <text x="225" y="39" font-family="Inter, Aptos, Segoe UI, Arial, sans-serif" font-size="25" font-weight="850" letter-spacing="0.2" fill="#95B85A">HEAVEN</text>
+</svg>

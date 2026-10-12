@@ -1,0 +1,281 @@
+.advanced-admin-root {
+  color-scheme: light;
+  --ops-bg: #f1f5f7;
+  --ops-sidebar: rgb(255 255 255 / .82);
+  --ops-surface: #ffffff;
+  --ops-surface-2: #f3f7f9;
+  --ops-surface-3: #e8eef3;
+  --ops-line: #bdcbd2;
+  --ops-line-soft: #dde5e9;
+  --ops-text: #071820;
+  --ops-muted: #60717a;
+  --ops-gold: #2855a5;
+  --ops-gold-soft: #dce7f8;
+  --ops-focus: #2855a5;
+  --ops-success: #5f812f;
+  --ops-danger: #b8322c;
+  --ops-info: #2855a5;
+  --ops-warning: #b7791f;
+  --radius: 14px;
+  --shadow: 0 14px 38px rgb(7 24 32 / .1), inset 0 1px 0 rgb(255 255 255 / .9);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-width: 0;
+  color: var(--ops-text);
+  background: var(--ops-bg);
+}
+
+/* Trucker Heaven light treatment shared by OWNER workspaces. */
+.advanced-admin-root{font-family:Inter,Aptos,"Segoe UI",system-ui,sans-serif;background:transparent}
+.advanced-admin-root .panel,.advanced-admin-root .configuration-surface,.advanced-admin-root .command-surface,.advanced-admin-root .config-form,.advanced-admin-root .config-list,.advanced-admin-root .lot-pricing-workspace{border-radius:14px;box-shadow:var(--ops-shadow,var(--shadow))}
+.advanced-admin-root .section-head,.advanced-admin-root .lot-setup-header{padding-bottom:13px;border-bottom:1px solid var(--ops-line-soft)}
+.advanced-admin-root .page-kicker,.advanced-admin-root .eyebrow{font-family:Bahnschrift,"Arial Narrow",sans-serif;letter-spacing:.17em}
+.advanced-admin-root h2,.advanced-admin-root h3,.advanced-admin-root h4{font-family:Bahnschrift,"Arial Narrow",sans-serif;letter-spacing:-.015em}
+.advanced-admin-root button,.advanced-admin-root .button,.advanced-admin-root input,.advanced-admin-root select,.advanced-admin-root textarea{border-radius:9px}
+.advanced-admin-root .lot-setup-toolbar,.advanced-admin-root .lot-tool-rail,.advanced-admin-root .right-inspector,.advanced-admin-root .lot-capability-summary,.advanced-admin-root .config-save-footer,.advanced-admin-root .closure-card,.advanced-admin-root .user-access-row,.advanced-admin-root .rate-plan-card,.advanced-admin-root dialog{border-radius:12px;box-shadow:none}
+.advanced-admin-root .lot-setup-toolbar{position:sticky;z-index:4;top:122px;background:rgb(255 255 255/.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.advanced-admin-root .lot-map-stage{border-radius:12px;background-color:#e9eef0;background-image:linear-gradient(rgb(40 85 165/.04) 1px,transparent 1px),linear-gradient(90deg,rgb(40 85 165/.04) 1px,transparent 1px);background-size:24px 24px}
+.advanced-admin-root .lot-map-canvas{background:#e9eef0}
+.advanced-admin-root .lot-map-space{border-radius:1px}
+.advanced-admin-root .lot-map-space.is-selected{box-shadow:0 0 0 2px rgb(40 85 165/.25)}
+.advanced-admin-root .rate-plan-list{grid-template-columns:1fr}
+.advanced-admin-root .rate-plan-card{grid-template-columns:minmax(180px,1fr) auto;align-items:center}
+.advanced-admin-root .config-tabs{gap:0;border-bottom:1px solid var(--ops-line-soft)}
+.advanced-admin-root .config-tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent}
+.advanced-admin-root .config-tabs button[aria-selected="true"]{border-bottom-color:var(--ops-gold);background:#eaf0fa;color:var(--ops-text)}
+.advanced-admin-root .configuration-surface{border-left:3px solid var(--ops-gold)}
+.advanced-admin-root table thead th{position:sticky;top:0;background:#f0f4f7;color:#425762;font-family:Bahnschrift,"Arial Narrow",sans-serif;font-size:.64rem;letter-spacing:.07em;text-transform:uppercase}
+.advanced-admin-root tbody tr:hover{background:#f3f7fc}
+.advanced-admin-root .badge,.advanced-admin-root .state,.advanced-admin-root .note-visibility,.advanced-admin-root .live-status-label{border-radius:999px}
+@media(max-width:900px){.advanced-admin-root .lot-setup-toolbar{top:0}.advanced-admin-root .configuration-surface{border-left:0;border-top:3px solid var(--ops-gold)}}
+
+@scope (.advanced-admin-root) {
+* { box-sizing: border-box; }
+html { min-width: 320px; background: var(--ops-bg); }
+body { margin: 0; min-height: 100vh; color: var(--ops-text); background: radial-gradient(circle at 80% -10%, rgb(149 184 90 / .12) 0, transparent 34rem), var(--ops-bg); }
+button, input, select, textarea { font: inherit; }
+button, a, input, select, textarea, summary { -webkit-tap-highlight-color: transparent; }
+button, .button {
+  min-height: 38px; padding: 8px 14px; border: 1px solid #2855a5; border-radius: 9px;
+  color: #fff; background: #2855a5; font-weight: 750; cursor: pointer;
+}
+
+button:hover { filter: brightness(1.08); }
+button.secondary, .secondary { color: var(--ops-text); border-color: var(--ops-line); background: var(--ops-surface-2); }
+button.text-button { min-height: 0; padding: 3px 0; color: var(--ops-gold); border: 0; background: transparent; }
+button.compact { min-height: 31px; padding: 5px 9px; font-size: .8rem; }
+button.danger-button { color: #fff; border-color: #b8322c; background: #b8322c; }
+button:disabled, input:disabled, select:disabled, textarea:disabled { opacity: .52; cursor: not-allowed; }
+.is-loading, .loading { cursor: progress; }
+.disabled, [aria-disabled="true"] { opacity: .52; cursor: not-allowed; }
+.dirty { color: #765615; border-color: #d7c08c; background: #fff8e7; }
+:focus-visible { outline: 3px solid var(--ops-focus); outline-offset: 2px; }
+a { color: var(--ops-gold); }
+h1, h2, h3, h4, p { margin-top: 0; }
+h1, h2, h3, h4 { letter-spacing: -.02em; }
+.muted, .field-help, small { color: var(--ops-muted); }
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+[hidden] { display: none !important; }
+
+.site-header {
+  position: fixed; inset: 0 0 auto 0; z-index: 50; height: 64px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 22px; border-bottom: 1px solid var(--ops-line-soft); background: rgb(255 255 255 / .82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+
+.site-brand, .nav-brand { display: flex; align-items: center; gap: 10px; letter-spacing: .08em; }
+.site-brand small, .nav-brand small { display: block; margin-top: 2px; color: var(--ops-muted); font-size: .57rem; letter-spacing: .16em; }
+.brand-mark { display: grid; place-items: center; width: 31px; aspect-ratio: 1; border: 1px solid #95b85a; border-radius: 8px; color: #2855a5; font-weight: 900; }
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.header-identity { color: var(--ops-muted); font-size: .86rem; }
+.global-search input { width: min(34vw, 440px); }
+body[data-auth-state="signed-out"] .site-header { justify-content: center; }
+body[data-auth-state="signed-out"] .header-actions { display: none; }
+
+main { min-height: 100vh; padding-top: 64px; }
+#login { width: min(430px, calc(100% - 32px)); margin: 10vh auto 0; padding: 30px; border: 1px solid var(--ops-line); border-radius: 14px; background: linear-gradient(145deg, var(--ops-surface-2), var(--ops-surface)); box-shadow: var(--shadow); }
+#login h1 { margin-bottom: 6px; }
+#login form { display: grid; gap: 16px; margin-top: 25px; }
+#login button { width: 100%; }
+
+#app { min-height: calc(100vh - 64px); }
+.shell-sidebar { position: fixed; z-index: 40; inset: 64px auto 0 0; width: 232px; display: flex; flex-direction: column; gap: 4px; padding: 20px 14px; border-right: 1px solid var(--ops-line-soft); background: var(--ops-sidebar); }
+.nav-brand { display: none; }
+.nav-section-label { margin: 16px 8px 4px; color: #71838c; font-size: .63rem; font-weight: 800; letter-spacing: .17em; }
+.nav-item { display: flex; align-items: center; gap: 10px; width: 100%; color: #52656e; border-color: transparent; background: transparent; text-align: left; }
+.nav-item:hover, .nav-item.is-current { color: #2855a5; border-color: #dce7f8; background: linear-gradient(90deg, #e7eef9, transparent); }
+.nav-item.is-current { box-shadow: inset 3px 0 #95b85a; }
+.nav-icon { width: 18px; color: #2855a5; text-align: center; }
+.nav-links { margin-top: auto; display: grid; gap: 10px; padding: 14px 8px; border-top: 1px solid var(--ops-line-soft); font-size: .78rem; }
+.sidebar-user { display: grid; grid-template-columns: 32px 1fr 34px; align-items: center; gap: 8px; padding: 10px 5px 0; border-top: 1px solid var(--ops-line-soft); }
+.sidebar-user-avatar { display: grid; place-items: center; width: 32px; aspect-ratio: 1; border-radius: 50%; color: #fff; background: #2855a5; font-weight: 900; }
+.sidebar-user strong, .sidebar-user small { display: block; overflow: hidden; text-overflow: ellipsis; }
+.nav-signout { padding: 4px; min-height: 30px; color: var(--ops-muted); background: transparent; }
+.nav-backdrop { display: none; }
+
+.app-workspace { min-width: 0; margin-left: 232px; padding: 22px; }
+.workspace-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; max-width: 1500px; margin: 0 auto 18px; }
+.workspace-header h1 { margin-bottom: 4px; font-size: clamp(1.7rem, 3vw, 2.35rem); }
+.workspace-header p { margin-bottom: 0; }
+.page-kicker, .eyebrow { margin-bottom: 5px; color: var(--ops-gold); font-size: .66rem; font-weight: 850; letter-spacing: .16em; }
+.workspace-actions, .form-actions, .dialog-actions, .lot-setup-actions, .config-page-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.route-loading { min-height: 360px; display: grid; place-content: center; justify-items: center; gap: 14px; color: var(--ops-muted); }
+.loading-spinner { width: 38px; aspect-ratio: 1; border: 3px solid var(--ops-line); border-top-color: var(--ops-gold); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.panel, .configuration-surface, .command-surface, .config-form, .config-list { border: 1px solid rgb(255 255 255 / .84); border-radius: var(--radius); background: rgb(255 255 255 / .92); box-shadow: var(--shadow); }
+.panel { max-width: 1500px; margin: 0 auto 16px; padding: 18px; }
+.section-head, .panel-heading, .config-list-heading, .lot-setup-header, .rate-plan-dialog-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; }
+.status-message { min-height: 20px; margin: 8px 0; color: var(--ops-muted); }
+.status-message.success { color: var(--ops-success); }
+.status-message.error, .error { color: var(--ops-danger); }
+.status-message.info { color: var(--ops-info); }
+.status-message.loading { color: var(--ops-warning); }
+.inline-alert { margin: 10px 0; padding: 12px 14px; border: 1px solid #b9cde9; border-radius: 8px; color: #244c86; background: #eef4fc; }
+.maintenance-lock { display: flex; gap: 10px; align-items: baseline; border-color: #d7c08c; color: #765615; background: #fff8e7; }
+.empty, .inline-empty, .reservation-empty, .config-empty-state { padding: 18px; color: var(--ops-muted); border: 1px dashed var(--ops-line); border-radius: 8px; text-align: center; }
+
+label { display: grid; gap: 6px; color: #425762; font-size: .78rem; font-weight: 720; }
+input, select, textarea { width: 100%; min-height: 39px; padding: 9px 10px; color: var(--ops-text); border: 1px solid var(--ops-line); border-radius: 8px; background: #fff; }
+textarea { min-height: 92px; resize: vertical; }
+.check, .compact-check { display: flex; align-items: center; gap: 8px; }
+.check input, .compact-check input { width: auto; min-height: 0; accent-color: var(--ops-gold); }
+.field-row, .config-form-grid, .detail-form-grid, .rate-plan-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+.full { grid-column: 1 / -1; }
+
+.metric-grid { display: grid; grid-template-columns: repeat(7, minmax(135px, 1fr)); gap: 10px; max-width: 1500px; margin: 0 auto 14px; overflow-x: auto; }
+.metric-card { min-height: 104px; padding: 15px; border: 1px solid var(--ops-line-soft); border-radius: 9px; background: linear-gradient(150deg, var(--ops-surface-2), var(--ops-surface)); }
+.metric-card div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.metric-card b { color: var(--ops-gold); font-size: 1.8rem; }
+.metric-card span { display: block; margin-top: 12px; color: var(--ops-muted); font-size: .7rem; }
+.dashboard-main-grid { display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 14px; max-width: 1500px; margin: 0 auto; }
+.dashboard-main-grid .panel { margin: 0; }
+.occupancy-donut svg { display: block; width: min(230px, 100%); margin: 14px auto; }
+.donut-track { fill: none; stroke: #dde5e9; stroke-width: 13; }
+.donut-segment { fill: none; stroke-width: 13; transform: rotate(-90deg); transform-origin: center; }
+.donut-segment.available { stroke: var(--ops-success); }.donut-segment.occupied { stroke: var(--ops-danger); }.donut-segment.reserved { stroke: #6aa0ff; }.donut-segment.blocked { stroke: #8997a0; }
+.donut-total { fill: var(--ops-text); font-size: 1.35rem; font-weight: 900; text-anchor: middle; }.donut-caption { fill: var(--ops-muted); font-size: .4rem; text-anchor: middle; }
+.occupancy-legend, .layout-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: .72rem; }
+.occupancy-key i, .layout-legend i { display: inline-block; width: 8px; height: 8px; margin-right: 5px; border-radius: 50%; background: currentColor; }
+.today-operations, .attention-list { display: grid; gap: 8px; }
+.today-operation, .attention-group button, .attention-callout { display: flex; justify-content: space-between; align-items: center; color: var(--ops-text); border-color: var(--ops-line-soft); background: var(--ops-surface-2); text-align: left; }
+.recent-activity-list, .history { list-style: none; padding: 0; margin: 0; }.recent-activity-list li, .history li { padding: 10px 0; border-bottom: 1px solid var(--ops-line-soft); }
+
+.live-lot-panel { padding: 14px; }
+.live-toolbar { display: grid; grid-template-columns: repeat(5, minmax(130px, 1fr)); gap: 10px; padding: 12px; }
+.live-search-field { grid-column: span 2; }
+.live-summary { display: grid; grid-template-columns: repeat(11, minmax(105px, 1fr)); gap: 7px; margin: 10px 0; overflow-x: auto; }
+.live-count { padding: 10px; border: 1px solid var(--ops-line-soft); border-radius: 10px; background: #fff; }
+.live-count small, .live-count strong { display: block; }.live-count strong { margin-top: 3px; font-size: 1.25rem; }
+.live-count span { display: block; margin-top: 4px; color: var(--ops-muted); font-size: .72rem; line-height: 1.35; }
+.area-capacity-count { grid-column: span 2; min-width: 235px; border-color: #3e7188; }
+.area-capacity-count.state-capacity-shortfall { border-color: var(--ops-danger); background: #fff1f0; }
+.live-lot-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(285px, 340px); gap: 12px; min-height: 680px; }
+.live-map-column, .space-panel { min-width: 0; border: 1px solid var(--ops-line-soft); border-radius: 12px; background: #fff; }
+.live-map-bar { display: flex; justify-content: space-between; gap: 10px; padding: 8px; border-bottom: 1px solid var(--ops-line-soft); }
+.live-map-zoom { display: flex; align-items: center; gap: 6px; }
+.live-map-stage { position: relative; height: 650px; overflow: auto; overscroll-behavior: contain; background: #e9eef0; }
+.live-map { display: block; width: 610px; min-width: 0; height: auto; margin: 0 auto; background: #e9eef0; }
+.map-state-overlay { position: absolute; z-index: 3; inset: 0; display: grid; place-items: center; padding: 24px; color: var(--ops-muted); background: rgb(255 255 255 / .82); }
+.live-space { cursor: pointer; }.live-space rect { vector-effect: non-scaling-stroke; stroke-width: .12; stroke: #78909e; fill: #314653; }
+.live-space text { fill: white; font-size: .8px; font-weight: 800; pointer-events: none; }
+.live-space.state-available rect, .space-row.state-available { fill: #ffff00; stroke: #9b8f00; border-color: #ffff00; background: #ffff00; color: #111; }.live-space.state-reserved rect, .space-row.state-reserved { fill: #213e68; stroke: #6aa0ff; border-color: #4d78bd; }.live-space.state-occupied rect, .space-row.state-occupied { fill: #653336; stroke: #ff756d; border-color: #b45555; }.live-space.state-blocked rect, .live-space.state-inactive rect, .space-row.state-blocked, .space-row.state-inactive { fill: #303a40; stroke: #7d8b94; border-color: #64727b; }.live-space.state-unknown rect, .space-row.state-unknown { fill: #5a4514; stroke: var(--ops-warning); border-color: var(--ops-warning); }
+.live-space.is-selected rect { stroke: #2855a5; stroke-width: .35; filter: drop-shadow(0 0 .6px #2855a5); }
+.live-space:focus-visible rect { stroke: var(--ops-focus); stroke-width: .45; filter: drop-shadow(0 0 .8px var(--ops-focus)); }.live-space.customer-bookable rect { stroke-dasharray: none; }.live-space.internal-only rect { stroke-dasharray: .4 .2; }.live-space.purpose-shop rect,.live-space.purpose-company rect,.live-space.purpose-internal rect,.live-space.use-internal rect { fill: #ff0000; stroke: #8d0000; }.live-space.purpose-unresolved rect, .live-space.needs-classification rect { fill: #564719; }.live-space.has-warning rect { stroke-width: .28; }
+.live-space.state-available text { fill: #111; stroke: none; }.live-space.purpose-shop text,.live-space.purpose-company text,.live-space.purpose-internal text,.live-space.use-internal text { fill: #fff; stroke: #530000; }.live-state-label { font-size: .34px !important; letter-spacing: -.02px; }
+.live-map-object rect { vector-effect: non-scaling-stroke; fill: #dfe7ea; stroke: #91a5ae; stroke-width: .12; }.live-map-object text { fill: #425762; font-size: clamp(.6px, 1.1px, 1.35px); font-weight: 700; pointer-events: none; }.live-map-object.type-property_outline rect { fill: none; stroke: #6d8798; stroke-width: .2; }.live-map-object.type-drive_lane rect, .live-map-object.type-lane rect { fill: transparent; stroke-dasharray: .5 .35; }.live-map-object.type-island rect { fill: #d5dfe2; }.live-map-object.type-entrance rect, .live-map-object.type-exit rect { fill: #e7f1da; stroke: #95b85a; }.compact-map-label { paint-order: stroke; stroke: #f5f8f9; stroke-width: .12; stroke-linejoin: round; }.live-monthly-marker { fill: #2855a5 !important; }.live-future-dot { fill: #6aa0ff; }.live-warning-dot { fill: var(--ops-warning); }
+.legend-available { color: var(--ops-success); }.legend-reserved { color: #6aa0ff; }.legend-occupied { color: var(--ops-danger); }.legend-blocked, .legend-inactive { color: #8997a0; }.legend-unknown, .legend-warning { color: var(--ops-warning); }.legend-shop { color: #b39ccc; }.legend-company { color: #c8a67c; }.legend-customer { color: #43cf90; }.legend-future { color: #6aa0ff; }.legend-monthly { color: #9ee6e0; }
+.space-panel { padding: 15px; overflow: auto; }.panel-close { float: right; min-height: 30px; padding: 2px 9px; color: var(--ops-text); background: var(--ops-surface-2); }
+.space-details { display: grid; gap: 7px; }.space-details div { padding: 9px; background: #f4f7f8; }.space-details dt { color: var(--ops-muted); font-size: .7rem; }.space-details dd { margin: 3px 0 0; }
+.live-search-results { position: relative; z-index: 10; max-height: 380px; overflow: auto; margin-top: 8px; padding: 10px; border: 1px solid var(--ops-line); background: var(--ops-surface-2); }
+.live-search-results button, .space-row { display: flex; justify-content: space-between; gap: 10px; width: 100%; margin: 4px 0; color: var(--ops-text); border-color: var(--ops-line-soft); background: #f4f7f8; text-align: left; }
+.live-fallback { margin-top: 12px; padding: 10px; border: 1px solid var(--ops-line-soft); border-radius: 8px; }.live-fallback summary { cursor: pointer; color: var(--ops-gold); font-weight: 800; }
+.live-space-list { max-height: 360px; overflow: auto; }
+
+.reservations-workspace { display: grid; grid-template-columns: minmax(360px, .85fr) minmax(500px, 1.4fr); gap: 14px; max-width: 1500px; margin: 0 auto; }
+.reservations-workspace .panel { width: 100%; margin: 0; }
+#search { display: grid; grid-template-columns: repeat(2, minmax(130px, 1fr)); gap: 8px; }
+.reservation-tabs { display: flex; gap: 5px; margin: 12px 0; overflow-x: auto; }.reservation-tabs button { flex: 0 0 auto; min-height: 32px; color: var(--ops-muted); border-color: transparent; background: transparent; }.reservation-tabs button.is-current { color: #111; border-color: var(--ops-gold); background: var(--ops-gold); }
+.reservation-list { display: grid; gap: 7px; max-height: 68vh; overflow: auto; }.reservation-row { display: grid; gap: 5px; width: 100%; padding: 12px; color: var(--ops-text); border-color: var(--ops-line-soft); background: #f4f7f8; text-align: left; }.reservation-row.is-selected { border-color: var(--ops-gold); background: #edf3fb; }
+.reservation-row-top { display: flex; justify-content: space-between; }.reservation-row-customer { font-weight: 750; }
+.badge, .state, .note-visibility, .live-status-label { display: inline-flex; width: fit-content; align-items: center; gap: 4px; padding: 3px 7px; border: 1px solid var(--ops-line); border-radius: 999px; color: var(--ops-muted); font-size: .68rem; }
+.badge.CONFIRMED, .state.is-active { color: var(--ops-success); border-color: #a8c789; }.badge.PENDING { color: var(--ops-warning); border-color: #d7c08c; }.badge.CHECKED_IN { color: #2855a5; }.badge.CHECKED_OUT, .badge.COMPLETED { color: var(--ops-success); border-color: #a8c789; }.badge.EXPIRED, .badge.CANCELLED, .badge.NO_SHOW { color: var(--ops-danger); border-color: #dfb1ae; }.state.is-warning { color: #765615; border-color: #d7c08c; background: #fff8e7; }
+.reservation-detail-pane { max-height: calc(100vh - 140px); overflow: auto; }.reservation-detail-groups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }.reservation-detail-groups div, .read-only-field { padding: 10px; border: 1px solid var(--ops-line-soft); border-radius: 7px; background: #f4f7f8; }.reservation-detail-groups dt, .read-only-field span { color: var(--ops-muted); font-size: .7rem; }.reservation-detail-groups dd { margin: 5px 0 0; }
+.detail-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--ops-line-soft); }.price-snapshot dl { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }.price-snapshot dl div { display: flex; justify-content: space-between; padding: 7px; background: #f4f7f8; }.price-snapshot dd { margin: 0; }
+
+.lot-setup-workspace { max-width: 1500px; margin: 0 auto; }
+.lot-setup-header { margin-bottom: 10px; }.lot-setup-toolbar { display: flex; gap: 7px; padding: 8px; border: 1px solid var(--ops-line-soft); border-radius: 8px; background: var(--ops-surface); }.toolbar-spacer { flex: 1; }.space-search { width: min(300px, 40vw); }
+.layout-status-badges { display: flex; gap: 6px; }.lot-setup-editor { display: grid; grid-template-columns: 74px minmax(0, 1fr) 300px; gap: 10px; min-height: 700px; }
+.lot-capability-summary { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 10px 0; padding: 10px 12px; border: 1px solid var(--ops-line-soft); border-radius: 8px; background: var(--ops-surface); color: var(--ops-muted); font-size: .78rem; }.lot-capability-summary strong { color: var(--ops-text); }.lot-capability-summary .has-warning { color: var(--ops-gold); }
+.lot-tool-rail, .right-inspector { padding: 9px; border: 1px solid var(--ops-line-soft); border-radius: 8px; background: var(--ops-surface); }.lot-tool-rail button { width: 100%; margin-bottom: 7px; padding: 6px; color: var(--ops-text); border-color: var(--ops-line); background: var(--ops-surface-2); font-size: .7rem; }.lot-tool-rail button.is-active { color: #111; background: var(--ops-gold); }
+.lot-map-column { min-width: 0; }.lot-map-legend { display: flex; gap: 10px; flex-wrap: wrap; padding: 7px; color: var(--ops-muted); font-size: .69rem; }.lot-map-stage { height: 680px; overflow: auto; border: 1px solid var(--ops-line-soft); border-radius: 8px; background: #e9eef0; }.lot-map-canvas { position: relative; width: 760px; height: 760px; margin: 0 auto; transform-origin: top center; background: #e9eef0; }
+.lot-map-space { position: absolute; display: grid; place-items: center; min-height: 0; padding: 0; color: #fff; border: 1px solid #577084; border-radius: 2px; background: #27404e; font-size: clamp(7px, .55vw, 10px); }.lot-map-space:hover { filter: brightness(1.16); }.lot-map-space.purpose-customer { border-color: #349b70; background: #154d3a; }.lot-map-space.purpose-shop { background: #40384e; }.lot-map-space.purpose-company { background: #473c31; }.lot-map-space.purpose-unresolved, .lot-map-space.needs-classification { border-color: var(--ops-warning); background: #564719; }.lot-map-space.is-inactive { opacity: .5; }.lot-map-space.is-selected { z-index: 99 !important; border: 2px solid #ffd36c; box-shadow: 0 0 10px #e0ad3f; }.lot-map-space:focus-visible { outline: 3px solid var(--ops-focus); outline-offset: 2px; }.lot-map-space b { position: absolute; right: 1px; bottom: 0; color: #9ee6e0; font-size: 6px; }
+.lot-map-decoration { position: absolute; border: 1px solid #91a5ae; background: #dfe7ea; }.lot-map-decoration.drive-lane { border-style: dashed; background: transparent; }.lot-map-decoration.entrance { border-color: #95b85a; background: #e7f1da; }.lot-map-decoration span { display: grid; place-items: center; height: 100%; color: #52656e; font-size: 8px; text-align: center; }
+.lot-inspector-form { display: grid; gap: 11px; }.space-readout { margin: 0; }.space-readout div { padding: 9px; background: #f4f7f8; }.rate-plan-summary { padding: 10px; border: 1px solid var(--ops-line); border-radius: 7px; }.rate-plan-summary strong, .rate-plan-summary span { display: block; }.booking-availability { display: grid; gap: 9px; margin: 0; padding: 11px; border: 1px solid var(--ops-line); border-radius: 7px; }.booking-availability legend { padding: 0 5px; color: var(--ops-text); font-weight: 800; }.booking-availability-warning:empty { display: none; }.booking-availability-warning p { margin: 0; }
+.lot-customer-preview { margin-top: 14px; padding: 12px; border: 1px solid var(--ops-line); background: var(--ops-surface); }.lot-public-preview { overflow: hidden; transform: none !important; }.lot-public-preview button:disabled { opacity: 1; cursor: default; }
+.lot-pricing-workspace { margin-top: 16px; padding: 16px; border: 1px solid var(--ops-line-soft); border-radius: var(--radius); background: var(--ops-surface); }.rate-plan-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-top: 12px; }.rate-plan-card { display: grid; grid-template-columns: minmax(140px, 1fr) auto; gap: 10px; align-items: start; padding: 13px; border: 1px solid var(--ops-line-soft); border-radius: 8px; background: #f4f7f8; }.rate-plan-card dl { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 0; }.rate-plan-card dl div { padding: 8px; background: #fff; }.rate-plan-card dt { color: var(--ops-muted); font-size: .7rem; }.rate-plan-card dd { margin: 3px 0 0; font-weight: 800; }.rate-plan-card.is-inactive { opacity: .68; }.rate-plan-card.has-warning { border-color: var(--ops-gold-soft); }.classification-info, .setup-warning { color: #244c86; border-color: #b9cde9; }.current-user, .user-role.role-owner { color: var(--ops-gold); }.user-role.role-staff { color: var(--ops-info); }
+
+.owner-configuration, .users-page { max-width: 1300px; }
+.config-tabs { display: flex; gap: 5px; margin: 12px 0 16px; overflow-x: auto; }.config-tabs button { flex: 0 0 auto; color: var(--ops-muted); border-color: transparent; background: transparent; }.config-tabs button[aria-selected="true"] { color: #111; background: var(--ops-gold); }
+.configuration-surface { display: grid; grid-template-columns: minmax(210px, .6fr) minmax(0, 1.4fr); gap: 24px; padding: 20px; }.canonical-settings-form > .config-panel:not([hidden]) ~ .config-panel { display: none; }
+.config-save-footer { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-top: 12px; padding: 12px; border: 1px solid var(--ops-line-soft); border-radius: 8px; background: var(--ops-surface-2); }.config-save-footer div { display: flex; gap: 8px; }
+.pricing-workspace, .users-workspace { display: grid; grid-template-columns: minmax(300px, .8fr) minmax(380px, 1.2fr); gap: 14px; }.config-form, .config-list { padding: 17px; }.config-form { display: grid; gap: 12px; }.closure-card, .user-access-row { margin-bottom: 8px; padding: 13px; border: 1px solid var(--ops-line-soft); border-radius: 8px; background: #f4f7f8; }.closure-card-heading, .closure-card-footer { display: flex; justify-content: space-between; gap: 10px; }
+.user-access-row { display: grid; grid-template-columns: minmax(170px, 1fr) 90px 95px minmax(140px, 1fr) auto; align-items: center; gap: 12px; }.user-access-identity { display: flex; align-items: center; gap: 9px; }.user-access-avatar { display: grid; place-items: center; width: 34px; aspect-ratio: 1; border-radius: 50%; color: #111; background: var(--ops-gold); font-weight: 900; }.user-access-meta small, .user-access-meta span { display: block; }
+table { width: 100%; border-collapse: collapse; }th, td { padding: 9px; border-bottom: 1px solid var(--ops-line-soft); text-align: left; }tbody tr:hover { background: #f3f7fc; }
+
+dialog { width: min(650px, calc(100% - 24px)); max-height: 90vh; padding: 0; color: var(--ops-text); border: 1px solid var(--ops-line); border-radius: 14px; background: rgb(255 255 255 / .94); box-shadow: var(--shadow); backdrop-filter: blur(18px); }dialog::backdrop { background: rgb(7 24 32 / .48); }.rate-plan-dialog form, .publish-checklist-dialog form, .operation-dialog form { display: grid; gap: 13px; padding: 20px; }.reassignment-alternatives { display: grid; gap: 7px; max-height: 35vh; overflow: auto; }.reassignment-option { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--ops-line-soft); border-radius: 7px; background: #f4f7f8; cursor: pointer; }.reassignment-option:has(input:checked) { border-color: var(--ops-gold); background: #edf3fb; }.reassignment-option input { width: auto; min-height: 0; }.reassignment-option strong, .reassignment-option small { display: block; }.publish-checklist-items { display: grid; gap: 6px; max-height: 48vh; margin: 13px 0; overflow: auto; }.publish-check { display: flex; gap: 9px; padding: 9px; border: 1px solid var(--ops-line-soft); border-radius: 7px; }.publish-check.passed span { color: var(--ops-success); }.publish-check.failed span { color: var(--ops-danger); }.publish-check p { margin: 0; }.publish-check small { display: block; margin-top: 3px; }.physical-confirmation { margin: 15px 0; padding: 12px; border: 1px solid #d7c08c; border-radius: 7px; background: #fff8e7; }
+.live-timeline ol { display: grid; gap: 6px; padding: 0; list-style: none; }.live-timeline li { display: grid; gap: 3px; padding: 9px; border-left: 4px solid var(--ops-line); background: #f4f7f8; }.live-timeline .state-available { border-color: var(--ops-success); }.live-timeline .state-reserved { border-color: #6aa0ff; }.live-timeline .state-occupied { border-color: var(--ops-danger); }.live-timeline .state-blocked { border-color: #8997a0; }.severity-warning { color: var(--ops-warning); }.severity-error { color: var(--ops-danger); }.severity-info { color: var(--ops-info); }
+
+@media (max-width: 1100px) {
+  .dashboard-main-grid { grid-template-columns: 1fr 1fr; }.attention-card { grid-column: 1 / -1; }
+  .live-lot-workspace { grid-template-columns: 1fr; }.space-panel { max-height: 520px; }
+  .reservations-workspace { grid-template-columns: 1fr; }.reservation-detail-pane { max-height: none; }
+  .lot-setup-editor { grid-template-columns: 64px minmax(0, 1fr); }.right-inspector { grid-column: 1 / -1; }
+}
+
+@media (max-width: 800px) {
+  .site-header { padding: 0 12px; }.global-search { display: none; }.header-identity { display: none; }
+  .shell-sidebar { transform: translateX(-105%); transition: transform .2s ease; box-shadow: var(--shadow); }.shell-sidebar.is-open { transform: none; }.nav-backdrop:not([hidden]) { position: fixed; z-index: 35; inset: 64px 0 0; display: block; width: 100%; height: auto; padding: 0; border: 0; border-radius: 0; background: rgb(0 0 0 / .55); }
+  .app-workspace { margin-left: 0; padding: 14px; }.workspace-header { align-items: flex-start; }.workspace-actions { justify-content: flex-end; }
+  .dashboard-main-grid { grid-template-columns: 1fr; }.attention-card { grid-column: auto; }
+  .live-toolbar { grid-template-columns: repeat(2, 1fr); }.live-search-field { grid-column: 1 / -1; }.live-map-stage { height: 70vh; }.live-summary { grid-template-columns: repeat(4, minmax(95px, 1fr)); }
+  .lot-setup-editor { grid-template-columns: 1fr; }.lot-tool-rail { display: none; }.lot-map-stage { height: 66vh; }
+  .configuration-surface, .pricing-workspace, .users-workspace { grid-template-columns: 1fr; }.user-access-row { grid-template-columns: 1fr auto; }.user-access-meta, .user-access-activity { grid-column: 1; }
+}
+
+@media (max-width: 560px) {
+  .site-brand small { display: none; }.workspace-header { display: block; }.workspace-actions { margin-top: 10px; justify-content: flex-start; }
+  .field-row, .config-form-grid, .detail-form-grid, .rate-plan-form-grid, .reservation-detail-groups { grid-template-columns: 1fr; }.full { grid-column: auto; }
+  .live-toolbar { grid-template-columns: 1fr; }.live-search-field { grid-column: auto; }.live-map-bar { display: block; }.live-map-zoom { margin-top: 8px; flex-wrap: wrap; }.live-summary { grid-template-columns: repeat(2, 1fr); }
+  #search { grid-template-columns: 1fr; }.reservation-tabs { margin-inline: -8px; }.lot-setup-header, .section-head, .panel-heading { display: block; }.lot-setup-actions { margin-top: 10px; }
+  .config-save-footer { display: block; }.config-save-footer div { margin-top: 10px; }.price-snapshot dl { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+}
+
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .advanced-admin-root .site-header,.advanced-admin-root .shell-sidebar,.advanced-admin-root dialog{background:#fff}
+}
+
+/* Advanced screens share the compact operations system without altering tools or workflows. */
+.advanced-admin-root{--ops-surface:#fff;--ops-soft:#f7f9fa;--ops-border:#d7e0e5;--ops-blue:#1f5da8;--ops-green:#5c9137;--ops-gold:#b98218;--ops-shadow:0 2px 9px rgb(20 42 58 / .08)}
+.advanced-admin-root .panel,.advanced-admin-root .configuration-surface,.advanced-admin-root .command-surface,.advanced-admin-root .config-form,.advanced-admin-root .config-list,.advanced-admin-root .lot-pricing-workspace{border:1px solid var(--ops-border)!important;border-radius:10px!important;background:#fff!important;box-shadow:var(--ops-shadow)!important}
+.advanced-admin-root .section-head,.advanced-admin-root .lot-setup-header{padding:0 0 11px!important;border-bottom:1px solid var(--ops-border)!important}
+.advanced-admin-root .lot-setup-toolbar{top:74px!important;padding:9px!important;border:1px solid var(--ops-border)!important;background:#fff!important;box-shadow:0 2px 6px rgb(20 42 58 / .05)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.advanced-admin-root .lot-tool-rail,.advanced-admin-root .right-inspector,.advanced-admin-root .lot-capability-summary,.advanced-admin-root .config-save-footer,.advanced-admin-root .closure-card,.advanced-admin-root .user-access-row,.advanced-admin-root .rate-plan-card{border-color:var(--ops-border)!important;border-radius:9px!important;background:#fff!important}
+.advanced-admin-root .lot-map-stage,.advanced-admin-root .lot-map-canvas,.advanced-admin-root .live-map-stage,.advanced-admin-root .live-map{background:#edf1f2!important}
+.advanced-admin-root .config-tabs{gap:4px!important;border-bottom:1px solid var(--ops-border)!important}.advanced-admin-root .config-tabs button{padding:8px 10px!important;color:#52636e!important}.advanced-admin-root .config-tabs button[aria-selected="true"]{border-bottom-color:var(--ops-blue)!important;background:#e9f1fa!important;color:#174a87!important}
+.advanced-admin-root .configuration-surface{border-left:3px solid var(--ops-blue)!important}.advanced-admin-root .reservation-row,.advanced-admin-root .reservation-detail-groups div,.advanced-admin-root .read-only-field,.advanced-admin-root .reassignment-option{border-color:var(--ops-border)!important;border-radius:8px!important;background:#f8fafb!important}.advanced-admin-root .reservation-row.is-selected,.advanced-admin-root .reassignment-option:has(input:checked){border-color:var(--ops-blue)!important;background:#edf4fb!important}
+.advanced-admin-root .reservation-detail-groups dt,.advanced-admin-root .read-only-field span{display:block;margin-bottom:4px;color:#687984!important;font-size:.62rem!important;font-weight:800!important;letter-spacing:.08em!important;text-transform:uppercase}
+.advanced-admin-root .user-access-row:hover,.advanced-admin-root .rate-plan-card:hover,.advanced-admin-root .reservation-row:hover{border-color:#b8cbda!important;box-shadow:0 2px 7px rgb(20 42 58 / .07)}
+.advanced-admin-root dialog{border-color:var(--ops-border)!important;border-radius:10px!important;background:#fff!important;box-shadow:0 12px 34px rgb(20 42 58 / .18)!important;backdrop-filter:none!important}
+@media(max-width:900px){.advanced-admin-root .lot-setup-toolbar{top:0!important}.advanced-admin-root .configuration-surface{border-top:3px solid var(--ops-blue)!important;border-left:1px solid var(--ops-border)!important}}
+
+/* Keep owner tools in the same decisive Trucker Heaven operations shell. */
+.advanced-admin-root{--ops-blue:#236bc3;--ops-gold:#c58a18;--ops-border:#b9cad8;--ops-shadow:0 3px 12px rgb(15 46 78 / .12)}
+.advanced-admin-root .lot-setup-header,.advanced-admin-root .section-head{border-bottom:2px solid #2b69ad!important}.advanced-admin-root .lot-setup-toolbar{border-top:3px solid #164f95!important;background:#fafdff!important}.advanced-admin-root .lot-tool-rail,.advanced-admin-root .right-inspector{border-color:#aebfce!important;background:#fff!important}.advanced-admin-root .lot-pricing-workspace,.advanced-admin-root .configuration-surface,.advanced-admin-root .users-workspace{border-top:4px solid #164f95!important}.advanced-admin-root .config-tabs button[aria-selected="true"]{border-bottom-color:#236bc3!important;background:#e4effa!important;color:#164f95!important}.advanced-admin-root .rate-plan-card,.advanced-admin-root .user-access-row,.advanced-admin-root .closure-card{border-color:#bfd0dc!important}.advanced-admin-root .reservation-row.is-selected,.advanced-admin-root .reassignment-option:has(input:checked){border-color:#236bc3!important;background:#e9f3fc!important}.advanced-admin-root .lot-map-stage,.advanced-admin-root .lot-map-canvas,.advanced-admin-root .live-map-stage,.advanced-admin-root .live-map{border-color:#9eb7cb!important}
+
+/* Historical light-blue ParkingOps palette; structure and controls remain unchanged. */
+.advanced-admin-root{--ops-bg:#eef3f8;--ops-surface:#fff;--ops-surface-2:#f7faff;--ops-surface-3:#eaf2ff;--ops-line:#d8e1eb;--ops-line-soft:#d8e1eb;--ops-text:#102033;--ops-muted:#5d6b7b;--ops-blue:#064f9e;--ops-gold:#f5b400;--ops-border:#d8e1eb;--ops-success:#4a9f2b;--ops-danger:#d72626;--ops-warning:#f5b400;--ops-info:#0b63c7}
+.advanced-admin-root .lot-setup-header,.advanced-admin-root .section-head{border-bottom-color:var(--ops-border)!important}.advanced-admin-root .lot-setup-toolbar{border-top-color:#064f9e!important;background:#fff!important}.advanced-admin-root .lot-pricing-workspace,.advanced-admin-root .configuration-surface,.advanced-admin-root .users-workspace{border-top-color:#064f9e!important}.advanced-admin-root .config-tabs button[aria-selected="true"]{border-bottom-color:#0b63c7!important;background:#eaf2ff!important;color:#064f9e!important}.advanced-admin-root .reservation-row.is-selected,.advanced-admin-root .reassignment-option:has(input:checked){border-color:#0b63c7!important;background:#eaf2ff!important}

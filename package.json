@@ -1,0 +1,35 @@
+{
+  "name": "trucker-heaven",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Trucker Heaven monorepo: shared API (api/) plus the parking, rentals and food modules",
+  "engines": { "node": ">=22" },
+  "type": "commonjs",
+  "scripts": {
+    "start": "node api/server.js",
+    "dev": "node --watch api/server.js",
+    "migrate": "npm run migrate --prefix parking/backend && npm run migrate --prefix rentals/backend && npm run migrate --prefix food/backend",
+    "check": "node --check api/server.js && npm run check --prefix parking/backend && npm run check --prefix rentals/backend && npm run check --prefix food/backend",
+    "test": "node --test api/test/*.test.js && npm test --prefix parking/backend && npm test --prefix rentals/backend && npm run test:unit --prefix food/backend"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.0.0",
+    "@aws-sdk/s3-request-presigner": "^3.0.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.6.0",
+    "fflate": "^0.8.3",
+    "google-auth-library": "^10.5.0",
+    "helmet": "^8.3.0",
+    "luxon": "^3.7.2",
+    "multer": "^2.0.2",
+    "pg": "^8.22.0",
+    "read-excel-file": "^9.3.4",
+    "stripe": "^22.5.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.4"
+  }
+}

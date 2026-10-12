@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Book Truck Parking | Trucker Heaven</title>
+  <meta name="description" content="Reserve Bobtail or General Truck parking at Trucker Heaven Parking.">
+  <meta name="theme-color" content="#0b3d66">
+  <link rel="preload" as="image" href="images/trucker-heaven-aerial.jpg">
+  <link rel="stylesheet" href="styles.css?v=trucker-heaven-glass-20260816">
+  <link rel="stylesheet" href="liquid-glass.css?v=trucker-heaven-premium-blue-glass-20260816">
+</head>
+<body>
+  <a class="skip-link" href="#bookingFlow">Skip to parking reservation</a>
+  <header class="site-header th-site-header">
+    <div class="th-header-inner">
+      <a class="th-brand" data-parent-page="index.html" aria-label="Trucker Heaven home"><img src="brand/trucker-heaven-logo.svg" alt="Trucker Heaven"></a>
+      <div class="th-service-picker">
+        <label class="sr-only" for="thServiceSelect">I want to</label>
+        <select id="thServiceSelect" aria-label="I want to">
+          <option value="">I want to...</option>
+          <option value="#parking">Park my truck</option>
+          <option value="cars.html#rental">Rent a car</option>
+          <option value="cars.html#sales">Buy a vehicle</option>
+          <option value="food-lounge.html#food">Get food</option>
+          <option value="food-lounge.html#lounge">Use the lounge</option>
+          <option value="services.html#truck-service">Service my truck</option>
+          <option value="fleets.html">Fleet support</option>
+          <option value="contact.html?service=not-sure">Not sure where to go</option>
+        </select>
+      </div>
+      <nav class="th-nav" aria-label="Main navigation">
+        <a data-parent-page="services.html">Services</a>
+        <a data-parent-page="cars.html">Cars</a>
+        <a data-parent-page="food-lounge.html">Food &amp; Lounge</a>
+        <a data-parent-page="fleets.html">Fleets</a>
+        <a data-parent-page="contact.html">Contact</a>
+      </nav>
+      <div class="th-header-actions">
+        <a class="th-btn-call" id="supportPhoneLink" hidden>Call Now</a>
+        <button class="th-menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" data-th-menu-toggle><span class="th-menu-icon" aria-hidden="true"></span><span>Menu</span></button>
+      </div>
+    </div>
+    <div class="th-mobile-panel" data-th-mobile-panel>
+      <nav class="th-mobile-menu" aria-label="Mobile navigation">
+        <a href="#parking" data-route="parking">Find Parking</a>
+        <a href="#my-parking" data-route="my-parking">My Parking</a>
+        <a data-parent-page="index.html">Home</a>
+        <a data-parent-page="services.html">Services</a>
+        <a data-parent-page="cars.html">Cars</a>
+        <a data-parent-page="food-lounge.html">Food &amp; Lounge</a>
+        <a data-parent-page="fleets.html">Fleets</a>
+        <a data-parent-page="contact.html">Contact</a>
+        <a id="mobileSupportLink" hidden>Call Now</a>
+      </nav>
+    </div>
+    <div class="th-parking-strip">
+      <nav class="th-parking-nav" aria-label="Parking navigation">
+        <span class="th-parking-label">Parking</span>
+        <a href="#parking" data-route="parking">Find Parking</a>
+        <a href="#my-parking" data-route="my-parking">My Parking</a>
+        <a id="parentSiteLink" class="th-parking-back">Back to Trucker Heaven</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="bookingFlow" class="booking-shell" aria-labelledby="bookingTitle">
+      <div class="booking-heading parking-hero LiquidGlass" data-booking-chrome>
+        <div class="hero-copy-block">
+          <span class="hero-brand"><img src="brand/trucker-heaven-logo-full.png" alt=""></span>
+          <p class="eyebrow">TRUCKER HEAVEN PARKING</p>
+          <h1 id="bookingTitle"><span>Park your truck.</span><span>Keep moving.</span></h1>
+          <p class="hero-support">Daily, Weekly, and Monthly parking at Trucker Heaven.</p>
+        </div>
+        <p id="lotTimezone" class="timezone-chip">Loading parking details…</p>
+      </div>
+
+      <ol class="progress LiquidGlass" aria-label="Booking progress" data-booking-chrome>
+        <li data-progress="1" class="GlassStep is-current"><span>01</span><b>Search</b></li>
+        <li data-progress="2" class="GlassStep"><span>02</span><b>Space</b></li>
+        <li data-progress="3" class="GlassStep"><span>03</span><b>Details</b></li>
+        <li data-progress="4" class="GlassStep"><span>04</span><b>Confirm</b></li>
+        <li data-progress="5" class="GlassStep"><span>05</span><b>Done</b></li>
+      </ol>
+
+      <section id="tripStep" class="flow-step" aria-labelledby="tripTitle">
+        <div class="search-layout">
+          <section class="panel LiquidGlass GlassPanel search-panel">
+            <div class="screen-heading">
+              <p class="step-label">WHAT ARE YOU PARKING?</p>
+              <h2 id="tripTitle">Find your parking</h2>
+              <p>Choose your truck and timing.</p>
+            </div>
+
+            <div class="location-inline" aria-label="Parking location">
+              <span class="location-mark" aria-hidden="true">⌖</span>
+              <div><span>Location</span><strong id="searchLocationName">Trucker Heaven Parking</strong><small id="searchLocationAddress">Loading configured address…</small></div>
+            </div>
+
+            <form id="searchForm" class="GlassInput" method="post" action="/api/public/parking/v1/availability">
+              <input id="category" name="categoryCode" type="hidden" required>
+              <fieldset class="plain-fieldset">
+                <legend>Parking type</legend>
+                <div id="parkingTypeChoices" class="parking-type-choices" aria-label="Parking type choices" aria-live="polite"></div>
+              </fieldset>
+
+              <div class="section-head compact-head">
+                <h3>Reservation times</h3>
+                <span id="selectedTypeChip" class="context-chip">Choose a parking type</span>
+              </div>
+              <div class="field-grid schedule-grid">
+                <label>Arrival date<input id="arrivalDate" type="date" required></label>
+                <label>Arrival time<input id="arrivalTime" type="time" required></label>
+                <label id="departureDateField">Departure date<input id="departureDate" type="date" required></label>
+                <label id="departureTimeField">Departure time<input id="departureTime" type="time" required></label>
+              </div>
+
+              <fieldset id="durationChoices" class="duration-choices">
+                <legend>Parking period</legend>
+                <p class="field-help">Choose an offered period, then adjust the exact times if needed.</p>
+                <div id="durationOptions" class="duration-options" aria-live="polite"></div>
+              </fieldset>
+
+              <div class="form-actions"><button class="button GlassButton primary-action" type="submit">Check availability <span aria-hidden="true">→</span></button></div>
+              <p id="searchMessage" class="message" aria-live="polite"></p>
+            </form>
+          </section>
+
+          <aside class="panel LiquidGlass GlassPanel property-panel">
+            <div class="property-image-wrap">
+              <img src="images/trucker-heaven-aerial.jpg" width="2048" height="1152" alt="Daylight aerial view of the Trucker Heaven truck parking property">
+              <span class="image-badge">Trucker Heaven Parking</span>
+            </div>
+            <div class="property-copy">
+              <p class="card-kicker">YOUR PARKING LOCATION</p>
+              <h2 id="propertyLocationName">Trucker Heaven Parking</h2>
+              <dl class="property-details">
+                <div><dt>Address</dt><dd id="propertyLocationAddress">Loading configured address…</dd></div>
+                <div id="propertyPhoneRow" hidden><dt>Phone</dt><dd><a id="propertyPhoneLink"></a></dd></div>
+              </dl>
+              <div class="assignment-note" id="searchAssignmentNote">
+                <span aria-hidden="true">✓</span>
+                <div><strong>You pick your space on the lot map.</strong><p>Confirmed right away. Pay at the Trucker Heaven office.</p></div>
+              </div>
+              <div class="property-actions">
+                <a id="propertyDirectionsLink" class="text-link" target="_blank" rel="noopener" hidden>Open driving directions</a>
+                <a id="heroSupportLink" class="text-link" hidden>Call office</a>
+              </div>
+              <div class="returning-customer-actions"><span>Already reserved?</span><a class="button secondary-button" href="#my-parking" data-route="my-parking">Open My Parking</a><a class="button secondary-button" href="#upload-documents" data-route="upload-documents">Upload Documents</a><button id="continueRecentReservation" class="button secondary-button" type="button" hidden>Continue to my reservation</button></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="parkingStep" class="flow-step" hidden aria-labelledby="parkingTitle">
+        <div class="availability-layout">
+          <aside class="panel LiquidGlass GlassPanel search-summary-panel">
+            <div class="section-head compact-head"><h2>Your search</h2><button type="button" class="text-button" data-back-step="1">Edit search</button></div>
+            <div id="searchOverview" class="search-overview"></div>
+            <div class="automatic-assignment" id="offerAssignmentNote">
+              <span aria-hidden="true">✓</span>
+              <div><strong>Pick your space</strong><p>Green spaces on the map are open for your dates.</p></div>
+            </div>
+          </aside>
+
+          <section class="panel LiquidGlass GlassPanel offers-panel">
+            <div class="screen-heading offers-heading">
+              <p class="step-label">AVAILABLE PARKING</p>
+              <h2 id="parkingTitle">Pick your space</h2>
+              <p id="parkingSummary">Checking your dates…</p>
+            </div>
+            <div id="availabilityCards" class="availability-cards" aria-live="polite"></div>
+            <p id="availabilityMessage" class="message" aria-live="polite"></p>
+            <div id="quoteSummary" class="quote-summary" aria-live="polite"></div>
+            <div id="parkingInformation" class="parking-information" aria-live="polite"></div>
+            <div class="form-actions step-actions GlassActionBar"><button type="button" class="button GlassButton primary-action" id="continueDriver" disabled>Continue to reservation details <span aria-hidden="true">→</span></button></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="driverStep" class="flow-step" hidden aria-labelledby="driverTitle">
+        <div class="section-head page-head">
+          <div><p class="step-label">RESERVATION DETAILS</p><h2 id="driverTitle">Driver and vehicle information</h2><p>Enter the information required for this reservation. Your selected offer is summarized alongside the form.</p></div>
+          <button type="button" class="text-button" data-back-step="2">Back to offers</button>
+        </div>
+
+        <div class="review-layout">
+          <form id="bookingForm" class="panel LiquidGlass GlassPanel GlassInput details-panel" method="post" action="/api/public/parking/v1/booking-attempts">
+            <fieldset><legend>Customer contact information</legend><div class="field-grid"><label>First name<input name="firstName" autocomplete="given-name" required maxlength="80"></label><label>Last name<input name="lastName" autocomplete="family-name" required maxlength="80"></label><label>Mobile phone<input name="mobilePhone" type="tel" autocomplete="tel" required></label><label>Email address<input name="email" type="email" autocomplete="email" required></label><label class="full">Company / Carrier name <span id="companyOptional" class="optional">optional for Daily</span><input name="companyName" autocomplete="organization" maxlength="120"><span class="field-help">Required for Monthly. Owner-operators may enter their legal business name or their own operating name.</span></label><label id="usdotField" class="full" hidden>USDOT number <span class="optional">when applicable</span><input name="usdotNumber" inputmode="numeric" pattern="[0-9]{1,12}" maxlength="12"><span class="field-help">Enter digits only.</span></label></div></fieldset>
+            <fieldset><legend>Truck information</legend><div class="field-grid"><label>Tractor / unit number<input name="tractorUnitNumber" required maxlength="80"></label><label>License plate<input name="licensePlate" required maxlength="30"></label><label>License plate state<input name="licensePlateState" required maxlength="40"></label><label>Trailer number <span class="optional">when applicable</span><input name="trailerNumber" maxlength="80"></label></div></fieldset>
+            <fieldset id="monthlyVerification" class="verification-fieldset" hidden><legend>Documents</legend><h3>Insurance card (optional now)</h3><p>Monthly parking needs your insurance card and driver license on file. Add the insurance card now, or both later from My Parking. PDF, JPG or PNG.</p><div class="document-source-buttons"><label class="button secondary-button">Take Photo<input id="insuranceCamera" type="file" accept="image/jpeg,image/png" capture="environment"></label><label class="button secondary-button">Choose File<input id="insuranceDocument" name="insuranceDocument" type="file" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"></label></div><p id="insuranceSelectedFile" class="selected-file" aria-live="polite">No file selected.</p><p class="privacy-note">15 MB maximum.</p></fieldset>
+            <label class="notes-field">Special instructions <span class="optional">optional</span><textarea name="specialInstructions" maxlength="1000" placeholder="Share arrival details relevant to your parking stay."></textarea></label>
+            <div class="terms"><label class="check"><input name="termsAccepted" type="checkbox" required><span id="parkingTermsText">I accept the parking terms.</span></label><label class="check"><input name="cancellationTermsAccepted" type="checkbox" required><span>I accept the cancellation terms (free cancellation up to the cutoff before arrival).</span></label></div>
+            <div class="form-actions step-actions GlassActionBar"><button type="button" class="button GlassButton secondary-button" data-back-step="2">Back</button><button class="button GlassButton primary-action" type="submit">Confirm booking <span aria-hidden="true">→</span></button></div>
+            <div class="secure-payment-note"><strong>Pay at the office</strong><p>No card needed online. Your space is confirmed now. Daily and Weekly are paid at the Trucker Heaven office when you leave; Monthly is due on the 1st.</p></div>
+            <p id="bookingMessage" class="message" aria-live="polite"></p>
+          </form>
+          <aside id="selectedParkingSummary" class="panel LiquidGlass GlassPanel selected-parking-summary" aria-label="Reservation summary"></aside>
+        </div>
+      </section>
+
+      <section id="paymentStep" class="flow-step payment-step" hidden aria-live="polite"></section>
+      <section id="confirmation" class="flow-step confirmation" hidden aria-live="polite"></section>
+
+      <section id="passView" class="flow-step lifecycle-view" hidden aria-labelledby="passViewTitle"><div id="passContent"></div></section>
+      <section id="mapView" class="flow-step lifecycle-view" hidden aria-labelledby="mapViewTitle"><div id="mapContent"></div></section>
+      <section id="reservationsView" class="flow-step lifecycle-view" hidden aria-labelledby="reservationsTitle"><div id="reservationsContent"></div></section>
+      <section id="managementView" class="flow-step lifecycle-view" hidden aria-labelledby="managementTitle"><div id="managementContent"></div></section>
+      <section id="myParkingView" class="flow-step lifecycle-view my-parking-view" hidden aria-labelledby="myParkingTitle">
+        <div id="myParkingContent"></div>
+      </section>
+      <section id="uploadDocumentsView" class="flow-step lifecycle-view my-parking-view" hidden aria-labelledby="uploadDocumentsTitle">
+        <div id="uploadDocumentsContent"></div>
+      </section>
+      <section id="lookupView" class="flow-step lifecycle-view" hidden aria-labelledby="lookupTitle">
+        <div class="panel LiquidGlass GlassPanel lookup-page">
+          <div class="lookup-heading"><p class="eyebrow">SECURE RESERVATION LOOKUP</p><h2 id="lookupTitle">Find your reservation</h2><p>Most drivers should use <a href="#my-parking" data-route="my-parking">My Parking</a> (email + phone). This page is only for the reservation number and code from an old confirmation.</p></div>
+          <form id="lookupForm" class="lookup-form GlassInput" method="post" action="/api/public/parking/v1/bookings/lookup">
+            <label>Reservation number<input name="reservationNumber" required autocomplete="off" placeholder="THP-2026-AB12CD34"></label>
+            <label>Secure lookup credential<input name="lookupCredential" required autocomplete="off"></label>
+            <button class="button primary-action" type="submit">Find reservation</button>
+          </form>
+          <p class="privacy-note">Your lookup details are used only to retrieve this reservation. On shared devices, remove saved reservations when finished.</p>
+          <div id="lookupResult" aria-live="polite"></div>
+          <div class="lifecycle-actions"><a class="button secondary-button" href="#parking" data-route="parking">Back to Parking</a><a class="text-link" href="#reservations" data-route="reservations">My Reservation</a></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="selfServiceDialog" class="LiquidGlass GlassModal" aria-labelledby="selfServiceTitle"><button type="button" class="dialog-close" data-close-self-service aria-label="Close confirmation">×</button><h2 id="selfServiceTitle">Parking confirmation</h2><div id="selfServiceContent"></div></dialog>
+  <dialog id="cancelDialog" class="LiquidGlass GlassModal" aria-labelledby="cancelTitle"><button type="button" class="dialog-close" data-close-cancel aria-label="Close cancellation confirmation">×</button><p class="eyebrow">CANCEL RESERVATION</p><h2 id="cancelTitle">Cancel this reservation?</h2><div id="cancelContent"></div></dialog>
+
+  <footer><div><strong>TRUCKER HEAVEN PARKING</strong><span>Customer parking reservations</span></div><nav><a id="footerSupportLink">Parking support</a><a id="footerParentLink">Trucker Heaven</a></nav></footer>
+  <script defer src="render-runtime.js?v=documents-20260813"></script>
+  <script defer src="config.js?v=documents-20260813"></script>
+  <script defer src="customer-core.js?v=documents-20260813"></script>
+  <script defer src="lifecycle.js?v=documents-20260813"></script>
+  <script defer src="lot-plan-data.js?v=documents-20260813"></script>
+  <script defer src="lot-plan.js?v=documents-20260813"></script>
+  <script defer src="app.js?v=documents-20260813"></script>
+</body>
+</html>

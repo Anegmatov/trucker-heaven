@@ -1,0 +1,24 @@
+TRUCKER HEAVEN PARKING — CUSTOMER REDESIGN ASSETS
+
+Extract this ZIP directly into the ParkingOps-MVP repository root.
+
+Final locations:
+
+1. Production customer image
+   frontend-customer/assets/parking/trucker-heaven-aerial.jpg
+
+2. Visual design references (not production UI assets)
+   design-references/customer-parking/01-booking-search.png
+   design-references/customer-parking/02-availability-offers.png
+   design-references/customer-parking/03-reservation-details.png
+   design-references/customer-parking/04-confirmation-navigation-map.png
+   design-references/customer-parking/05-reservation-lookup-manage.png
+
+3. Authoritative physical-lot reference
+   design-references/customer-parking/source-layout/trucker-heaven-original-lot-diagram.pdf
+
+Important:
+- Keep the existing application logo. Do not replace it with a logo drawn in the mockups.
+- Use the mockups only for layout, visual hierarchy, spacing, dark navy/gold/blue styling, and page-flow guidance.
+- Use trucker-heaven-aerial.jpg as the actual main property image.
+- Do not expose the PDF directly to customers; use it only as a geometry/layout reference.

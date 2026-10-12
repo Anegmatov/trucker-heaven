@@ -1,0 +1,309 @@
+Implement the approved ParkingOps admin design exactly from the private reference pack already placed in this repository.
+
+Repository:
+/mnt/d/hp/Documents/ParkingOps-MVP
+
+Branch:
+parking-management-mvp
+
+Reference directory:
+docs/ui-redesign/parkingops-approved-exact-design-pack/references
+
+Primary references:
+- 01-dashboard.png
+- 02-live-lot-interactive-approved.png
+- 03-reservations.png
+- 04-customers.png
+- 05-physical-map.png
+- 06-rates-rules.png
+- 07-users.png
+- 08-authoritative-lot-diagram.pdf
+
+The latest approved Live Lot is `02-live-lot-interactive-approved.png`. Do not use any older Live Lot mockup in the repository.
+
+Goal:
+Replace the current ParkingOps admin presentation with the approved premium dark operations-console design while preserving the current production backend, canonical 185-space data, role authorization, operational behavior, and all existing API contracts.
+
+Do not return a design plan. Inspect the existing frontend-admin implementation and immediately implement the approved design. Use Codex only for code changes and necessary tests. Avoid repeated audits, duplicate test runs, broad documentation work, and unrelated refactors.
+
+## 1. Exact visual system
+
+Treat the reference images as the visual source of truth, not loose inspiration.
+
+Implement:
+- near-black/navy application background
+- subtle blue-black gradients and panel depth
+- restrained warm gold accents for selected navigation, primary emphasis, and important controls
+- green for available/success
+- blue for reserved/customer tractor-trailer
+- teal for customer bobtail
+- red for occupied/destructive/error
+- purple for needs classification
+- muted gray for blocked/non-reservable/internal history
+- refined thin borders, soft inner highlights, and controlled shadows
+- dense but readable desktop operations layout
+- crisp typography with strong headings and small uppercase section labels
+- consistent sidebar, top bar, cards, tables, drawers, badges, fields, buttons, legends, timelines, and empty states
+
+Do not produce:
+- a generic white SaaS template
+- a flat dark theme
+- oversized empty areas
+- random gradients
+- excessive rounded cards
+- fake static screens
+- copied placeholder data that replaces production data
+
+Use reusable design tokens and shared components so all pages match exactly.
+
+## 2. Global shell
+
+Rebuild the current frontend-admin shell to match the references:
+- fixed dark left navigation
+- ParkingOps logo/wordmark treatment
+- compact top search bar
+- user/role area
+- clear active navigation with gold accent
+- desktop collapse behavior
+- accessible mobile drawer
+- consistent content width and spacing
+
+Navigation must preserve the real routes and permissions:
+- Dashboard
+- Live Lot
+- Reservations
+- Customers
+- Activity
+- Reports
+- Physical Map
+- Parking Types
+- Rates & Rules
+- Users
+- General Settings
+
+OWNER-only routes remain OWNER-only. STAFF must not gain configuration access.
+
+## 3. Live Lot — highest priority
+
+The Live Lot must be a real interactive lot, not the PDF shown as a static image.
+
+Use the existing production canonical layout and API data. The active layout currently contains 185 canonical physical spaces and the real lot importer has already run. Do not rerun it and do not modify canonical physical data.
+
+### Exact geometry
+
+Use `08-authoritative-lot-diagram.pdf` as the immutable calibration source for:
+- physical positions
+- row ordering
+- stall dimensions
+- orientation
+- buildings
+- logos
+- black shapes
+- blank space
+- entrances/drive areas
+- every physical number
+
+Required spaces:
+- 10–90
+- 101–196
+- 197–204
+
+Spaces 91–100 must not exist or render.
+
+Do not invent geometry from the approved PNG. The PNG defines the application design; the PDF defines the physical map.
+
+### Interactive implementation
+
+Implement the lot as a deterministic SVG or equivalent vector scene driven by canonical layout data:
+- one semantic selectable element per physical space
+- stable data-space-id and physical label
+- click selection
+- Enter/Space keyboard selection
+- visible focus ring
+- hover state
+- selected state
+- API-backed status/classification overlays
+- real detail drawer
+- real recent activity/history
+- zoom in/out
+- pan when zoomed
+- fit-to-map
+- reset view
+- preserve aspect ratio
+- responsive desktop and mobile behavior
+- no text/space geometry distortion
+
+The PDF may be used as an optional locked calibration/background reference layer, but the selectable SVG space elements must align exactly over it. Do not make the PDF itself the interaction model.
+
+### Live data
+
+Use the existing endpoints for:
+- Live Lot snapshot
+- operational space detail
+- timeline
+- search
+- future-time view
+- reservations/assignments/blocks
+
+Selecting a space must show real fields such as:
+- physical space number
+- current status
+- parking use
+- public booking eligibility
+- vehicle compatibility
+- classification completeness
+- physical section/zone
+- row or position where available
+- active reservation or current parking
+- recent activity
+- history link
+
+Do not hardcode Space 110 or any mock reservation. The references illustrate layout only.
+
+### Metrics
+
+Use consistent production semantics:
+- Physical spaces: active canonical physical total
+- Publicly bookable: active, public-eligible, properly classified, compatible, unblocked, unoccupied, and unreserved for the selected time
+- Reserved
+- Occupied
+- Internal use
+- Needs classification
+
+Exclude the 25 inactive historical generic spaces from default totals, map rendering, warnings, search, and availability.
+
+Intentional SHOP and COMPANY classifications are informational, not warnings. Only actionable configuration problems should count as warnings.
+
+## 4. Dashboard
+
+Implement the approved dashboard composition using real data:
+- operational KPI cards
+- physical spaces
+- publicly bookable
+- reserved
+- occupied
+- internal use
+- needs classification
+- arrivals/departures where supported
+- inventory composition
+- operational attention
+- recent activity
+- canonical layout status
+- strong link into Live Lot
+
+Do not fabricate historical trends if the backend does not provide them. Show a polished honest empty state instead.
+
+## 5. Reservations
+
+Match the approved dense table-and-drawer layout while using actual reservation APIs and lifecycle rules.
+
+Preserve:
+- existing statuses
+- secure confirmation data
+- search and filters
+- arrival/departure
+- assigned space
+- customer/vehicle information
+- check-in or status actions already supported
+- permissions
+- immutable history
+
+Do not implement unsupported payment or contact actions as fake working buttons. Hide, disable with an honest explanation, or connect only when supported.
+
+## 6. Customers
+
+Match the approved table/detail-panel structure using the actual customer data currently available.
+
+Do not invent loyalty, saved cards, fleet analytics, or messaging if the backend does not support them. Keep the same visual quality with supported fields and truthful empty states.
+
+## 7. Physical Map
+
+Replace the obsolete normal Lot Setup experience with the approved read-only Physical Map page for the canonical location.
+
+Show:
+- exact canonical physical map
+- canonical layout name/version
+- geometry locked status
+- physical count
+- public eligibility count
+- internal-use count
+- needs-classification count
+- publication/import information when available
+- unresolved spaces
+- link to Live Lot
+
+Normal OWNER operation must not expose draft geometry, renumbering, bulk creation, or publication controls. Existing protected backend maintenance behavior remains unchanged.
+
+## 8. Rates & Rules, Users, and remaining pages
+
+Rebuild these pages to the approved visual system without breaking current supported behavior.
+
+- Rates & Rules: real categories, rates, closures, policies, validation, and permissions only.
+- Users: current OWNER/STAFF account model and existing password/account actions only.
+- Parking Types, General Settings, Activity, Reports: bring them into the same premium design system and preserve current functionality.
+
+Do not add unsupported business features simply because they appear in a visual mockup.
+
+## 9. Responsive and accessibility
+
+Desktop is primary, but implement:
+- sidebar drawer on small screens
+- stacked cards/panels
+- Live Lot map viewport with preserved geometry
+- detail drawer below or full-screen on mobile
+- tables with usable responsive fallback
+- no page-level horizontal overflow
+- visible focus states
+- correct labels and landmarks
+- keyboard-operable navigation, filters, map spaces, drawers, and dialogs
+- reduced-motion support
+- WCAG-conscious contrast
+
+## 10. Asset and reference handling
+
+The reference pack is private implementation material:
+- do not expose it from the deployed public site
+- do not use the reference screenshots as page backgrounds
+- do not commit generated screenshots into public runtime assets
+- do not remove the authoritative PDF from the private reference directory
+
+Create code/CSS/SVG from the references. The final app must remain functional without loading the screenshots.
+
+## 11. Verification — efficient only
+
+Run one focused implementation validation cycle:
+1. npm run check
+2. npm run build
+3. npm run verify:build
+4. the relevant admin structural verifier
+5. focused browser smoke checks for Dashboard, Live Lot, Reservations, Physical Map, and mobile navigation if a browser is available
+
+Do not repeatedly run the full backend suite because this task is primarily frontend. Run backend tests only if backend code is changed.
+
+Verify specifically:
+- all 185 active physical spaces render exactly once
+- labels 91–100 do not render
+- inactive N-01/S-01 spaces do not render
+- each map space is selectable by mouse and keyboard
+- selected details come from the real API
+- zoom/pan/fit/reset work
+- map geometry preserves the PDF proportions
+- shop/company/internal spaces remain non-public
+- needs-classification spaces remain non-public
+- OWNER/STAFF guards are unchanged
+- no fake data is shipped
+- production build contains the new visual markers and not the old Lot Setup shell
+
+## 12. Completion
+
+Preserve unrelated work.
+
+Commit the intended frontend changes with a clear message. Do not push unless I explicitly authorize the push in this Codex conversation.
+
+Return a concise report containing:
+- pages implemented
+- Live Lot interaction implementation
+- files changed
+- tests/results
+- commit hash
+- whether anything remains unsupported because the backend does not provide it
