@@ -2,8 +2,8 @@
 //
 //   parking  -> ../parking/backend   (PARKING_* env)
 //   rentals  -> ../rentals/backend   (RENTALS_* env)
-//   food     -> ../food/backend      (FOOD_*    env; the module itself reads unprefixed names,
-//                                     so this file hands it a FOOD_-stripped view)
+//   food     -> ../food/backend      (its own unprefixed names, e.g. DATABASE_URL; FOOD_* overrides —
+//                                     the live Render service keeps its variables as they are)
 //
 // Hostname -> module comes from API_HOSTS, e.g.
 //   API_HOSTS="parking-api.truckerheaven.com=parking,rentals-api.truckerheaven.com=rentals,food-api.truckerheaven.com=food"
@@ -50,7 +50,9 @@ const loaders = {
     const { loadConfig } = require("../food/backend/lib/config");
     const { createPool } = require("../food/backend/db/connection");
     const { runMigrations } = require("../food/backend/db/migrate");
-    const config = loadConfig({ ...prefixedEnv("FOOD_"), PORT: String(PORT) });
+    // Food keeps its original (unprefixed) variable names so the existing Render service works
+    // untouched; FOOD_-prefixed names override them when both are set.
+    const config = loadConfig({ ...process.env, ...prefixedEnv("FOOD_"), PORT: String(PORT) });
     const database = createPool(config);
     const app = createApp({ database, config });
     return {
