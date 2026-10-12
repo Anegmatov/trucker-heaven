@@ -65,9 +65,11 @@
     try { return new URL(page, config.parentSiteUrl.replace(/\/?$/, '/')).href; } catch (_) { return '#'; }
   }
   function setupMainSiteHeader() {
+    const year = $('#footerYear'); if (year) year.textContent = String(new Date().getFullYear());
     const toggle = $('[data-th-menu-toggle]'); const panel = $('[data-th-mobile-panel]');
-    const closeMenu = () => { document.body.classList.remove('th-menu-open'); toggle?.setAttribute('aria-expanded', 'false'); };
-    toggle?.addEventListener('click', () => { const open = !document.body.classList.contains('th-menu-open'); document.body.classList.toggle('th-menu-open', open); toggle.setAttribute('aria-expanded', String(open)); });
+    const closeMenu = () => { document.body.classList.remove('th-menu-open'); toggle?.setAttribute('aria-expanded', 'false'); if (panel && 'hidden' in panel) panel.hidden = true; };
+    const syncPanel = () => { if (panel && 'hidden' in panel) panel.hidden = !document.body.classList.contains('th-menu-open'); };
+    toggle?.addEventListener('click', () => { const open = !document.body.classList.contains('th-menu-open'); document.body.classList.toggle('th-menu-open', open); toggle.setAttribute('aria-expanded', String(open)); syncPanel(); });
     panel?.addEventListener('click', event => { if (event.target === panel || event.target.closest('a')) closeMenu(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
     $('#thServiceSelect')?.addEventListener('change', event => {
@@ -532,7 +534,7 @@
     const renderId = ++state.routeRenderId; const route = lifecycle.normalizeRoute(window.location.hash); const routeState = window.history.state || {};
     state.currentRoute = route; if (route !== 'confirmation') stopAssignmentPolling('navigated');
     hideAllRouteViews(); $$('[data-booking-chrome]').forEach(element => { element.hidden = !['parking', 'offers', 'review', 'confirmation'].includes(route); });
-    $$('.desktop-nav [data-route], .mobile-nav [data-route], .th-parking-nav [data-route], .th-mobile-menu [data-route]').forEach(link => { if (link.dataset.route === route) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
+    $$('.desktop-nav [data-route], .mobile-nav [data-route], .th-chrome [data-route]').forEach(link => { if (link.dataset.route === route) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
     $('.mobile-nav')?.removeAttribute('open'); document.body.classList.remove('th-menu-open'); $('[data-th-menu-toggle]')?.setAttribute('aria-expanded', 'false');
     if (route === 'parking') { $('#tripStep').hidden = false; setStep(1, { focus: false }); focusRouteHeading($('#tripStep')); return; }
     if (route === 'offers') {

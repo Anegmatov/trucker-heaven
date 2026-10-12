@@ -10,58 +10,40 @@
     <link rel="preload" as="image" href="images/trucker-heaven-aerial.jpg">
   <link rel="stylesheet" href="styles.css?v=trucker-heaven-glass-20260816">
   <link rel="stylesheet" href="liquid-glass.css?v=trucker-heaven-premium-blue-glass-20260816">
+  <link rel="stylesheet" href="th-chrome.css?v=1">
 </head>
 <body>
   <a class="skip-link" href="#bookingFlow">Skip to parking reservation</a>
-  <header class="site-header th-site-header">
-    <div class="th-header-inner">
-      <a class="th-brand" data-parent-page="index.html" aria-label="Trucker Heaven home"><img src="brand/trucker-heaven-logo.svg" alt="Trucker Heaven"></a>
-      <div class="th-service-picker">
-        <label class="sr-only" for="thServiceSelect">I want to</label>
-        <select id="thServiceSelect" aria-label="I want to">
-          <option value="">I want to...</option>
-          <option value="#parking">Park my truck</option>
-          <option value="cars.html#rental">Rent a car</option>
-          <option value="cars.html#sales">Buy a vehicle</option>
-          <option value="food-lounge.html#food">Get food</option>
-          <option value="food-lounge.html#lounge">Use the lounge</option>
-          <option value="services.html#truck-service">Service my truck</option>
-          <option value="fleets.html">Fleet support</option>
-          <option value="contact.html?service=not-sure">Not sure where to go</option>
-        </select>
-      </div>
-      <nav class="th-nav" aria-label="Main navigation">
-        <a data-parent-page="services.html">Services</a>
-        <a data-parent-page="cars.html">Cars</a>
-        <a data-parent-page="food-lounge.html">Food &amp; Lounge</a>
-        <a data-parent-page="fleets.html">Fleets</a>
-        <a data-parent-page="contact.html">Contact</a>
+  <header class="th-chrome site-header" id="siteHeader">
+    <div class="header-inner">
+      <a class="brand" data-parent-page="" aria-label="Trucker Heaven home"><img src="assets/logo.svg" alt="" width="48" height="48"><span class="brand-wordmark" aria-hidden="true"><span>TRUCKER</span><span>HEAVEN</span></span></a>
+      <nav class="site-nav" aria-label="Main navigation">
+        <div class="site-nav-center">
+          <a class="nav-link" href="#parking" data-route="parking" aria-current="page">Parking</a>
+          <a class="nav-link" data-parent-page="service">Truck Service</a>
+          <a class="nav-link" data-parent-page="fleet">Fleet Services</a>
+          <a class="nav-link" data-parent-page="rentals">Rentals</a>
+          <a class="nav-link" href="https://theavenmotors.com/inventory?clearall=1" rel="noopener">T Heaven Motors</a>
+          <a class="nav-link" href="https://silkroadgrilltn.com/menu" rel="noopener">Silk Road Grill</a>
+          <a class="nav-link" data-parent-page="itip">ITIP</a>
+        </div>
+        <a class="nav-link my-rental" href="#my-parking" data-route="my-parking">My Parking</a>
+        <a class="header-directions" data-parent-page="visit">Visit</a>
       </nav>
-      <div class="th-header-actions">
-        <a class="th-btn-call" id="supportPhoneLink" hidden>Call Now</a>
-        <button class="th-menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" data-th-menu-toggle><span class="th-menu-icon" aria-hidden="true"></span><span>Menu</span></button>
-      </div>
+      <a class="nav-link my-rental mobile-only" href="#my-parking" data-route="my-parking">My Parking</a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileMenu" data-th-menu-toggle><span>Menu</span><i aria-hidden="true"></i></button>
     </div>
-    <div class="th-mobile-panel" data-th-mobile-panel>
-      <nav class="th-mobile-menu" aria-label="Mobile navigation">
-        <a href="#parking" data-route="parking">Find Parking</a>
-        <a href="#my-parking" data-route="my-parking">My Parking</a>
-        <a data-parent-page="index.html">Home</a>
-        <a data-parent-page="services.html">Services</a>
-        <a data-parent-page="cars.html">Cars</a>
-        <a data-parent-page="food-lounge.html">Food &amp; Lounge</a>
-        <a data-parent-page="fleets.html">Fleets</a>
-        <a data-parent-page="contact.html">Contact</a>
-        <a id="mobileSupportLink" hidden>Call Now</a>
-      </nav>
-    </div>
-    <div class="th-parking-strip">
-      <nav class="th-parking-nav" aria-label="Parking navigation">
-        <span class="th-parking-label">Parking</span>
-        <a href="#parking" data-route="parking">Find Parking</a>
-        <a href="#my-parking" data-route="my-parking">My Parking</a>
-        <a id="parentSiteLink" class="th-parking-back">Back to Trucker Heaven</a>
-      </nav>
+    <div class="mobile-menu" id="mobileMenu" hidden data-th-mobile-panel>
+      <a href="#parking" data-route="parking" aria-current="page">Parking</a>
+      <a data-parent-page="service">Truck Service</a>
+      <a data-parent-page="fleet">Fleet Services</a>
+      <a data-parent-page="rentals">Rentals</a>
+      <a href="https://theavenmotors.com/inventory?clearall=1" rel="noopener">T Heaven Motors</a>
+      <a href="https://silkroadgrilltn.com/menu" rel="noopener">Silk Road Grill</a>
+      <a data-parent-page="itip">ITIP</a>
+      <a data-parent-page="visit">Visit</a>
+      <a href="#my-parking" data-route="my-parking">My Parking</a>
+      <a id="mobileSupportLink" hidden>Call Now</a>
     </div>
   </header>
 
@@ -233,7 +215,22 @@
   <dialog id="selfServiceDialog" class="LiquidGlass GlassModal" aria-labelledby="selfServiceTitle"><button type="button" class="dialog-close" data-close-self-service aria-label="Close confirmation">×</button><h2 id="selfServiceTitle">Parking confirmation</h2><div id="selfServiceContent"></div></dialog>
   <dialog id="cancelDialog" class="LiquidGlass GlassModal" aria-labelledby="cancelTitle"><button type="button" class="dialog-close" data-close-cancel aria-label="Close cancellation confirmation">×</button><p class="eyebrow">CANCEL RESERVATION</p><h2 id="cancelTitle">Cancel this reservation?</h2><div id="cancelContent"></div></dialog>
 
-  <footer><div><strong>TRUCKER HEAVEN PARKING</strong><span>Customer parking reservations</span></div><nav><a id="footerSupportLink">Parking support</a><a id="footerParentLink">Trucker Heaven</a></nav></footer>
+  <footer class="th-chrome footer">
+    <div class="shell">
+      <div class="footer-grid">
+        <div class="footer-lead">
+          <div class="footer-brand"><img class="footer-logo" src="assets/logo.svg" alt="" width="58" height="58"><span class="brand-wordmark" aria-hidden="true"><span>TRUCKER</span><span>HEAVEN</span></span></div>
+          <p>One physical and digital ecosystem built around the truck in Mt. Juliet, Tennessee.</p>
+          <a id="footerSupportLink" hidden>Parking support</a>
+          <span>8037 Eastgate Blvd, Mt. Juliet, TN 37122</span>
+        </div>
+        <div><h2>Parking</h2><a href="#parking" data-route="parking">Find Parking</a><a href="#my-parking" data-route="my-parking">My Parking</a><a href="https://www.google.com/maps/search/?api=1&amp;query=8037+Eastgate+Blvd+Mt.+Juliet+TN+37122" target="_blank" rel="noopener">Directions</a></div>
+        <div><h2>Explore</h2><a data-parent-page="visit">Visit Trucker Heaven</a><a data-parent-page="services">Services</a><a data-parent-page="contact">Contact</a></div>
+        <div><h2>Information</h2><a data-parent-page="privacy">Privacy Policy</a><a data-parent-page="terms">Terms of Use</a><a data-parent-page="accessibility">Accessibility</a></div>
+      </div>
+      <div class="footer-bottom"><span>&copy; <span id="footerYear">2026</span> Trucker Heaven</span><span>Truck parking, 24/7</span></div>
+    </div>
+  </footer>
   <script defer src="render-runtime.js?v=documents-20260813"></script>
   <script defer src="config.js?v=documents-20260813"></script>
   <script defer src="customer-core.js?v=documents-20260813"></script>
