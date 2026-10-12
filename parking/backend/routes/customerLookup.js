@@ -22,7 +22,7 @@ function cookieOptions() {
     httpOnly: true,
     secure: config.customerLookup.cookieSecure,
     sameSite: config.customerLookup.cookieSameSite,
-    path: lookupPath,
+    path: `${config.customerLookup.cookiePathPrefix}${lookupPath}`,
     maxAge: config.customerLookup.ttlSeconds * 1000
   };
 }

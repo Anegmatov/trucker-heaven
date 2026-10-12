@@ -65,6 +65,8 @@ const config = Object.freeze({
     cookieName: env('CUSTOMER_LOOKUP_COOKIE_NAME') || 'parking_customer_lookup',
     cookieSecure: boolean('PARKING_CUSTOMER_COOKIE_SECURE', production),
     cookieSameSite: sameSite('CUSTOMER_COOKIE_SAME_SITE', production ? 'none' : 'lax'),
+    // Path prefix the browser sees when this API is proxied by the main site (e.g. /parking-api).
+    cookiePathPrefix: String(env('CUSTOMER_LOOKUP_COOKIE_PATH_PREFIX') || '').replace(/\/$/, ''),
     pepper: env('PARKING_CUSTOMER_LOOKUP_PEPPER') || env('PARKING_SESSION_TOKEN_PEPPER') || '',
     ttlSeconds: integer('CUSTOMER_LOOKUP_TTL_SECONDS', 900, { min: 300, max: 3600 }),
     attemptsPerWindow: integer('CUSTOMER_LOOKUP_RATE_LIMIT_MAX', 8, { min: 1, max: 100 }),
