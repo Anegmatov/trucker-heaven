@@ -7,7 +7,7 @@ const path = require("path");
 const root = path.resolve(__dirname, "..");
 const repository = path.resolve(root, "..");
 const output = path.join(root, "dist");
-const files = ["index.html", "app.js", "config.js", "customer-core.js", "lifecycle.js", "render-runtime.js", "lot-plan.js", "lot-plan-data.js", "styles.css", "liquid-glass.css", "th-chrome.css"];
+const files = ["index.html", "app.js", "config.js", "customer-core.js", "lifecycle.js", "render-runtime.js", "lot-plan.js", "lot-plan-data.js", "styles.css", "liquid-glass.css", "th-chrome.css", "th-chrome.js"];
 const assetSources = new Map([
   ["brand/trucker-heaven-logo-full.png", path.join(repository, "public", "brand", "trucker-heaven-logo-full.png")],
   ["brand/trucker-heaven-logo-nav.png", path.join(repository, "public", "brand", "trucker-heaven-logo-nav.png")],

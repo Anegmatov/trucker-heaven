@@ -66,12 +66,7 @@
   }
   function setupMainSiteHeader() {
     const year = $('#footerYear'); if (year) year.textContent = String(new Date().getFullYear());
-    const toggle = $('[data-th-menu-toggle]'); const panel = $('[data-th-mobile-panel]');
-    const closeMenu = () => { document.body.classList.remove('th-menu-open'); toggle?.setAttribute('aria-expanded', 'false'); if (panel && 'hidden' in panel) panel.hidden = true; };
-    const syncPanel = () => { if (panel && 'hidden' in panel) panel.hidden = !document.body.classList.contains('th-menu-open'); };
-    toggle?.addEventListener('click', () => { const open = !document.body.classList.contains('th-menu-open'); document.body.classList.toggle('th-menu-open', open); toggle.setAttribute('aria-expanded', String(open)); syncPanel(); });
-    panel?.addEventListener('click', event => { if (event.target === panel || event.target.closest('a')) closeMenu(); });
-    document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
+    // header/footer markup, hover menus and the mobile menu are rendered by th-chrome.js
     $('#thServiceSelect')?.addEventListener('change', event => {
       const value = event.target.value; if (!value) return;
       event.target.value = '';
@@ -535,7 +530,7 @@
     state.currentRoute = route; if (route !== 'confirmation') stopAssignmentPolling('navigated');
     hideAllRouteViews(); $$('[data-booking-chrome]').forEach(element => { element.hidden = !['parking', 'offers', 'review', 'confirmation'].includes(route); });
     $$('.desktop-nav [data-route], .mobile-nav [data-route], .th-chrome [data-route]').forEach(link => { if (link.dataset.route === route) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
-    $('.mobile-nav')?.removeAttribute('open'); document.body.classList.remove('th-menu-open'); $('[data-th-menu-toggle]')?.setAttribute('aria-expanded', 'false');
+    $('.mobile-nav')?.removeAttribute('open'); window.TH_CHROME?.closeMobile?.();
     if (route === 'parking') { $('#tripStep').hidden = false; setStep(1, { focus: false }); focusRouteHeading($('#tripStep')); return; }
     if (route === 'offers') {
       if (![core.SEARCH_STATUS.LOADING, core.SEARCH_STATUS.SUCCESS_RESULTS, core.SEARCH_STATUS.SUCCESS_EMPTY, core.SEARCH_STATUS.ERROR].includes(state.search.status)) return navigate('parking', { replace: true });

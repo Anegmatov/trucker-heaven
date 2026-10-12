@@ -340,3 +340,8 @@ textarea { min-height: 80px; resize: vertical; }
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); z-index: 300; transform: translate(-50%, 20px); opacity: 0; max-width: calc(100% - 32px); padding: 12px 18px; border-radius: 12px; background: var(--ink); color: #fff; font-weight: 600; transition: opacity .2s, transform .2s; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 main:focus { outline: none; }
+
+/* the shared th-chrome header (th-chrome.css) is sticky and in flow, not fixed over the hero */
+:root { --header-h: 0px; }
+.book { top: 112px; }
+@media (max-width: 960px) { .book { top: 88px; } }

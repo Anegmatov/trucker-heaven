@@ -500,21 +500,12 @@
   }
 
   // the main site's header: transparent over the hero, solid once you scroll or leave the home view
-  function closeMenu() {
-    const menu = $("#mobileMenu"), toggle = $("#menuToggle");
-    if (!menu || menu.hidden) return;
-    menu.hidden = true; toggle.setAttribute("aria-expanded", "false"); $("#siteHeader").classList.remove("is-menu-open");
-  }
+  function closeMenu() { if (window.TH_CHROME && window.TH_CHROME.closeMobile) window.TH_CHROME.closeMobile(); }
   function bindHeader() {
-    const header = $("#siteHeader"), menu = $("#mobileMenu"), toggle = $("#menuToggle");
+    // header/footer markup, hover menus and the mobile menu are rendered by th-chrome.js
+    const header = $("#siteHeader");
     const onScroll = () => header.classList.toggle("is-scrolled", window.scrollY > 12);
     window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
-    toggle.addEventListener("click", () => {
-      const open = menu.hidden;
-      menu.hidden = !open; toggle.setAttribute("aria-expanded", String(open)); header.classList.toggle("is-menu-open", open);
-    });
-    menu.addEventListener("click", (event) => { if (event.target.closest("a")) closeMenu(); });
-    document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeMenu(); });
     const year = $("#footerYear"); if (year) year.textContent = String(new Date().getFullYear());
   }
 

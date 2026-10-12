@@ -12,6 +12,7 @@
 <script>(function(){var m=/^\/(rentals|parking)(\/|$)/.exec(location.pathname);if(m){var b=document.createElement("base");b.href="/"+m[1]+"/";document.head.prepend(b);}})();</script>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./styles.css?v=relaunch-5">
+  <link rel="stylesheet" href="./th-chrome.css?v=2">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -27,38 +28,7 @@
     <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
   </svg>
 
-  <header class="site-header" id="siteHeader">
-    <div class="header-inner">
-      <a class="brand" data-parent-link="/" href="https://truckerheaven.com/" aria-label="Trucker Heaven home"><img src="./assets/logo.svg" alt="" width="48" height="48"><span class="brand-wordmark" aria-hidden="true"><span>TRUCKER</span><span>HEAVEN</span></span></a>
-      <nav class="site-nav" aria-label="Main navigation">
-        <div class="site-nav-center">
-          <a class="nav-link" data-parent-link="/parking" href="https://truckerheaven.com/parking">Parking</a>
-          <a class="nav-link" data-parent-link="/service" href="https://truckerheaven.com/service">Truck Service</a>
-          <a class="nav-link" data-parent-link="/fleet" href="https://truckerheaven.com/fleet">Fleet Services</a>
-          <a class="nav-link" href="#/" aria-current="page">Rentals</a>
-          <a class="nav-link" href="https://theavenmotors.com/inventory?clearall=1" rel="noopener">T Heaven Motors</a>
-          <a class="nav-link" href="https://silkroadgrilltn.com/menu" rel="noopener">Silk Road Grill</a>
-          <a class="nav-link" data-parent-link="/itip" href="https://truckerheaven.com/itip">ITIP</a>
-        </div>
-        <a class="nav-link my-rental" href="#find" data-nav="find">My rental</a>
-        <a class="header-directions" data-parent-link="/visit" href="https://truckerheaven.com/visit">Visit</a>
-      </nav>
-      <a class="nav-link my-rental mobile-only" href="#find" data-nav="find">My rental</a>
-      <button class="menu-toggle" type="button" id="menuToggle" aria-expanded="false" aria-controls="mobileMenu"><span>Menu</span><i aria-hidden="true"></i></button>
-    </div>
-    <div class="mobile-menu" id="mobileMenu" hidden>
-      <a data-parent-link="/parking" href="https://truckerheaven.com/parking">Parking</a>
-      <a data-parent-link="/service" href="https://truckerheaven.com/service">Truck Service</a>
-      <a data-parent-link="/fleet" href="https://truckerheaven.com/fleet">Fleet Services</a>
-      <a href="#/" aria-current="page">Rentals</a>
-      <a href="https://theavenmotors.com/inventory?clearall=1" rel="noopener">T Heaven Motors</a>
-      <a href="https://silkroadgrilltn.com/menu" rel="noopener">Silk Road Grill</a>
-      <a data-parent-link="/itip" href="https://truckerheaven.com/itip">ITIP</a>
-      <a data-parent-link="/visit" href="https://truckerheaven.com/visit">Visit</a>
-      <a href="#find">My rental</a>
-      <a data-phone-link href="tel:+16154705075">Call <span data-phone-text>615-470-5075</span></a>
-    </div>
-  </header>
+  <header class="th-chrome" id="siteHeader" data-th-current="Rentals" data-th-my="My Rental|#find|find"></header>
 
   <main id="main" tabindex="-1">
     <div class="banner" id="systemBanner" role="alert" hidden></div>
@@ -204,27 +174,13 @@
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="shell">
-      <div class="footer-grid">
-        <div class="footer-lead">
-          <div class="footer-brand"><img class="footer-logo" src="./assets/logo.svg" alt="" width="58" height="58"><span class="brand-wordmark" aria-hidden="true"><span>TRUCKER</span><span>HEAVEN</span></span></div>
-          <p>One physical and digital ecosystem built around the truck in Mt. Juliet, Tennessee.</p>
-          <a data-phone-link href="tel:+16154705075"><span data-phone-text>615-470-5075</span></a>
-          <span data-office-address>8037 Eastgate Blvd, Mt. Juliet, TN 37122</span>
-        </div>
-        <div><h2>Rentals</h2><a href="#cars">Our cars</a><a href="#find">My rental</a><a data-directions href="https://www.google.com/maps/search/?api=1&amp;query=8037+Eastgate+Blvd+Mt.+Juliet+TN+37122" target="_blank" rel="noopener">Directions</a></div>
-        <div><h2>Explore</h2><a data-parent-link="/visit" href="https://truckerheaven.com/visit">Visit Trucker Heaven</a><a data-parent-link="/services" href="https://truckerheaven.com/services">Services</a><a data-parent-link="/contact" href="https://truckerheaven.com/contact">Contact</a></div>
-        <div><h2>Information</h2><a data-parent-link="/privacy" href="https://truckerheaven.com/privacy">Privacy Policy</a><a data-parent-link="/terms" href="https://truckerheaven.com/terms">Terms of Use</a><a data-parent-link="/accessibility" href="https://truckerheaven.com/accessibility">Accessibility</a></div>
-      </div>
-      <div class="footer-bottom"><span>© <span id="footerYear">2026</span> Trucker Heaven</span><span>Rental counter: <span data-office-hours>Mon–Sat, 8 AM–6 PM</span></span></div>
-    </div>
-  </footer>
+  <footer class="th-chrome" data-th-section="Rentals"></footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <script src="./render-runtime.js?v=relaunch-5"></script>
   <script src="./config.js?v=relaunch-5"></script>
+  <script src="./th-chrome.js?v=2"></script>
   <script src="./rentals-core.js?v=relaunch-5"></script>
   <script src="./app.js?v=relaunch-5"></script>
 </body>

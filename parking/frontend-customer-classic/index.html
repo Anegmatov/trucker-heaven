@@ -10,42 +10,11 @@
     <link rel="preload" as="image" href="images/trucker-heaven-aerial.jpg">
   <link rel="stylesheet" href="styles.css?v=trucker-heaven-glass-20260816">
   <link rel="stylesheet" href="liquid-glass.css?v=trucker-heaven-premium-blue-glass-20260816">
-  <link rel="stylesheet" href="th-chrome.css?v=1">
+  <link rel="stylesheet" href="th-chrome.css?v=2">
 </head>
 <body>
   <a class="skip-link" href="#bookingFlow">Skip to parking reservation</a>
-  <header class="th-chrome thc-site-header" id="siteHeader">
-    <div class="thc-header-inner">
-      <a class="thc-brand" data-parent-page="" aria-label="Trucker Heaven home"><img src="assets/logo.svg" alt="" width="48" height="48"><span class="thc-brand-wordmark" aria-hidden="true"><span>TRUCKER</span><span>HEAVEN</span></span></a>
-      <nav class="thc-site-nav" aria-label="Main navigation">
-        <div class="thc-site-nav-center">
-          <a class="thc-nav-link" href="#parking" data-route="parking" aria-current="page">Parking</a>
-          <a class="thc-nav-link" data-parent-page="service">Truck Service</a>
-          <a class="thc-nav-link" data-parent-page="fleet">Fleet Services</a>
-          <a class="thc-nav-link" data-parent-page="rentals">Rentals</a>
-          <a class="thc-nav-link" href="https://theavenmotors.com/inventory?clearall=1" rel="noopener">T Heaven Motors</a>
-          <a class="thc-nav-link" href="https://silkroadgrilltn.com/menu" rel="noopener">Silk Road Grill</a>
-          <a class="thc-nav-link" data-parent-page="itip">ITIP</a>
-        </div>
-        <a class="thc-nav-link thc-my-rental" href="#my-parking" data-route="my-parking">My Parking</a>
-        <a class="thc-header-directions" data-parent-page="visit">Visit</a>
-      </nav>
-      <a class="thc-nav-link thc-my-rental thc-mobile-only" href="#my-parking" data-route="my-parking">My Parking</a>
-      <button class="thc-menu-toggle" type="button" aria-expanded="false" aria-controls="mobileMenu" data-th-menu-toggle><span>Menu</span><i aria-hidden="true"></i></button>
-    </div>
-    <div class="thc-mobile-menu" id="mobileMenu" hidden data-th-mobile-panel>
-      <a href="#parking" data-route="parking" aria-current="page">Parking</a>
-      <a data-parent-page="service">Truck Service</a>
-      <a data-parent-page="fleet">Fleet Services</a>
-      <a data-parent-page="rentals">Rentals</a>
-      <a href="https://theavenmotors.com/inventory?clearall=1" rel="noopener">T Heaven Motors</a>
-      <a href="https://silkroadgrilltn.com/menu" rel="noopener">Silk Road Grill</a>
-      <a data-parent-page="itip">ITIP</a>
-      <a data-parent-page="visit">Visit</a>
-      <a href="#my-parking" data-route="my-parking">My Parking</a>
-      <a id="mobileSupportLink" hidden>Call Now</a>
-    </div>
-  </header>
+  <header class="th-chrome" id="siteHeader" data-th-current="Parking" data-th-my="My Parking|#my-parking|my-parking"></header>
 
   <main>
     <section id="bookingFlow" class="booking-shell" aria-labelledby="bookingTitle">
@@ -214,24 +183,10 @@
   <dialog id="selfServiceDialog" class="LiquidGlass GlassModal" aria-labelledby="selfServiceTitle"><button type="button" class="dialog-close" data-close-self-service aria-label="Close confirmation">×</button><h2 id="selfServiceTitle">Parking confirmation</h2><div id="selfServiceContent"></div></dialog>
   <dialog id="cancelDialog" class="LiquidGlass GlassModal" aria-labelledby="cancelTitle"><button type="button" class="dialog-close" data-close-cancel aria-label="Close cancellation confirmation">×</button><p class="eyebrow">CANCEL RESERVATION</p><h2 id="cancelTitle">Cancel this reservation?</h2><div id="cancelContent"></div></dialog>
 
-  <footer class="th-chrome thc-footer">
-    <div class="thc-shell">
-      <div class="thc-footer-grid">
-        <div class="thc-footer-lead">
-          <div class="thc-footer-brand"><img class="thc-footer-logo" src="assets/logo.svg" alt="" width="58" height="58"><span class="thc-brand-wordmark" aria-hidden="true"><span>TRUCKER</span><span>HEAVEN</span></span></div>
-          <p>One physical and digital ecosystem built around the truck in Mt. Juliet, Tennessee.</p>
-          <a id="footerSupportLink" hidden>Parking support</a>
-          <span>8037 Eastgate Blvd, Mt. Juliet, TN 37122</span>
-        </div>
-        <div><h2>Parking</h2><a href="#parking" data-route="parking">Find Parking</a><a href="#my-parking" data-route="my-parking">My Parking</a><a href="https://www.google.com/maps/search/?api=1&amp;query=8037+Eastgate+Blvd+Mt.+Juliet+TN+37122" target="_blank" rel="noopener">Directions</a></div>
-        <div><h2>Explore</h2><a data-parent-page="visit">Visit Trucker Heaven</a><a data-parent-page="services">Services</a><a data-parent-page="contact">Contact</a></div>
-        <div><h2>Information</h2><a data-parent-page="privacy">Privacy Policy</a><a data-parent-page="terms">Terms of Use</a><a data-parent-page="accessibility">Accessibility</a></div>
-      </div>
-      <div class="thc-footer-bottom"><span>&copy; <span id="footerYear">2026</span> Trucker Heaven</span><span>Truck parking, 24/7</span></div>
-    </div>
-  </footer>
+  <footer class="th-chrome" data-th-section="Parking"></footer>
   <script defer src="render-runtime.js?v=documents-20260813"></script>
   <script defer src="config.js?v=documents-20260813"></script>
+  <script defer src="th-chrome.js?v=2"></script>
   <script defer src="customer-core.js?v=documents-20260813"></script>
   <script defer src="lifecycle.js?v=documents-20260813"></script>
   <script defer src="lot-plan-data.js?v=documents-20260813"></script>
