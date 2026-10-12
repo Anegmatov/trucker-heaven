@@ -4,7 +4,7 @@
   "private": true,
   "description": "Trucker Heaven monorepo: shared API (api/) plus the parking, rentals and food modules",
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "type": "commonjs",
   "scripts": {
