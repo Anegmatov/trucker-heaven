@@ -160,10 +160,7 @@ test.after(async () => {
 test('correct exact identity opens a short-lived safe summary without OTP or notification providers', async () => {
   assert.equal(notifications.emailConfigured(), false);
   assert.equal(notifications.smsConfigured(), false);
-  const before = Number((await pool.query('SELECT count(*) FROM parking_customer_auth_challenges')).rows[0].count);
   const grant = await openLookup(customerA, bookingA);
-  const after = Number((await pool.query('SELECT count(*) FROM parking_customer_auth_challenges')).rows[0].count);
-  assert.equal(after, before);
   assert.match(grant.cookie, /^parking_customer_lookup=/);
   assert.equal(grant.summary.readOnly, true);
   assert.equal(grant.documentType, null);
@@ -241,11 +238,12 @@ test('lookup cookies are tamper-evident, user-agent bound, replayable only withi
 test('lookup summary cannot read document bytes or invoke legacy customer mutations', async () => {
   const grant = await openLookup(customerA, bookingA);
   const byteAttempt = await customerCall('/documents/doc_not_real/read', { cookie: grant.cookie });
-  assert.equal(byteAttempt.status, 401);
+  // The OTP account portal is gone, so these legacy routes no longer exist at all.
+  assert.equal(byteAttempt.status, 404);
   const mutation = await customerCall('/profile', {
     method: 'PATCH', cookie: grant.cookie, csrf: grant.csrfToken, body: { firstName: 'Changed', lastName: 'Name' }
   });
-  assert.equal(mutation.status, 401);
+  assert.equal(mutation.status, 404);
   const unchanged = (await pool.query('SELECT first_name,last_name FROM parking_customers WHERE id=$1', [customerA.id])).rows[0];
   assert.deepEqual(unchanged, { first_name: 'Alex', last_name: 'Smith' });
 });

@@ -60,20 +60,12 @@ const config = Object.freeze({
     ttlSeconds: integer('SESSION_TTL_SECONDS', 28800, { min: 300, max: 2592000 }),
     tokenPepper: env('PARKING_SESSION_TOKEN_PEPPER') || ''
   }),
-  customerAuth: Object.freeze({
-    cookieName: env('CUSTOMER_SESSION_COOKIE_NAME') || 'parking_customer_session',
-    cookieSecure: boolean('PARKING_CUSTOMER_COOKIE_SECURE', production),
-    cookieSameSite: sameSite('CUSTOMER_COOKIE_SAME_SITE', production ? 'none' : 'lax'),
-    sessionTtlSeconds: integer('CUSTOMER_SESSION_TTL_SECONDS', 1209600, { min: 3600, max: 2592000 }),
-    idleTtlSeconds: integer('CUSTOMER_SESSION_IDLE_TTL_SECONDS', 28800, { min: 900, max: 604800 }),
-    otpTtlSeconds: integer('CUSTOMER_OTP_TTL_SECONDS', 600, { min: 120, max: 1800 }),
-    otpAttempts: integer('CUSTOMER_OTP_MAX_ATTEMPTS', 5, { min: 3, max: 20 }),
-    requestWindowSeconds: integer('CUSTOMER_OTP_REQUEST_WINDOW_SECONDS', 900, { min: 60, max: 86400 }),
-    requestsPerIdentifier: integer('CUSTOMER_OTP_REQUESTS_PER_IDENTIFIER', 3, { min: 1, max: 20 }),
-    otpPepper: env('PARKING_CUSTOMER_OTP_PEPPER') || env('PARKING_SESSION_TOKEN_PEPPER') || ''
-  }),
+  // My Parking / Upload Documents: short-lived email+phone lookup grant (the only customer sign-in).
   customerLookup: Object.freeze({
     cookieName: env('CUSTOMER_LOOKUP_COOKIE_NAME') || 'parking_customer_lookup',
+    cookieSecure: boolean('PARKING_CUSTOMER_COOKIE_SECURE', production),
+    cookieSameSite: sameSite('CUSTOMER_COOKIE_SAME_SITE', production ? 'none' : 'lax'),
+    pepper: env('PARKING_CUSTOMER_LOOKUP_PEPPER') || env('PARKING_SESSION_TOKEN_PEPPER') || '',
     ttlSeconds: integer('CUSTOMER_LOOKUP_TTL_SECONDS', 900, { min: 300, max: 3600 }),
     attemptsPerWindow: integer('CUSTOMER_LOOKUP_RATE_LIMIT_MAX', 8, { min: 1, max: 100 }),
     windowSeconds: integer('CUSTOMER_LOOKUP_RATE_LIMIT_WINDOW_SECONDS', 900, { min: 60, max: 86400 })
@@ -160,8 +152,8 @@ if (production) {
   if (!config.databaseUrl) throw new Error('Production requires PARKING_DATABASE_URL');
   if (config.cookie.tokenPepper.length < 32) throw new Error('Production requires PARKING_SESSION_TOKEN_PEPPER with at least 32 characters');
   if (!config.cookie.secure) throw new Error('Production requires PARKING_COOKIE_SECURE=true');
-  if (!config.customerAuth.cookieSecure) throw new Error('Production requires PARKING_CUSTOMER_COOKIE_SECURE=true');
-  if (config.customerAuth.otpPepper.length < 32) throw new Error('Production requires PARKING_CUSTOMER_OTP_PEPPER or PARKING_SESSION_TOKEN_PEPPER with at least 32 characters');
+  if (!config.customerLookup.cookieSecure) throw new Error('Production requires PARKING_CUSTOMER_COOKIE_SECURE=true');
+  if (config.customerLookup.pepper.length < 32) throw new Error('Production requires PARKING_CUSTOMER_LOOKUP_PEPPER or PARKING_SESSION_TOKEN_PEPPER with at least 32 characters');
   if (!config.corsAllowedOrigins.length || config.corsAllowedOrigins.includes('*')) {
     throw new Error('Production requires explicit PARKING_CORS_ALLOWED_ORIGINS');
   }

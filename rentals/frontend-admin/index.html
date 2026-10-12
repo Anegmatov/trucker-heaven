@@ -49,7 +49,6 @@
           <button class="nav-item active" type="button" data-view="dashboard">Overview</button>
           <button class="nav-item" type="button" data-view="fleet">Fleet</button>
           <button class="nav-item" type="button" data-view="reservations">Reservations</button>
-          <button class="nav-item" type="button" data-view="food">Food orders</button>
           <button class="nav-item" type="button" data-view="employees">Employee accounts</button>
           <button class="nav-item" type="button" data-view="settings">Settings</button>
         </nav>
@@ -246,33 +245,6 @@
           </section>
         </section>
 
-        <section class="view" id="foodView">
-          <div class="dashboard-grid">
-            <section class="panel"><div class="panel-header"><div><p class="eyebrow">Food desk</p><h2>Order queue</h2></div></div><div id="foodOrderQueue"></div></section>
-            <section class="panel" id="foodMenuPanel"><div class="panel-header"><div><p class="eyebrow">Menu</p><h2>Availability</h2></div></div><div id="foodMenuList"></div></section>
-          </div>
-          <div class="food-admin-grid" id="foodOwnerTools" hidden>
-            <form class="panel" id="foodCategoryForm">
-              <div class="panel-header"><div><p class="eyebrow">Owner menu controls</p><h2 id="foodCategoryTitle">Add category</h2></div></div>
-              <input id="foodCategoryId" type="hidden" />
-              <label>Name<input id="foodCategoryName" maxlength="100" required /></label>
-              <label>Display order<input id="foodCategoryOrder" type="number" min="0" step="1" value="0" required /></label>
-              <label class="check-label"><input id="foodCategoryActive" type="checkbox" checked /> Active on public menu</label>
-              <p class="form-error" id="foodCategoryError" role="alert"></p>
-              <div class="form-actions"><button class="button primary" type="submit">Save category</button><button class="button secondary" id="clearFoodCategory" type="button">Clear</button></div>
-            </form>
-            <form class="panel" id="foodItemForm">
-              <div class="panel-header"><div><p class="eyebrow">Owner menu controls</p><h2 id="foodItemTitle">Add menu item</h2></div></div>
-              <input id="foodItemId" type="hidden" />
-              <div class="form-grid compact"><label>Category<select id="foodItemCategory" required></select></label><label>Name<input id="foodItemName" maxlength="140" required /></label><label>Price<input id="foodItemPrice" type="number" min="0" max="10000" step="0.01" inputmode="decimal" required /></label><label>Display order<input id="foodItemOrder" type="number" min="0" step="1" value="0" required /></label></div>
-              <label>Description<textarea id="foodItemDescription" maxlength="1000" rows="2"></textarea></label>
-              <label>Image reference<input id="foodItemImage" maxlength="1024" placeholder="https://… or existing image URL" /></label>
-              <div class="food-checks"><label class="check-label"><input id="foodItemActive" type="checkbox" checked /> Active on public menu</label><label class="check-label"><input id="foodItemSoldOut" type="checkbox" /> Sold out</label></div>
-              <p class="form-error" id="foodItemError" role="alert"></p>
-              <div class="form-actions"><button class="button primary" type="submit">Save menu item</button><button class="button secondary" id="clearFoodItem" type="button">Clear</button></div>
-            </form>
-          </div>
-        </section>
 
         <section class="view" id="settingsView">
           <section class="panel settings-panel">

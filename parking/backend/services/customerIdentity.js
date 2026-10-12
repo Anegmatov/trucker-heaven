@@ -25,13 +25,7 @@ function maskIdentifier(identity) {
   return identity.channel === 'SMS' ? maskPhone(identity.normalized) : maskEmail(identity.normalized);
 }
 
-async function resolveOrCreateCustomer(client, customer, { authenticatedCustomerId = null } = {}) {
-  if (authenticatedCustomerId) {
-    const authenticated = (await client.query(`SELECT * FROM parking_customers
-      WHERE id=$1 AND status<>'SUSPENDED' FOR UPDATE`, [authenticatedCustomerId])).rows[0];
-    if (!authenticated) throw apiError('AUTHENTICATION_REQUIRED', 'Your My Parking session has expired', 401);
-    return { customer: authenticated, created: false, conflict: false };
-  }
+async function resolveOrCreateCustomer(client, customer) {
   const normalizedPhone = normalizePhone(customer.mobilePhone);
   const normalizedEmail = normalizeEmail(customer.email);
   // One deterministic lock order prevents opposite phone/email submissions

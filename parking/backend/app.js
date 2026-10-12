@@ -14,11 +14,9 @@ const adminReservationDesk = require('./routes/adminReservationDesk');
 const publicDocuments = require('./routes/publicDocuments');
 const customerLookup = require('./routes/customerLookup');
 const privateDocuments = require('./routes/privateDocuments');
-const customerAccounts = require('./routes/customerAccounts');
 const stripeWebhook = require('./routes/stripeWebhook');
 const stripeGateway = require('./services/stripeGateway');
 const privateDocumentStorage = require('./services/privateDocumentStorage');
-const customerAuth = require('./services/customerAuth');
 const customerNotifications = require('./services/customerNotifications');
 const { expirePendingBookings } = require('./services/bookingWorkflow');
 const { expireQuoteHolds } = require('./services/exactSpaceService');
@@ -128,7 +126,6 @@ app.use('/api/public/parking/v1', publicParking);
 app.use('/api/public/parking/v1', publicDocuments);
 app.use('/api/customer/parking/v1/lookup', customerLookup);
 if (config.documents.provider === 'LOCAL') app.use('/api/private-documents', privateDocuments);
-app.use('/api/customer/parking/v1', customerAccounts);
 app.use('/api/admin/auth', adminAuth);
 app.use('/api/admin/parking/v1', adminDocuments);
 app.use('/api/admin/parking/v1', adminCustomers);
@@ -169,7 +166,6 @@ async function sweep() {
       await expirePendingBookings(client);
       await expireQuoteHolds(client);
       await releaseEndedSubscriptions(client);
-      await customerAuth.cleanupExpired(client);
       await require('./services/customerDocuments').expirePendingUploads(client);
       await demoPaymentBypass.expireUnused(client);
       await client.query(`DELETE FROM parking_customer_lookup_grants

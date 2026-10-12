@@ -6,8 +6,6 @@ const state = {
   vehicles: [],
   reservations: [],
   users: [],
-  foodOrders: [],
-  foodMenu: [],
   currentView: "dashboard",
   apiBase: DEFAULT_API_BASE,
   csrfToken: "",
@@ -22,8 +20,7 @@ const views = {
   fleet: document.querySelector("#fleetView"),
   reservations: document.querySelector("#reservationsView"),
   settings: document.querySelector("#settingsView"),
-  employees: document.querySelector("#employeesView"),
-  food: document.querySelector("#foodView")
+  employees: document.querySelector("#employeesView")
 };
 
 const titles = {
@@ -31,8 +28,7 @@ const titles = {
   fleet: ["Fleet", "Vehicle inventory"],
   reservations: ["Reservation desk", "Rental requests and handoffs"],
   settings: ["Connection", "Admin settings"],
-  employees: ["Employee access", "Employee accounts"],
-  food: ["Food desk", "Pay-at-pickup orders"]
+  employees: ["Employee access", "Employee accounts"]
 };
 
 const vehicleStatuses = ["READY", "MAINTENANCE", "OUT_OF_SERVICE", "RETIRED"];
@@ -271,7 +267,6 @@ function showAdmin(session) {
   $("#vehicleForm").hidden = !canConfigure(role);
   document.querySelector('[data-view="employees"]').hidden = role !== "OWNER";
   document.querySelector('[data-view="settings"]').hidden = role !== "OWNER";
-  $("#foodOwnerTools").hidden = role !== "OWNER";
   $("#loginGate").hidden = true;
   $("#adminShell").hidden = false;
 }
@@ -883,48 +878,21 @@ function renderAll() {
   renderFleet();
   renderReservations();
   renderEmployees();
-  renderFood();
 }
 
-function renderFood() {
-  const queue = $("#foodOrderQueue"), menu = $("#foodMenuList");
-  if (!queue || !menu) return;
-  const next = { NEW: ["ACCEPTED", "REJECTED", "CANCELLED"], ACCEPTED: ["PREPARING", "CANCELLED"], PREPARING: ["READY", "CANCELLED"], READY: ["COMPLETED", "CANCELLED"] };
-  queue.innerHTML = state.foodOrders.length ? state.foodOrders.map((order) => `<article class="food-order"><strong>${escapeHtml(order.orderNumber)}</strong> · ${escapeHtml(order.customerName)} · ${escapeHtml(order.customerPhone)}<br><small>${order.pickupType === "ASAP" ? "ASAP" : escapeHtml(formatDate(order.pickupAt))} · ${Math.max(0, Math.floor((Date.now() - new Date(order.createdAt)) / 60000))} min ago · ${escapeHtml(order.paymentStatus)}</small><p>${order.items.map((item) => `${escapeHtml(item.itemName)} × ${item.quantity}`).join(", ")}</p>${order.customerNotes ? `<p>Note: ${escapeHtml(order.customerNotes)}</p>` : ""}<strong>${currency(order.totalCents / 100)}</strong><div class="employee-actions">${(next[order.status] || []).map((status) => `<button class="button small secondary" data-food-status="${order.id}" data-next-status="${status}">${status.replaceAll("_", " ")}</button>`).join("")} ${order.paymentStatus === "UNPAID" ? `<button class="button small primary" data-food-paid="${order.id}">Mark paid</button>` : ""}</div><span class="status-pill ${statusClass(order.status)}">${escapeHtml(order.status)}</span></article>`).join("") : "<div class=\"empty-state\"><strong>No food orders</strong></div>";
-  const owner = state.user?.role === "OWNER";
-  $("#foodOwnerTools").hidden = !owner;
-  const categorySelect = $("#foodItemCategory");
-  if (categorySelect) categorySelect.innerHTML = state.foodMenu.map((category) => `<option value="${category.id}">${escapeHtml(category.name)}${category.isActive ? "" : " (inactive)"}</option>`).join("");
-  menu.innerHTML = state.foodMenu.map((category) => `<section class="food-category"><div><strong>${escapeHtml(category.name)}</strong><span class="status-pill ${category.isActive ? "active" : "inactive"}">${category.isActive ? "Active" : "Inactive"}</span>${owner ? `<button class="button small secondary" data-edit-food-category="${category.id}">Edit</button><button class="button small ${category.isActive ? "danger" : "primary"}" data-toggle-food-category="${category.id}">${category.isActive ? "Deactivate" : "Activate"}</button>` : ""}</div>${category.items.map((item) => `<div><span>${escapeHtml(item.name)} · ${currency(item.priceCents / 100)} · ${item.isActive ? "Active" : "Inactive"} · ${item.isSoldOut ? "Sold out" : "Available"}</span><button class="button small secondary" data-food-soldout="${item.id}" data-sold-out="${!item.isSoldOut}">${item.isSoldOut ? "Mark available" : "Sold out"}</button>${owner ? `<button class="button small secondary" data-edit-food-item="${item.id}">Edit</button><button class="button small ${item.isActive ? "danger" : "primary"}" data-toggle-food-item="${item.id}">${item.isActive ? "Deactivate" : "Activate"}</button>` : ""}</div>`).join("")}</section>`).join("") || "<div class=\"empty-state\"><strong>No menu items</strong><span>Use the owner controls to add menu records.</span></div>";
-}
 
-function centsFromDollar(value) {
-  const amount = Number(value);
-  if (!Number.isFinite(amount) || amount < 0 || amount > 10000 || Math.round(amount * 100) !== amount * 100) throw new Error("Enter a valid price with no more than two decimal places.");
-  return Math.round(amount * 100);
-}
-function clearFoodCategory() { $("#foodCategoryForm").reset(); $("#foodCategoryId").value = ""; $("#foodCategoryOrder").value = "0"; $("#foodCategoryActive").checked = true; $("#foodCategoryTitle").textContent = "Add category"; $("#foodCategoryError").textContent = ""; }
-function clearFoodItem() { $("#foodItemForm").reset(); $("#foodItemId").value = ""; $("#foodItemOrder").value = "0"; $("#foodItemActive").checked = true; $("#foodItemTitle").textContent = "Add menu item"; $("#foodItemError").textContent = ""; }
-function foodCategory(id) { return state.foodMenu.find((category) => Number(category.id) === Number(id)); }
-function foodItem(id) { return state.foodMenu.flatMap((category) => category.items).find((item) => Number(item.id) === Number(id)); }
-function editFoodCategory(id) { const category = foodCategory(id); if (!category) return; $("#foodCategoryId").value = category.id; $("#foodCategoryName").value = category.name; $("#foodCategoryOrder").value = category.displayOrder; $("#foodCategoryActive").checked = category.isActive; $("#foodCategoryTitle").textContent = "Edit category"; $("#foodCategoryError").textContent = ""; $("#foodCategoryName").focus(); }
-function editFoodItem(id) { const item = foodItem(id); if (!item) return; $("#foodItemId").value = item.id; $("#foodItemCategory").value = item.categoryId; $("#foodItemName").value = item.name; $("#foodItemDescription").value = item.description || ""; $("#foodItemPrice").value = (item.priceCents / 100).toFixed(2); $("#foodItemImage").value = item.imageUrl || ""; $("#foodItemOrder").value = item.displayOrder; $("#foodItemActive").checked = item.isActive; $("#foodItemSoldOut").checked = item.isSoldOut; $("#foodItemTitle").textContent = "Edit menu item"; $("#foodItemError").textContent = ""; $("#foodItemName").focus(); }
-async function saveFoodCategory(event) { event.preventDefault(); const id = $("#foodCategoryId").value; const body = { name: $("#foodCategoryName").value.trim(), displayOrder: Number($("#foodCategoryOrder").value), isActive: $("#foodCategoryActive").checked }; try { if (!body.name || !Number.isInteger(body.displayOrder) || body.displayOrder < 0) throw new Error("Enter a category name and a non-negative display order."); if (id && !window.confirm(`${body.isActive ? "Update" : "Hide"} this category from the public menu?`)) return; await request(id ? `/api/admin/food/categories/${id}` : "/api/admin/food/categories", { method: id ? "PATCH" : "POST", body: JSON.stringify(body) }); clearFoodCategory(); await refreshData(); toast("Category saved"); } catch (error) { $("#foodCategoryError").textContent = error.message; } }
-async function saveFoodItem(event) { event.preventDefault(); const id = $("#foodItemId").value; try { const body = { categoryId: Number($("#foodItemCategory").value), name: $("#foodItemName").value.trim(), description: $("#foodItemDescription").value.trim(), priceCents: centsFromDollar($("#foodItemPrice").value), imageUrl: $("#foodItemImage").value.trim(), displayOrder: Number($("#foodItemOrder").value), isActive: $("#foodItemActive").checked, isSoldOut: $("#foodItemSoldOut").checked }; if (!body.categoryId || !body.name || !Number.isInteger(body.displayOrder) || body.displayOrder < 0) throw new Error("Enter a category, name, and non-negative display order."); if (id && !window.confirm(`${body.isActive ? "Update" : "Hide"} this menu item from the public menu?`)) return; await request(id ? `/api/admin/food/items/${id}` : "/api/admin/food/items", { method: id ? "PATCH" : "POST", body: JSON.stringify(body) }); clearFoodItem(); await refreshData(); toast("Menu item saved"); } catch (error) { $("#foodItemError").textContent = error.message; } }
 
 async function refreshData(showMessage = false) {
   try {
     const owner = state.user?.role === "OWNER";
-    const [vehiclePayload, reservationPayload, usersPayload, foodOrdersPayload, foodMenuPayload] = await Promise.all([
+    const [vehiclePayload, reservationPayload, usersPayload] = await Promise.all([
       request("/api/admin/vehicles"),
       request("/api/reservations"),
-      owner ? request("/api/admin/users") : Promise.resolve({ users: [] }), request("/api/admin/food/orders"), request("/api/admin/food/menu")
+      owner ? request("/api/admin/users") : Promise.resolve({ users: [] })
     ]);
     state.vehicles = vehiclePayload.vehicles || [];
     state.reservations = reservationPayload.reservations || [];
     state.users = usersPayload.users || [];
-    state.foodOrders = foodOrdersPayload.orders || [];
-    state.foodMenu = foodMenuPayload.categories || [];
     renderAll();
     $("#apiStatus").textContent = "API connected";
     $("#apiStatus").className = "connection-pill ok";
@@ -1267,10 +1235,6 @@ function bindEvents() {
   $("#testApiButton").addEventListener("click", testApi);
   $("#logoutButton").addEventListener("click", logout);
   $("#loginForm").addEventListener("submit", submitLogin);
-  $("#foodCategoryForm").addEventListener("submit", saveFoodCategory);
-  $("#foodItemForm").addEventListener("submit", saveFoodItem);
-  $("#clearFoodCategory").addEventListener("click", clearFoodCategory);
-  $("#clearFoodItem").addEventListener("click", clearFoodItem);
   $("#closeDetailsButton").addEventListener("click", closeVehicleDetails);
   $("#detailsDialog").addEventListener("click", (event) => {
     if (event.target === $("#detailsDialog")) closeVehicleDetails();
@@ -1298,20 +1262,6 @@ function bindEvents() {
     if (inspectionButton) submitInspection(inspectionButton.dataset.reservationId, inspectionButton.dataset.inspectionSubmit);
     const employeeButton = event.target.closest("[data-user-action][data-user-id]");
     if (employeeButton) mutateEmployee(employeeButton.dataset.userId, employeeButton.dataset.userAction, employeeButton);
-    const foodStatus = event.target.closest("[data-food-status]");
-    if (foodStatus) request(`/api/admin/food/orders/${foodStatus.dataset.foodStatus}/status`, { method: "POST", body: JSON.stringify({ status: foodStatus.dataset.nextStatus }) }).then(() => refreshData()).catch((error) => toast(error.message, "error"));
-    const paid = event.target.closest("[data-food-paid]");
-    if (paid) request(`/api/admin/food/orders/${paid.dataset.foodPaid}/payment`, { method: "POST", body: JSON.stringify({ paymentStatus: "PAID" }) }).then(() => refreshData()).catch((error) => toast(error.message, "error"));
-    const soldOut = event.target.closest("[data-food-soldout]");
-    if (soldOut) request(`/api/admin/food/items/${soldOut.dataset.foodSoldout}`, { method: "PATCH", body: JSON.stringify({ isSoldOut: soldOut.dataset.soldOut === "true" }) }).then(() => refreshData()).catch((error) => toast(error.message, "error"));
-    const categoryEdit = event.target.closest("[data-edit-food-category]");
-    if (categoryEdit) editFoodCategory(categoryEdit.dataset.editFoodCategory);
-    const itemEdit = event.target.closest("[data-edit-food-item]");
-    if (itemEdit) editFoodItem(itemEdit.dataset.editFoodItem);
-    const categoryToggle = event.target.closest("[data-toggle-food-category]");
-    if (categoryToggle) { const category = foodCategory(categoryToggle.dataset.toggleFoodCategory); if (category && window.confirm(`${category.isActive ? "Hide" : "Show"} ${category.name} on the public menu?`)) request(`/api/admin/food/categories/${category.id}`, { method: "PATCH", body: JSON.stringify({ isActive: !category.isActive }) }).then(() => refreshData()).catch((error) => toast(error.message, "error")); }
-    const itemToggle = event.target.closest("[data-toggle-food-item]");
-    if (itemToggle) { const item = foodItem(itemToggle.dataset.toggleFoodItem); if (item && window.confirm(`${item.isActive ? "Hide" : "Show"} ${item.name} on the public menu?`)) request(`/api/admin/food/items/${item.id}`, { method: "PATCH", body: JSON.stringify({ isActive: !item.isActive }) }).then(() => refreshData()).catch((error) => toast(error.message, "error")); }
   });
 }
 

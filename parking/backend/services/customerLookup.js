@@ -65,7 +65,7 @@ async function findMatchingBooking(client, body) {
 }
 
 function hmac(value) {
-  return crypto.createHmac('sha256', config.customerAuth.otpPepper).update(String(value)).digest('hex');
+  return crypto.createHmac('sha256', config.customerLookup.pepper).update(String(value)).digest('hex');
 }
 
 function fingerprint(req) {

@@ -2190,7 +2190,6 @@ router.patch('/customer-accounts/:publicId/recovery', csrf, roles.owner, async (
     const verifiedColumn = contactType === 'PHONE' ? 'phone_verified_at' : 'email_verified_at';
     await client.query(`UPDATE parking_customers SET ${column}=$1,${displayColumn}=$2,
         ${verifiedColumn}=now(),status='ACTIVE' WHERE id=$3`, [normalized, cleanText(req.body.identifier, 254, 'Login identity', true), customer.id]);
-    await client.query('UPDATE parking_customer_sessions SET revoked_at=now() WHERE customer_id=$1 AND revoked_at IS NULL', [customer.id]);
     if (req.body.conflictId !== undefined && req.body.conflictId !== null && req.body.conflictId !== '') {
       const conflictId = wholeNumber(req.body.conflictId, 'Conflict', { min: 1 });
       await client.query(`UPDATE parking_customer_identity_conflicts SET status='RESOLVED',resolved_by_admin_user_id=$1,

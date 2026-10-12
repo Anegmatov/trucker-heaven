@@ -81,11 +81,11 @@ Configure a private S3 or S3-compatible bucket with `DOCUMENT_STORAGE_PROVIDER=S
 
 ## Backend dependencies
 
-Pinned by `backend/package-lock.json`; keep these major versions when merging into the shared app: express 5.2.1, pg 8.22.0, helmet 8.3.0, cors 2.8.6, express-rate-limit 8.6.0, bcrypt 6.0.0, luxon 3.7.2, dotenv 17.4.2, stripe 22.5.0, @aws-sdk/client-s3 and s3-request-presigner 3.1106.0, fflate 0.8.x. There is no jsonwebtoken: staff and customer sessions are opaque tokens hashed in PostgreSQL.
+Pinned by `backend/package-lock.json`; keep these major versions when merging into the shared app: express 5.2.1, pg 8.22.0, helmet 8.3.0, cors 2.8.6, express-rate-limit 8.6.0, bcrypt 6.0.0, luxon 3.7.2, dotenv 17.4.2, stripe 22.5.0, @aws-sdk/client-s3 and s3-request-presigner 3.1106.0. There is no jsonwebtoken: staff and customer sessions are opaque tokens hashed in PostgreSQL.
 
 ## Environment
 
-Every variable the backend reads is prefixed `PARKING_` (see `backend/env.js`; `PORT` is the only exception) so the API can be mounted as one module in a shared Express app — see `backend/MERGE-NOTES.md` for the app/server split, `init()`, `runMigrations()` and the full variable list. Copy `backend/.env.example`; required production values include `PARKING_DATABASE_URL`, `PARKING_CORS_ALLOWED_ORIGINS`, `PARKING_SESSION_TOKEN_PEPPER`, `PARKING_COOKIE_SECURE=true`, `PARKING_CUSTOMER_COOKIE_SECURE=true`, `PARKING_CUSTOMER_COOKIE_SAME_SITE=none` for separate Render hosts, `PARKING_STRIPE_SECRET_KEY`, `PARKING_STRIPE_WEBHOOK_SECRET`, `PARKING_CUSTOMER_APP_URL`, and private document-storage credentials/bucket configuration. The read-only My Parking and Upload Documents identity lookup does not require Resend, Twilio, email OTP, or SMS OTP; notification transports are optional capabilities for other operational notifications. Configure `PARKING_ADMIN_APP_URL`, `PARKING_STRIPE_BILLING_PORTAL_CONFIGURATION_ID`, `PARKING_STRIPE_API_VERSION`, Checkout/webhook timing, customer/admin session TTLs, `PARKING_CUSTOMER_LOOKUP_TTL_SECONDS`, lookup rate limits, `PARKING_MONTHLY_PAYMENT_GRACE_DAYS`, quote/hold TTL, document TTL/size, and other rate-limit settings for the deployment. The retained stronger legacy customer session/OTP endpoints may use `PARKING_CUSTOMER_OTP_PEPPER`, with the strong session pepper as fallback, but they are not part of either public customer flow.
+Every variable the backend reads is prefixed `PARKING_` (see `backend/env.js`; `PORT` is the only exception) so the API can be mounted as one module in a shared Express app — see `backend/MERGE-NOTES.md` for the app/server split, `init()`, `runMigrations()` and the full variable list. Copy `backend/.env.example`; required production values include `PARKING_DATABASE_URL`, `PARKING_CORS_ALLOWED_ORIGINS`, `PARKING_SESSION_TOKEN_PEPPER`, `PARKING_COOKIE_SECURE=true`, `PARKING_CUSTOMER_COOKIE_SECURE=true`, `PARKING_CUSTOMER_COOKIE_SAME_SITE=none` for separate Render hosts, `PARKING_STRIPE_SECRET_KEY`, `PARKING_STRIPE_WEBHOOK_SECRET`, `PARKING_CUSTOMER_APP_URL`, and private document-storage credentials/bucket configuration. The read-only My Parking and Upload Documents identity lookup does not require Resend, Twilio, email OTP, or SMS OTP; notification transports are optional capabilities for other operational notifications. Configure `PARKING_ADMIN_APP_URL`, `PARKING_STRIPE_BILLING_PORTAL_CONFIGURATION_ID`, `PARKING_STRIPE_API_VERSION`, Checkout/webhook timing, customer/admin session TTLs, `PARKING_CUSTOMER_LOOKUP_TTL_SECONDS`, lookup rate limits, `PARKING_MONTHLY_PAYMENT_GRACE_DAYS`, quote/hold TTL, document TTL/size, and other rate-limit settings for the deployment. The lookup grant is hashed with `PARKING_CUSTOMER_LOOKUP_PEPPER` (falls back to the session pepper). The OTP customer-account portal, the spreadsheet customer/occupancy importers and their one-off repair scripts were removed in October 2026.
 
 Do not use `parkingops_test` for development or production. The test suite refuses to run unless both `PARKING_TEST_DATABASE=parkingops_test` and a matching `PARKING_DATABASE_URL` are set. For Render, point both static applications at `https://trucker-heaven-parking-api-vkf9.onrender.com/api`; set `PARKING_CORS_ALLOWED_ORIGINS=https://trucker-heaven-parking-a437.onrender.com,https://trucker-heaven-parking-admin-krfn.onrender.com`, `PARKING_CUSTOMER_APP_URL=https://trucker-heaven-parking-a437.onrender.com`, and `PARKING_ADMIN_APP_URL=https://trucker-heaven-parking-admin-krfn.onrender.com`.
 
@@ -97,14 +97,7 @@ If physical spaces were provisioned under the wrong vehicle category, `npm run r
 
 ## Legacy customer-ledger import
 
-The one-time parking workbook importer defaults to a zero-write dry run and reads the named `PARKING PAYMENT MANAGEMENT` sheet without modifying the workbook:
-
-```bash
-cd backend
-npm run customers:import -- --file "/protected/path/TH MOTORS AI LEADS SHEET.xlsx" --dry-run --report "/protected/path/customer-import-dry-run.json"
-```
-
-Use `--compare-production` only from the protected backend environment with its injected `PARKING_DATABASE_URL`. Execution is separately gated by the exact workbook hash, dry-run report hash, expected mutation counts, and an active Owner ID; it refuses to run while ambiguous customers, invalid rows, or uncertain payment cells remain. Legacy payments retain `LEGACY_EXCEL_IMPORT` provenance and never receive fabricated Stripe identifiers.
+The one-time workbook importer and the spreadsheet occupancy reconciliation were removed in October 2026 (last present at commit 2f84a71). Rows they created keep their `LEGACY_EXCEL_IMPORT` provenance in `parking_customer_import_batches`, `parking_customer_legacy_parking_records` and `parking_customer_legacy_anomalies`; the ledger reads them as before.
 
 ## Checks
 

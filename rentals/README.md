@@ -16,7 +16,6 @@ DriveOps-MVP/
   backend/            Express + PostgreSQL API
   frontend-customer/  Public rental website
   frontend-admin/     Internal Nashville office dashboard
-  frontend/           Original combined static UI kept for reference
 ```
 
 ## What was added
@@ -53,16 +52,7 @@ VehiclePhotos
 ReservationsMVP
 ```
 
-The old class-project routes are retained in source only and are disabled by default:
-
-```text
-/api/auth
-/api/cars
-/api/rentals
-/api/payments
-```
-
-Set `ENABLE_LEGACY_ROUTES=true` only for temporary non-production compatibility. Production refuses to start if that flag is enabled.
+The old class-project routes (`/api/auth`, `/api/cars`, `/api/rentals`, `/api/payments`) and their tables were removed; migration `013` drops them.
 
 ## Setup
 

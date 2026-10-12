@@ -23,7 +23,9 @@ await shutdown();        // closes the pool
 
 `init({ migrate: false })` skips migrations. The standalone `server.js` is just `init()` then `listen(PORT)`.
 
-Migration command (standalone): `npm run migrate` (= `node migrations/run.js`, same routine).
+Migration command (standalone): `npm run migrate` (= `node migrations/run.js`, same routine). Latest migration: `013_drop_food_and_legacy.sql`, which drops the food tables, the legacy class-project tables and the `rentaldetails` view (food ordering is its own module; the legacy API is gone).
+
+Routes mounted: `/api/public/vehicles`, `/api/public/reservation-access/*`, `/api/reservations`, `/api/admin/*`, `/uploads/vehicles`, `/health`, `/api/health/*`. No food routes.
 
 ## Mounting
 
@@ -56,7 +58,6 @@ Unprefixed exceptions: `PORT` (standalone `server.js` only) and `NODE_ENV` (proc
 | RENTALS_RATE_LIMIT_WINDOW_MS, RENTALS_RATE_LIMIT_MAX | General `/api` limiter | 15 min / 300 |
 | RENTALS_RESERVATION_RATE_LIMIT_WINDOW_MS, RENTALS_RESERVATION_RATE_LIMIT_MAX | Public reservation creation | 60 min / 10 |
 | RENTALS_LOOKUP_RATE_LIMIT_WINDOW_MS, RENTALS_LOOKUP_RATE_LIMIT_MAX | Find-my-rental lookups | 15 min / 20 |
-| RENTALS_FOOD_ORDER_RATE_LIMIT_WINDOW_MS, RENTALS_FOOD_ORDER_RATE_LIMIT_MAX | Food orders | 60 min / 20 |
 | RENTALS_ADMIN_RATE_LIMIT_WINDOW_MS, RENTALS_ADMIN_RATE_LIMIT_MAX | Admin API | 15 min / 120 |
 | RENTALS_ADMIN_LOGIN_RATE_LIMIT_WINDOW_MS, RENTALS_ADMIN_LOGIN_RATE_LIMIT_MAX | Admin login | 15 min / 10 |
 | RENTALS_MAX_RENTAL_DAYS | Longest reservation | 30 |
@@ -66,7 +67,6 @@ Unprefixed exceptions: `PORT` (standalone `server.js` only) and `NODE_ENV` (proc
 | RENTALS_SMS_ENABLED, RENTALS_SMS_TIMEOUT_MS, RENTALS_TWILIO_ACCOUNT_SID, RENTALS_TWILIO_AUTH_TOKEN, RENTALS_TWILIO_MESSAGING_SERVICE_SID, RENTALS_TWILIO_FROM_NUMBER | Text messages | off |
 | RENTALS_RENTAL_OFFICE_NAME, RENTALS_RENTAL_OFFICE_ADDRESS, RENTALS_RENTAL_OFFICE_PHONE | Office details in texts | Trucker Heaven values |
 | RENTALS_NOTIFICATION_MAX_ATTEMPTS, _INITIAL_DELAY_MS, _MAX_DELAY_MS, _LEASE_MS | Outbox worker (`npm run notifications:worker`, separate process) | 5 / 30 s / 1 h / 60 s |
-| RENTALS_ENABLE_LEGACY_ROUTES | Dev-only legacy routes; refused in production | off |
 | RENTALS_ADMIN_BOOTSTRAP_EMAIL / _PASSWORD | `npm run admin:create` non-interactive input (script only) | — |
 | RENTALS_TEST_DATABASE_URL | Disposable DB for `npm test` integration tests (tests only) | — |
 
@@ -78,7 +78,7 @@ Relative upload directories resolve against this module folder (`path.resolve(__
 - `cors()` with a strict origin allow-list from `RENTALS_CORS_ALLOWED_ORIGINS`, `credentials: true`, methods GET/HEAD/POST/PATCH/DELETE, headers `Content-Type, X-CSRF-Token, X-Reservation-Access-Token, Idempotency-Key`.
 - `express.json` / `express.urlencoded` with `RENTALS_JSON_BODY_LIMIT`.
 - `express.static` for `/uploads/vehicles` (nosniff).
-- express-rate-limit instances: general (`/api`), reservation create, lookups, food, admin, admin login. They keep counters in process memory, per app instance.
+- express-rate-limit instances: general (`/api`), reservation create, lookups, admin, admin login. They keep counters in process memory, per app instance.
 - Admin sessions: opaque token in an `HttpOnly` cookie scoped to `/api`, verified against PostgreSQL; CSRF header on mutations. No `express-session`, no JWT.
 - A final JSON 404 for `/api/*` and a JSON error handler. The error handler never exits the process.
 

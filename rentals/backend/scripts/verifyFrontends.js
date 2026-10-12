@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const repositoryRoot = path.join(__dirname, "..", "..");
-const frontendDirectories = ["frontend-customer", "frontend-admin", "frontend-food"];
+const frontendDirectories = ["frontend-customer", "frontend-admin"];
 const errors = [];
 let htmlFiles = 0;
 let localResources = 0;

@@ -246,7 +246,8 @@ test("PostgreSQL migrations, readiness, and reservation integrity", async (t) =>
       "009_food_owner_staff.sql",
       "010_rental_completion_documents_agreements.sql",
       "011_rental_document_review_history.sql",
-      "012_counter_checkout_and_payments.sql"
+      "012_counter_checkout_and_payments.sql",
+      "013_drop_food_and_legacy.sql"
     ]);
     await ensureSchema(pool);
 
@@ -308,7 +309,8 @@ test("PostgreSQL migrations, readiness, and reservation integrity", async (t) =>
       "009_food_owner_staff.sql",
       "010_rental_completion_documents_agreements.sql",
       "011_rental_document_review_history.sql",
-      "012_counter_checkout_and_payments.sql"
+      "012_counter_checkout_and_payments.sql",
+      "013_drop_food_and_legacy.sql"
     ]);
 
     const tables = await pool.query(

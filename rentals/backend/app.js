@@ -20,7 +20,6 @@ const activeRoutes = {
   adminVehicles: require("./routes/adminVehicles"),
   adminUsers: require("./routes/adminUsers"),
   reservations: require("./routes/reservations"),
-  food: require("./routes/food"),
   reservationAccess: require("./routes/reservationAccess")
 };
 
@@ -51,10 +50,6 @@ function createApp(options = {}) {
   const reservationRateLimiter = createRateLimiter({
     ...config.rateLimits.reservation,
     message: "Too many reservation requests. Please try again later."
-  });
-  const foodRateLimiter = createRateLimiter({
-    ...config.rateLimits.food,
-    message: "Too many food order requests. Please try again later."
   });
   const adminRateLimiter = createRateLimiter({
     ...config.rateLimits.admin,
@@ -101,15 +96,11 @@ function createApp(options = {}) {
     lookupMiddleware: lookupRateLimiter,
     env
   }));
-  const foodRoutes = routes.food || activeRoutes.food;
-  app.use("/api/public/food", foodRoutes.createFoodRouter({ database }));
-  app.use("/api/food", foodRateLimiter, foodRoutes.createFoodRouter({ database }));
   app.use("/api/admin", adminRateLimiter);
   app.use("/api/admin/auth/login", loginRateLimiter);
   app.use("/api/admin/auth", createAdminAuthRouter({ db: database, config, middleware: adminMiddleware }));
   app.use("/api/admin/vehicles", routes.adminVehicles);
   if (routes.adminUsers) app.use("/api/admin", routes.adminUsers);
-  app.use("/api/admin/food", foodRoutes.createAdminFoodRouter({ database }));
   app.use("/api", reservationAccessRoutes.createReservationAccessRouter({ database, includePublic: false, env }));
   app.use("/api/reservations", (req, res, next) => {
     if (req.method === "POST" && req.path === "/") return reservationRateLimiter(req, res, next);
@@ -117,14 +108,6 @@ function createApp(options = {}) {
   });
   app.use("/api/reservations", routes.reservations);
 
-  if (config.legacyRoutesEnabled) {
-    // Development-only compatibility for the retired combined frontend.
-    app.use("/api/auth", require("./routes/auth"));
-    app.use("/api/cars", require("./routes/cars"));
-    app.use("/api/rentals", require("./routes/rentals"));
-    app.use("/api/payments", require("./routes/payments"));
-    console.warn("[rentals] legacy API routes are enabled for development only.");
-  }
 
   if (typeof options.configureApp === "function") options.configureApp(app);
 
@@ -139,8 +122,7 @@ function createApp(options = {}) {
         readiness: "/api/health/ready",
         publicVehicles: "/api/public/vehicles",
         adminVehicles: "/api/admin/vehicles",
-        reservations: "/api/reservations",
-        foodMenu: "/api/public/food/menu"
+        reservations: "/api/reservations"
       }
     });
   });

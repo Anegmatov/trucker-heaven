@@ -160,7 +160,7 @@ textarea:focus-visible, a:focus-visible, summary:focus-visible {
 .login-panel h1 { margin: 0 0 10px; font-size: clamp(38px, 4vw, 51px); line-height: 1; }
 .login-panel > p:not(.eyebrow):not(.form-error) { margin-bottom: 31px; color: var(--muted); font-size: 15px; }
 .login-panel label, .vehicle-form label, .settings-panel label,
-.inspection-form label, .food-admin-grid label {
+.inspection-form label {
   display: grid;
   gap: 7px;
   margin-top: 16px;
@@ -351,15 +351,6 @@ summary { cursor: pointer; color: var(--brand-blue); font-weight: 800; }
 .inspection-check, .check-label { display: flex !important; grid-template-columns: auto 1fr; align-items: center; gap: 8px !important; }
 .inspection-check input, .check-label input { width: 16px; min-height: 16px; }
 
-.food-admin-grid { display: grid; grid-template-columns: 0.7fr 1.3fr; gap: 22px; margin-top: 22px; }
-.food-admin-grid > .panel { padding: 25px; }
-.food-order { position: relative; margin-bottom: 10px; padding: 17px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-warm); }
-.food-order > .status-pill { position: absolute; top: 14px; right: 14px; }
-.food-order p { margin: 9px 0; color: var(--muted); }
-.food-category { margin-bottom: 14px; border-top: 2px solid var(--ink-soft); }
-.food-category > div { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
-.food-category > div > span { flex: 1; }
-.food-checks { display: flex; flex-wrap: wrap; gap: 18px; }
 .settings-panel { max-width: 680px; padding: 28px; }
 .settings-note { color: var(--muted); font-size: 12px; }
 
@@ -416,7 +407,7 @@ summary { cursor: pointer; color: var(--brand-blue); font-weight: 800; }
   .topbar-actions { width: 100%; flex-wrap: wrap; justify-content: start; }
   .employee-summary { margin-right: auto; text-align: left; }
   .metric-grid { grid-template-columns: repeat(2, 1fr); }
-  .dashboard-grid, .food-admin-grid { grid-template-columns: 1fr; }
+  .dashboard-grid { grid-template-columns: 1fr; }
   .panel-header { align-items: stretch; flex-direction: column; }
   .fleet-tools { width: 100%; }
   .fleet-tools input, .fleet-tools select { width: 50%; }
@@ -441,7 +432,6 @@ summary { cursor: pointer; color: var(--brand-blue); font-weight: 800; }
   .metric-card strong { font-size: 33px; }
   .dashboard-grid > .panel, #reservationsView > .panel,
   #employeesView > .panel, .fleet-panel, .vehicle-form,
-  .food-admin-grid > .panel { padding: 19px; }
   .fleet-card { grid-template-columns: 1fr; }
   .fleet-photo, .fleet-photo img, .photo-empty { min-height: 210px; max-height: 240px; }
   .fleet-tools { flex-direction: column; }

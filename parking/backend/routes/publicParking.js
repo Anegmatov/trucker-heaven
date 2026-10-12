@@ -15,7 +15,6 @@ const { SUPPORTED_PUBLIC_CATEGORY_CODES, assertPublicCategory, publicCategoryNam
 const stripeGateway = require('../services/stripeGateway');
 const privateDocumentStorage = require('../services/privateDocumentStorage');
 const { authorizedBooking } = require('../services/customerBookingAccess');
-const customerAuth = require('../services/customerAuth');
 const { resolveOrCreateCustomer } = require('../services/customerIdentity');
 const customerNotifications = require('../services/customerNotifications');
 const demoPaymentBypass = require('../services/demoPaymentBypass');
@@ -1096,10 +1095,7 @@ router.post('/booking-attempts', bookingLimit, async (req, res, next) => {
           excludeQuoteId: quote.id
         });
       }
-      const signedInCustomer = await customerAuth.customerFromRequest(req, client, { touch: false });
-      const customerIdentity = await resolveOrCreateCustomer(client, customer, {
-        authenticatedCustomerId: signedInCustomer?.id || null
-      });
+      const customerIdentity = await resolveOrCreateCustomer(client, customer);
       if (customerIdentity.conflict) {
         await client.query('COMMIT');
         const conflict = apiError('CUSTOMER_IDENTITY_CONFLICT',
@@ -1380,10 +1376,7 @@ router.post('/bookings', bookingLimit, async (req, res, next) => {
       const status = request.location.booking_approval_mode === 'MANUAL_CONFIRM' ? 'PENDING' : 'CONFIRMED';
       let customerId = null;
       if (payOnSite()) {
-        const signedInCustomer = await customerAuth.customerFromRequest(req, client, { touch: false });
-        const customerIdentity = await resolveOrCreateCustomer(client, customer, {
-          authenticatedCustomerId: signedInCustomer?.id || null
-        });
+        const customerIdentity = await resolveOrCreateCustomer(client, customer);
         if (customerIdentity.conflict) {
           throw apiError('CUSTOMER_IDENTITY_CONFLICT',
             'This phone number and email belong to different customer records. Call Trucker Heaven parking to finish your reservation.', 409);

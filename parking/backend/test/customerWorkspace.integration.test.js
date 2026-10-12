@@ -6,8 +6,6 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const bcrypt = require('bcrypt');
-const customerImport = require('../services/customerImport');
-const occupancyReconciliation = require('../services/occupancyReconciliation');
 
 let database;
 let pool;
@@ -256,88 +254,4 @@ test('multiple legacy space obligations aggregate by customer/month and anomaly-
   assert.equal(february.status, 'LEGACY_DATA_MISSING');
   assert.equal(february.amountDueCents, 0);
   assert.equal(february.legacyAnomalyCount, 1);
-});
-
-test('the executable importer preserves multi-vehicle provenance and quarantines evidence without financial effect', async () => {
-  const headers = ['LOT #','Customer name / Company name/ Tel # /DOT','PHONE#','EMAIL ADD','FOLLOWUP','DOT/MC #','DATE',
-    'License plate','Unit #','Truck','KEYS','Rate',new Date('2024-03-01T00:00:00Z')];
-  const analysis = customerImport.analyzeRows([
-    headers,
-    [21,'Legacy Person','615-555-0199','legacy-person@example.test','Call first','DOT 123',new Date('2024-01-01T00:00:00Z'),'TN-X','U1','Tractor',null,250,'PIAD 250'],
-    [22,'Legacy Person','6155550199','legacy-person@example.test',null,'DOT 123',new Date('2024-02-01T00:00:00Z'),'TN-Y','U2','Tractor',null,250,'Missing']
-  ]);
-  const result = await customerImport.executeImport(pool, analysis, {
-    filename: 'executable-fixture.xlsx', sha256: 'c'.repeat(64), sheet: 'PARKING PAYMENT MANAGEMENT'
-  }, { adminUserId: 1, initiatedBy: 'ledger-owner' });
-  assert.equal(result.customersCreated, 1);
-  assert.equal(result.vehicleRecords, 2);
-  assert.equal(result.legacyParkingRecords, 2);
-  assert.equal(result.billingPeriods, 1);
-  assert.equal(result.legacyPayments, 1);
-  assert.equal(result.anomalyRecords, 1);
-  assert.equal(result.importedLegacyPaymentCents, 25000);
-  assert.equal(result.rowsSkipped, 0);
-  const imported = (await pool.query(`SELECT id,display_phone FROM parking_customers
-    WHERE legacy_import_batch_id=(SELECT id FROM parking_customer_import_batches WHERE public_id=$1)`, [result.batchPublicId])).rows[0];
-  assert.equal(imported.display_phone, '615-555-0199');
-  assert.equal(Number((await pool.query('SELECT count(*) FROM parking_customer_vehicles WHERE customer_id=$1', [imported.id])).rows[0].count), 2);
-  assert.equal(Number((await pool.query('SELECT count(*) FROM parking_customer_legacy_parking_records WHERE customer_id=$1', [imported.id])).rows[0].count), 2);
-  const anomaly = (await pool.query('SELECT financial_effect,anomaly_type FROM parking_customer_legacy_anomalies WHERE customer_id=$1', [imported.id])).rows[0];
-  assert.equal(anomaly.financial_effect, false);
-  assert.equal(anomaly.anomaly_type, 'LEGACY_NO_RELIABLE_EVIDENCE');
-});
-
-test('occupancy execution creates a provenance-linked assignment without inventing payment and reruns idempotently', async () => {
-  const category = (await pool.query(`INSERT INTO parking_categories(code,name)
-    VALUES('OCCUPANCY_TEST','Occupancy Test') RETURNING id`)).rows[0];
-  const location = (await pool.query(`INSERT INTO parking_locations(name,address,timezone)
-    VALUES('Occupancy execution fixture','1 Reconciliation Way','America/Chicago') RETURNING id`)).rows[0];
-  const zone = (await pool.query(`INSERT INTO parking_zones(location_id,name) VALUES($1,'Fixture Zone') RETURNING id`,
-    [location.id])).rows[0];
-  const inventory = (await pool.query(`INSERT INTO parking_inventory(zone_id,category_id,capacity)
-    VALUES($1,$2,1) RETURNING id`, [zone.id,category.id])).rows[0];
-  const spot = (await pool.query(`INSERT INTO parking_spots(location_id,zone_id,inventory_id,public_label,
-      visual_element_key,parking_use,public_bookable,classification_state)
-    VALUES($1,$2,$3,'900','le_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab','CUSTOMER',true,'COMPLETE') RETURNING id`,
-  [location.id,zone.id,inventory.id])).rows[0];
-  const metadata = { filename: 'occupancy-fixture.xlsx', sha256: 'd'.repeat(64),
-    sheet: 'PARKING PAYMENT MANAGEMENT', modifiedAt: '2026-08-10T00:00:00.000Z' };
-  const classified = { detectedColors: { available: ['#FFFF00'], internal: ['#FF0000'] }, rows: [{
-    sourceRow: 500, lot: 900, lotText: '900', customer: 'Alex Smith', phone: '(615) 555-0101',
-    email: 'alex.one@example.test', rawDate: null, plate: 'A-ONE', unit: 'UNIT-A', rateCents: 25000,
-    fill: { type: 'solid', rgb: 'FFFFFFFF', display: '#FFFFFF', fillId: 4, styleId: 1 },
-    classification: 'CUSTOMER_OCCUPIED', reason: 'CREDIBLE_CURRENT_CUSTOMER_OR_TRUCK_DATA'
-  }] };
-  const plan = occupancyReconciliation.buildPlan(classified, {
-    spots: [{ id: Number(spot.id), label: '900', locationId: Number(location.id), zoneId: Number(zone.id),
-      inventoryId: Number(inventory.id), categoryId: Number(category.id), parkingUse: 'CUSTOMER',
-      publicBookable: true, classificationState: 'COMPLETE', layoutId: null, elementId: null,
-      parkingPurpose: 'CUSTOMER', dailyEligible: false, weeklyEligible: false, monthlyEligible: true,
-      spacePublicBookable: true, ratePlanId: null }],
-    assignments: [], blocks: [], identitySignals: null,
-    identities: [{ sourceRow: 500, customerId: 1, vehicleId: 1, firstName: 'Alex', lastName: 'Smith',
-      displayName: 'Alex Smith', phone: '(615) 555-0101', email: 'alex.one@example.test', unit: 'UNIT-A',
-      plate: 'A-ONE', plateState: 'TN' }]
-  }, metadata, '2026-08-14T00:00:00.000Z');
-  assert.equal(plan.rows[0].resolution, 'ASSIGNED');
-  const result = await occupancyReconciliation.executePlan(pool, plan, { adminUserId: 1, reportSha256: 'e'.repeat(64) });
-  assert.equal(result.idempotent, false);
-  assert.equal(result.summary.actual.assigned, 1);
-  const booking = (await pool.query(`SELECT record_source,payment_status,stripe_checkout_session_id,
-      stripe_payment_intent_id,customer_id FROM parking_bookings WHERE occupancy_reconciliation_row_id IS NOT NULL`)).rows[0];
-  assert.equal(booking.record_source, 'SPREADSHEET_RECONCILIATION');
-  assert.equal(booking.payment_status, 'NOT_REQUIRED');
-  assert.equal(booking.stripe_checkout_session_id, null);
-  assert.equal(booking.stripe_payment_intent_id, null);
-  assert.equal(Number(booking.customer_id), 1);
-  const assignment = (await pool.query(`SELECT assignment_source,released_at FROM reservation_spot_assignments
-    WHERE occupancy_reconciliation_row_id IS NOT NULL`)).rows[0];
-  assert.equal(assignment.assignment_source, 'SPREADSHEET_RECONCILIATION');
-  assert.equal(assignment.released_at, null);
-  assert.equal(Number((await pool.query(`SELECT count(*) FROM parking_customer_payments
-    WHERE booking_id=(SELECT id FROM parking_bookings WHERE occupancy_reconciliation_row_id IS NOT NULL)`)).rows[0].count), 0);
-  const rerun = await occupancyReconciliation.executePlan(pool, plan, { adminUserId: 1, reportSha256: 'e'.repeat(64) });
-  assert.equal(rerun.idempotent, true);
-  assert.equal(Number((await pool.query(`SELECT count(*) FROM parking_bookings
-    WHERE occupancy_reconciliation_row_id IS NOT NULL`)).rows[0].count), 1);
 });

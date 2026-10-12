@@ -20,8 +20,8 @@ const lookupLimit = rateLimit({
 function cookieOptions() {
   return {
     httpOnly: true,
-    secure: config.customerAuth.cookieSecure,
-    sameSite: config.customerAuth.cookieSameSite,
+    secure: config.customerLookup.cookieSecure,
+    sameSite: config.customerLookup.cookieSameSite,
     path: lookupPath,
     maxAge: config.customerLookup.ttlSeconds * 1000
   };

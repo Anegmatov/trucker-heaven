@@ -50,10 +50,6 @@ function jsonBodyLimit(value) {
   return limit;
 }
 
-function legacyRoutesEnabled(env = moduleEnv()) {
-  return String(env.NODE_ENV || "development").toLowerCase() !== "production" && isEnabled(env.ENABLE_LEGACY_ROUTES);
-}
-
 function rentalPaymentMode(value) {
   const mode = String(value || "PAY_AT_PICKUP").trim().toUpperCase();
   if (mode === "PAY_AT_LOCATION") return "PAY_AT_PICKUP";
@@ -71,9 +67,6 @@ function createRuntimeConfig(env = moduleEnv()) {
   if (production && !env.CUSTOMER_SITE_URL) console.warn("[config] CUSTOMER_SITE_URL is not set; confirmation texts will not include the reservation link.");
   if (production && configuredOrigins.length === 0) {
     throw new Error("CORS_ALLOWED_ORIGINS must be explicitly configured in production");
-  }
-  if (production && isEnabled(env.ENABLE_LEGACY_ROUTES)) {
-    throw new Error("ENABLE_LEGACY_ROUTES cannot be enabled in production");
   }
   const cookieSecure = env.COOKIE_SECURE === undefined ? production : isEnabled(env.COOKIE_SECURE);
   const cookieSameSite = String(env.COOKIE_SAME_SITE || "lax").toLowerCase();
@@ -100,10 +93,6 @@ function createRuntimeConfig(env = moduleEnv()) {
         windowMs: positiveInteger(env.LOOKUP_RATE_LIMIT_WINDOW_MS, 15 * 60 * 1000, "LOOKUP_RATE_LIMIT_WINDOW_MS"),
         limit: positiveInteger(env.LOOKUP_RATE_LIMIT_MAX, 20, "LOOKUP_RATE_LIMIT_MAX")
       },
-      food: {
-        windowMs: positiveInteger(env.FOOD_ORDER_RATE_LIMIT_WINDOW_MS, 60 * 60 * 1000, "FOOD_ORDER_RATE_LIMIT_WINDOW_MS"),
-        limit: positiveInteger(env.FOOD_ORDER_RATE_LIMIT_MAX, 20, "FOOD_ORDER_RATE_LIMIT_MAX")
-      },
       admin: {
         windowMs: positiveInteger(env.ADMIN_RATE_LIMIT_WINDOW_MS, 15 * 60 * 1000, "ADMIN_RATE_LIMIT_WINDOW_MS"),
         limit: positiveInteger(env.ADMIN_RATE_LIMIT_MAX, 120, "ADMIN_RATE_LIMIT_MAX")
@@ -116,7 +105,6 @@ function createRuntimeConfig(env = moduleEnv()) {
     smsTimeoutMs: positiveInteger(env.SMS_TIMEOUT_MS, 5000, "SMS_TIMEOUT_MS"),
     publicBaseUrl: String(env.PUBLIC_BASE_URL || "").replace(/\/$/, "") || null,
     vehicleUploadDirectory: vehicleUploadDirectory(env),
-    legacyRoutesEnabled: legacyRoutesEnabled(env),
     session: {
       cookieName: String(env.SESSION_COOKIE_NAME || "driveops_admin_session"),
       ttlSeconds: positiveInteger(env.SESSION_TTL_SECONDS, 8 * 60 * 60, "SESSION_TTL_SECONDS"),
@@ -159,7 +147,6 @@ module.exports = {
   createCorsOptions,
   createRuntimeConfig,
   isEnabled,
-  legacyRoutesEnabled,
   parseCorsAllowedOrigins,
   rentalPaymentMode
 };

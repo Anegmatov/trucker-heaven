@@ -55,7 +55,6 @@ RENTALS_RESERVATION_RATE_LIMIT_WINDOW_MS=3600000
 RENTALS_RESERVATION_RATE_LIMIT_MAX=10
 RENTALS_ADMIN_RATE_LIMIT_WINDOW_MS=900000
 RENTALS_ADMIN_RATE_LIMIT_MAX=120
-RENTALS_ENABLE_LEGACY_ROUTES=false
 ```
 
 Set `RENTALS_DATABASE_SSL=true` for a provider requiring TLS. Certificate verification remains enabled by default; only set `RENTALS_DATABASE_SSL_REJECT_UNAUTHORIZED=false` when the provider explicitly requires that exception.
@@ -136,11 +135,7 @@ The application and migrations use PostgreSQL's `public` schema. The readiness e
 
 For Render or a comparable host, `npm start` runs `init()` (connection check + pending migrations) and then listens. `npm run migrate` remains available as a standalone release step.
 
-## Retired legacy routes
-
-The active customer and admin applications use only `/api/public/vehicles`, `/api/reservations`, `/api/admin/vehicles`, and the health endpoints. The historical `/api/auth`, `/api/cars`, `/api/rentals`, and `/api/payments` source files are retained temporarily but are not mounted by default.
-
-Set `RENTALS_ENABLE_LEGACY_ROUTES=true` only for temporary development compatibility. The flag defaults to false, and production refuses to start if it is enabled.
+## Checks
 
 ```bash
 cd backend
@@ -152,7 +147,9 @@ npm test
 The schema comprises:
 
 - `001_driveops_mvp.sql` — vehicles, vehicle photos, and reservations.
-- `002_legacy_compatibility.sql` — historical customers, cars/rentals/payments, and a compatibility view retained for controlled development-only use.
+- `002_legacy_compatibility.sql` — historical class-project tables (customers, cars, rental, paymentdetails) and the `rentaldetails` view; kept as history.
+- `009_food_owner_staff.sql` — food ordering tables; kept as history.
+- `013_drop_food_and_legacy.sql` — drops the food tables, the legacy tables and the `rentaldetails` view. Food ordering lives in its own module now; the legacy API was removed.
 
 Timestamps are `TIMESTAMPTZ`, monetary amounts are `NUMERIC(10,2)`, and photo primary flags are native `BOOLEAN` values.
 

@@ -121,10 +121,6 @@ test("runtime configuration parses CORS origins and rejects unsafe production se
     () => createRuntimeConfig({ NODE_ENV: "production", CORS_ALLOWED_ORIGINS: "" }),
     /CORS_ALLOWED_ORIGINS/
   );
-  assert.throws(
-    () => createRuntimeConfig({ NODE_ENV: "production", CORS_ALLOWED_ORIGINS: "https://customer.example", ENABLE_LEGACY_ROUTES: "true" }),
-    /ENABLE_LEGACY_ROUTES/
-  );
   assert.equal(createRuntimeConfig(testEnvironment()).reservation.maxRentalDays, 30);
   assert.equal(createRuntimeConfig(testEnvironment()).reservation.paymentMode, "PAY_AT_PICKUP");
   assert.equal(rentalPaymentMode(), "PAY_AT_PICKUP");
@@ -135,7 +131,7 @@ test("runtime configuration parses CORS origins and rejects unsafe production se
   assert.throws(() => createRuntimeConfig(testEnvironment({ SMS_TIMEOUT_MS: "invalid" })), /SMS_TIMEOUT_MS/);
 });
 
-test("active API mounts remain available while legacy routes are disabled by default", async () => {
+test("active API mounts remain available and retired legacy routes are gone", async () => {
   const api = await startApp();
   try {
     assert.equal((await fetch(`${api.baseUrl}/api/public/vehicles`)).status, 200);
