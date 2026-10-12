@@ -36,7 +36,7 @@ requires(customer, 'Customer frontend', [
 ]);
 requires(admin, 'Canonical admin frontend', [
   'Parking Lot', 'Overview', 'Reservations', 'Team', 'Lot Setup', 'Business Settings',
-  'Customer Spaces', 'Daily Available', 'Monthly Available', 'Select Multiple', 'Spaces 110–148', 'Entrance / Exit',
+  'Customer Spaces', 'Daily Available', 'Monthly Available', 'Select Multiple', 'Spaces 101–129', 'Entrance / Exit',
   'renderSpaceDetails', 'renderPublishReview', 'renderBulkPreview',
   'ParkingAdminApi', "credentials: 'include'", 'X-CSRF-Token', 'pendingMutations',
   '/admin/auth/session', '/admin/auth/login', '/admin/auth/logout',

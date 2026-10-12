@@ -1,35 +1,452 @@
 {
-  "version": 7,
-  "name": "Trucker Heaven physical lot · parking management v7",
+  "version": 8,
+  "name": "Trucker Heaven physical lot \u00b7 parking management v7",
   "coordinateSystem": "portrait-percent-100",
-  "viewBox": {"x":0,"y":0,"width":100,"height":100},
+  "viewBox": {
+    "x": 0,
+    "y": 0,
+    "width": 100,
+    "height": 100
+  },
   "source": "Geometry is calibrated from TH PARKING LOT DIAGRAME - Copy (3).pdf. The approved Trucker Heaven Parking Lot Pricing & Lot Allocation map controls each numbered space's operational allocation and public parking term.",
-  "spaceFamilies": [[10,90],[101,196],[197,204]],
-  "excludedNumbers": [[91,100]],
+  "spaceFamilies": [
+    [
+      10,
+      90
+    ],
+    [
+      101,
+      196
+    ],
+    [
+      197,
+      204
+    ]
+  ],
+  "excludedNumbers": [
+    [
+      91,
+      100
+    ]
+  ],
   "rows": [
-    {"key":"west-north-monthly","range":[165,196],"section":"West exterior · north","use":"CUSTOMER","category":"TRACTOR_TRAILER","publicBookable":true,"bookingPeriods":["MONTHLY"],"x":1,"y":3,"width":25,"height":1.42,"columns":1,"gap":0.14,"note":"PDF-calibrated west exterior row; labels increase downward from 165 to 196."},
-    {"key":"west-middle-bobtail","range":[60,67],"section":"West exterior · bobtail","use":"CUSTOMER_BOBTAIL","category":"BOBTAIL","publicBookable":true,"bookingPeriods":["DAILY","MONTHLY"],"x":1,"y":57,"width":15,"height":0.96,"columns":1,"gap":0.69,"step":1.65,"note":"PDF-calibrated compact Bobtail run; official Bobtail allocation ends at 67."},
-    {"key":"west-middle-shop","range":[68,72],"section":"West exterior · shop","use":"SHOP","category":"TRACTOR_TRAILER","publicBookable":false,"x":1,"y":70.2,"width":15,"height":0.96,"columns":1,"gap":0.69,"step":1.65,"note":"Same calibrated geometry; official Shop allocation begins at 68."},
-    {"key":"west-shop","range":[85,90],"numberDirection":"DESCENDING","section":"West exterior · shop","use":"SHOP","category":"TRACTOR_TRAILER","publicBookable":false,"x":1,"y":80.5,"width":15,"height":1.76,"columns":1,"gap":0.34,"note":"PDF-calibrated lower west row; labels descend from 90 to 85."},
-    {"key":"upper-bobtail-west","range":[37,59],"section":"Upper-center bobtail · west","use":"CUSTOMER_BOBTAIL","category":"BOBTAIL","publicBookable":true,"bookingPeriods":["DAILY","MONTHLY"],"x":42,"y":8,"width":7.2,"height":1.22,"columns":1,"gap":0.2,"note":"PDF-calibrated upper-center paired Bobtail row; labels increase downward."},
-    {"key":"upper-bobtail-east","range":[14,36],"numberDirection":"DESCENDING","section":"Upper-center bobtail · east","use":"CUSTOMER_BOBTAIL","category":"BOBTAIL","publicBookable":true,"bookingPeriods":["DAILY","MONTHLY"],"x":51.3,"y":8,"width":7.2,"height":1.22,"columns":1,"gap":0.2,"note":"PDF-calibrated upper-center paired Bobtail row; labels descend from 36 to 14."},
-    {"key":"upper-small-bays","range":[10,13],"section":"Upper-center small bays","use":"CUSTOMER_BOBTAIL","category":"BOBTAIL","publicBookable":true,"bookingPeriods":["DAILY","MONTHLY"],"x":42,"y":40.5,"width":3.9,"height":5.8,"columns":4,"gap":0.45,"note":"Four vertical bays directly beneath the paired upper-center rows."},
-    {"key":"middle-197","range":[197,204],"section":"Middle-center · car hauler","use":"CUSTOMER","category":"TRACTOR_TRAILER","publicBookable":true,"bookingPeriods":["MONTHLY"],"x":38.7,"y":48.5,"width":3.55,"height":8.5,"columns":8,"gap":0.38,"note":"PDF-calibrated central north row; official Car Hauler allocation."},
-    {"key":"middle-shop-south","range":[73,80],"section":"Middle-center · shop","use":"SHOP","category":"TRACTOR_TRAILER","publicBookable":false,"x":38.7,"y":57.5,"width":3.55,"height":8.5,"columns":8,"gap":0.38,"note":"PDF-calibrated central south row; official Shop allocation."},
-    {"key":"lower-shop-center","range":[81,84],"numberDirection":"DESCENDING","section":"Lower-middle shop parking","use":"SHOP","category":"TRACTOR_TRAILER","publicBookable":false,"x":43,"y":79.5,"width":3.7,"height":8.8,"columns":4,"gap":0.55,"note":"PDF-calibrated lower-center row; labels descend from 84 to 81."},
-    {"key":"east-north-monthly","range":[149,164],"numberDirection":"DESCENDING","section":"East exterior · north monthly","use":"CUSTOMER","category":"TRACTOR_TRAILER","publicBookable":true,"bookingPeriods":["MONTHLY"],"x":83.5,"y":10,"width":15.5,"height":1.32,"columns":1,"gap":0.15,"note":"PDF-calibrated upper-right row; official Monthly Truck & Trailer allocation through 164."},
-    {"key":"east-north-daily","range":[143,148],"numberDirection":"DESCENDING","section":"East exterior · north daily","use":"CUSTOMER","category":"TRACTOR_TRAILER","publicBookable":true,"bookingPeriods":["DAILY"],"x":83.5,"y":33.52,"width":15.5,"height":1.32,"columns":1,"gap":0.15,"note":"Same calibrated upper-right row; official Daily allocation continues through 148."},
-    {"key":"east-middle","range":[111,142],"numberDirection":"DESCENDING","section":"East exterior · middle","use":"CUSTOMER","category":"TRACTOR_TRAILER","publicBookable":true,"bookingPeriods":["DAILY"],"x":83.5,"y":48,"width":15.5,"height":1.25,"columns":1,"gap":0.14,"note":"PDF-calibrated right-middle row; labels descend from 142 to 111."},
-    {"key":"east-daily-110","range":[110,110],"numberDirection":"DESCENDING","section":"East exterior · daily","use":"CUSTOMER","category":"TRACTOR_TRAILER","publicBookable":true,"bookingPeriods":["DAILY"],"x":83.5,"y":93.2,"width":15.5,"height":0.58,"columns":1,"gap":0.08,"note":"PDF-calibrated lower-right continuation; official Daily allocation begins at 110."},
-    {"key":"east-company","range":[101,109],"numberDirection":"DESCENDING","section":"East exterior · company / ITM","use":"COMPANY","category":"TRACTOR_TRAILER","publicBookable":false,"x":83.5,"y":93.86,"width":15.5,"height":0.58,"columns":1,"gap":0.08,"note":"PDF-calibrated lower-right continuation; official Company allocation is 101–109."}
+    {
+      "key": "west-north-monthly",
+      "range": [
+        165,
+        196
+      ],
+      "section": "West exterior \u00b7 north",
+      "use": "CUSTOMER",
+      "category": "TRACTOR_TRAILER",
+      "publicBookable": true,
+      "bookingPeriods": [
+        "MONTHLY"
+      ],
+      "x": 1,
+      "y": 3,
+      "width": 25,
+      "height": 1.42,
+      "columns": 1,
+      "gap": 0.14,
+      "note": "PDF-calibrated west exterior row; labels increase downward from 165 to 196."
+    },
+    {
+      "key": "west-middle-bobtail",
+      "range": [
+        60,
+        67
+      ],
+      "section": "West exterior \u00b7 bobtail",
+      "use": "CUSTOMER_BOBTAIL",
+      "category": "BOBTAIL",
+      "publicBookable": true,
+      "bookingPeriods": [
+        "DAILY",
+        "MONTHLY"
+      ],
+      "x": 1,
+      "y": 57,
+      "width": 15,
+      "height": 0.96,
+      "columns": 1,
+      "gap": 0.69,
+      "step": 1.65,
+      "note": "PDF-calibrated compact Bobtail run; official Bobtail allocation ends at 67."
+    },
+    {
+      "key": "west-middle-shop",
+      "range": [
+        68,
+        72
+      ],
+      "section": "West exterior \u00b7 shop",
+      "use": "SHOP",
+      "category": "TRACTOR_TRAILER",
+      "publicBookable": false,
+      "x": 1,
+      "y": 70.2,
+      "width": 15,
+      "height": 0.96,
+      "columns": 1,
+      "gap": 0.69,
+      "step": 1.65,
+      "note": "Same calibrated geometry; official Shop allocation begins at 68."
+    },
+    {
+      "key": "west-shop",
+      "range": [
+        85,
+        90
+      ],
+      "numberDirection": "DESCENDING",
+      "section": "West exterior \u00b7 shop",
+      "use": "SHOP",
+      "category": "TRACTOR_TRAILER",
+      "publicBookable": false,
+      "x": 1,
+      "y": 80.5,
+      "width": 15,
+      "height": 1.76,
+      "columns": 1,
+      "gap": 0.34,
+      "note": "PDF-calibrated lower west row; labels descend from 90 to 85."
+    },
+    {
+      "key": "upper-bobtail-west",
+      "range": [
+        37,
+        59
+      ],
+      "section": "Upper-center bobtail \u00b7 west",
+      "use": "CUSTOMER_BOBTAIL",
+      "category": "BOBTAIL",
+      "publicBookable": true,
+      "bookingPeriods": [
+        "DAILY",
+        "MONTHLY"
+      ],
+      "x": 42,
+      "y": 8,
+      "width": 7.2,
+      "height": 1.22,
+      "columns": 1,
+      "gap": 0.2,
+      "note": "PDF-calibrated upper-center paired Bobtail row; labels increase downward."
+    },
+    {
+      "key": "upper-bobtail-east",
+      "range": [
+        14,
+        36
+      ],
+      "numberDirection": "DESCENDING",
+      "section": "Upper-center bobtail \u00b7 east",
+      "use": "CUSTOMER_BOBTAIL",
+      "category": "BOBTAIL",
+      "publicBookable": true,
+      "bookingPeriods": [
+        "DAILY",
+        "MONTHLY"
+      ],
+      "x": 51.3,
+      "y": 8,
+      "width": 7.2,
+      "height": 1.22,
+      "columns": 1,
+      "gap": 0.2,
+      "note": "PDF-calibrated upper-center paired Bobtail row; labels descend from 36 to 14."
+    },
+    {
+      "key": "upper-small-bays",
+      "range": [
+        10,
+        13
+      ],
+      "section": "Upper-center small bays",
+      "use": "CUSTOMER_BOBTAIL",
+      "category": "BOBTAIL",
+      "publicBookable": true,
+      "bookingPeriods": [
+        "DAILY",
+        "MONTHLY"
+      ],
+      "x": 42,
+      "y": 40.5,
+      "width": 3.9,
+      "height": 5.8,
+      "columns": 4,
+      "gap": 0.45,
+      "note": "Four vertical bays directly beneath the paired upper-center rows."
+    },
+    {
+      "key": "middle-197",
+      "range": [
+        197,
+        204
+      ],
+      "section": "Middle-center \u00b7 car hauler",
+      "use": "CUSTOMER",
+      "category": "TRACTOR_TRAILER",
+      "publicBookable": true,
+      "bookingPeriods": [
+        "MONTHLY"
+      ],
+      "x": 38.7,
+      "y": 48.5,
+      "width": 3.55,
+      "height": 8.5,
+      "columns": 8,
+      "gap": 0.38,
+      "note": "PDF-calibrated central north row; official Car Hauler allocation."
+    },
+    {
+      "key": "middle-shop-south",
+      "range": [
+        73,
+        80
+      ],
+      "section": "Middle-center \u00b7 shop",
+      "use": "SHOP",
+      "category": "TRACTOR_TRAILER",
+      "publicBookable": false,
+      "x": 38.7,
+      "y": 57.5,
+      "width": 3.55,
+      "height": 8.5,
+      "columns": 8,
+      "gap": 0.38,
+      "note": "PDF-calibrated central south row; official Shop allocation."
+    },
+    {
+      "key": "lower-shop-center",
+      "range": [
+        81,
+        84
+      ],
+      "numberDirection": "DESCENDING",
+      "section": "Lower-middle shop parking",
+      "use": "SHOP",
+      "category": "TRACTOR_TRAILER",
+      "publicBookable": false,
+      "x": 43,
+      "y": 79.5,
+      "width": 3.7,
+      "height": 8.8,
+      "columns": 4,
+      "gap": 0.55,
+      "note": "PDF-calibrated lower-center row; labels descend from 84 to 81."
+    },
+    {
+      "key": "east-north-monthly",
+      "range": [
+        149,
+        164
+      ],
+      "numberDirection": "DESCENDING",
+      "section": "East exterior \u00b7 north monthly",
+      "use": "CUSTOMER",
+      "category": "TRACTOR_TRAILER",
+      "publicBookable": true,
+      "bookingPeriods": [
+        "MONTHLY"
+      ],
+      "x": 83.5,
+      "y": 10,
+      "width": 15.5,
+      "height": 1.32,
+      "columns": 1,
+      "gap": 0.15,
+      "note": "PDF-calibrated upper-right row; official Monthly Truck & Trailer allocation through 164."
+    },
+    {
+      "key": "east-north-daily",
+      "range": [
+        143,
+        148
+      ],
+      "numberDirection": "DESCENDING",
+      "section": "East exterior \u00b7 north monthly (continued)",
+      "use": "CUSTOMER",
+      "category": "TRACTOR_TRAILER",
+      "publicBookable": true,
+      "bookingPeriods": [
+        "MONTHLY"
+      ],
+      "x": 83.5,
+      "y": 33.52,
+      "width": 15.5,
+      "height": 1.32,
+      "columns": 1,
+      "gap": 0.15,
+      "note": "Same calibrated upper-right row; Monthly allocation continues through 143."
+    },
+    {
+      "key": "east-middle-monthly",
+      "range": [
+        130,
+        142
+      ],
+      "numberDirection": "DESCENDING",
+      "section": "East exterior \u00b7 middle monthly",
+      "use": "CUSTOMER",
+      "category": "TRACTOR_TRAILER",
+      "publicBookable": true,
+      "bookingPeriods": [
+        "MONTHLY"
+      ],
+      "x": 83.5,
+      "y": 48,
+      "width": 15.5,
+      "height": 1.25,
+      "columns": 1,
+      "gap": 0.14,
+      "note": "PDF-calibrated right-middle row; Monthly allocation 130\u2013142 (labels descend)."
+    },
+    {
+      "key": "east-middle-daily",
+      "range": [
+        111,
+        129
+      ],
+      "numberDirection": "DESCENDING",
+      "section": "East exterior \u00b7 middle daily",
+      "use": "CUSTOMER",
+      "category": "TRACTOR_TRAILER",
+      "publicBookable": true,
+      "bookingPeriods": [
+        "DAILY"
+      ],
+      "x": 83.5,
+      "y": 66.07,
+      "width": 15.5,
+      "height": 1.25,
+      "columns": 1,
+      "gap": 0.14,
+      "note": "PDF-calibrated right-middle row; Daily allocation 111\u2013129 (labels descend)."
+    },
+    {
+      "key": "east-daily-110",
+      "range": [
+        110,
+        110
+      ],
+      "numberDirection": "DESCENDING",
+      "section": "East exterior \u00b7 daily",
+      "use": "CUSTOMER",
+      "category": "TRACTOR_TRAILER",
+      "publicBookable": true,
+      "bookingPeriods": [
+        "DAILY"
+      ],
+      "x": 83.5,
+      "y": 93.2,
+      "width": 15.5,
+      "height": 0.58,
+      "columns": 1,
+      "gap": 0.08,
+      "note": "PDF-calibrated lower-right continuation; official Daily allocation begins at 110."
+    },
+    {
+      "key": "east-daily-101",
+      "range": [
+        101,
+        109
+      ],
+      "numberDirection": "DESCENDING",
+      "section": "East exterior \u00b7 daily (south)",
+      "use": "CUSTOMER",
+      "category": "TRACTOR_TRAILER",
+      "publicBookable": true,
+      "x": 83.5,
+      "y": 93.86,
+      "width": 15.5,
+      "height": 0.58,
+      "columns": 1,
+      "gap": 0.08,
+      "note": "PDF-calibrated lower-right continuation; Daily allocation 101\u2013109.",
+      "bookingPeriods": [
+        "DAILY"
+      ]
+    }
   ],
   "elements": [
-    {"key":"property-boundary","type":"PROPERTY_BOUNDARY","label":"","x":0.5,"y":0.5,"width":99,"height":99,"layer":1,"public":true},
-    {"key":"building-west","type":"BUILDING","label":"","x":16,"y":67.5,"width":8,"height":14,"layer":5,"public":true},
-    {"key":"building-center","type":"BUILDING","label":"","x":25,"y":67.5,"width":51,"height":9.2,"layer":5,"public":true},
-    {"key":"building-southwest","type":"BUILDING","label":"","x":16,"y":89.3,"width":23,"height":9.2,"layer":5,"public":true},
-    {"key":"entrance-east","type":"ENTRANCE","label":"Entrance / Exit","x":83.5,"y":43.2,"width":15.5,"height":1.8,"layer":20,"public":true},
-    {"key":"island-east-upper","type":"ISLAND","label":"","x":85.5,"y":43,"width":11,"height":1.8,"layer":6,"public":true},
-    {"key":"island-east-lower","type":"ISLAND","label":"","x":88,"y":90.8,"width":10.5,"height":1.6,"layer":6,"public":true}
+    {
+      "key": "property-boundary",
+      "type": "PROPERTY_BOUNDARY",
+      "label": "",
+      "x": 0.5,
+      "y": 0.5,
+      "width": 99,
+      "height": 99,
+      "layer": 1,
+      "public": true
+    },
+    {
+      "key": "building-west",
+      "type": "BUILDING",
+      "label": "",
+      "x": 16,
+      "y": 67.5,
+      "width": 8,
+      "height": 14,
+      "layer": 5,
+      "public": true
+    },
+    {
+      "key": "building-center",
+      "type": "BUILDING",
+      "label": "",
+      "x": 25,
+      "y": 67.5,
+      "width": 51,
+      "height": 9.2,
+      "layer": 5,
+      "public": true
+    },
+    {
+      "key": "building-southwest",
+      "type": "BUILDING",
+      "label": "",
+      "x": 16,
+      "y": 89.3,
+      "width": 23,
+      "height": 9.2,
+      "layer": 5,
+      "public": true
+    },
+    {
+      "key": "entrance-east",
+      "type": "ENTRANCE",
+      "label": "Entrance / Exit",
+      "x": 83.5,
+      "y": 43.2,
+      "width": 15.5,
+      "height": 1.8,
+      "layer": 20,
+      "public": true
+    },
+    {
+      "key": "island-east-upper",
+      "type": "ISLAND",
+      "label": "",
+      "x": 85.5,
+      "y": 43,
+      "width": 11,
+      "height": 1.8,
+      "layer": 6,
+      "public": true
+    },
+    {
+      "key": "island-east-lower",
+      "type": "ISLAND",
+      "label": "",
+      "x": 88,
+      "y": 90.8,
+      "width": 10.5,
+      "height": 1.6,
+      "layer": 6,
+      "public": true
+    }
   ]
 }

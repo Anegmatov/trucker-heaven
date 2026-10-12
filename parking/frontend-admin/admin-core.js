@@ -28,7 +28,7 @@
       if (lotNumber >= 10 && lotNumber <= 67) return 'MONTHLY_BOBTAIL';
       if (lotNumber >= 149 && lotNumber <= 194 && !(lotNumber >= 165 && lotNumber <= 167)) return 'MONTHLY_TRUCK_TRAILER';
       if ((lotNumber >= 165 && lotNumber <= 167) || (lotNumber >= 195 && lotNumber <= 204)) return 'CAR_HAULER';
-      if (lotNumber >= 110 && lotNumber <= 148) return 'DAILY';
+      if (lotNumber >= 101 && lotNumber <= 129) return 'DAILY';
       if (lotNumber >= 68 && lotNumber <= 90) return 'SHOP';
       if (lotNumber >= 101 && lotNumber <= 109) return 'COMPANY';
     }

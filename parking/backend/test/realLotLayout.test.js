@@ -48,13 +48,12 @@ test('the authoritative lot allocation classifies every official customer, Shop,
     assert.notEqual(row.classificationState, 'NEEDS_CLASSIFICATION');
   }
   for (const row of range(68, 90)) assert.deepEqual([row.use, row.publicBookable], ['SHOP', false]);
-  for (const row of range(101, 109)) assert.deepEqual([row.use, row.publicBookable], ['COMPANY', false]);
-  for (const row of range(110, 204)) assert.deepEqual([row.use, row.category, row.publicBookable], ['CUSTOMER', 'TRACTOR_TRAILER', true]);
+  for (const row of range(101, 204)) assert.deepEqual([row.use, row.category, row.publicBookable], ['CUSTOMER', 'TRACTOR_TRAILER', true]);
   const all = [...byNumber.values()];
   assert.equal(all.filter(row => row.use === 'CUSTOMER_BOBTAIL').length, 58);
-  assert.equal(all.filter(row => row.use === 'CUSTOMER').length, 95);
+  assert.equal(all.filter(row => row.use === 'CUSTOMER').length, 104);
   assert.equal(all.filter(row => row.use === 'SHOP').length, 23);
-  assert.equal(all.filter(row => row.use === 'COMPANY').length, 9);
+  assert.equal(all.filter(row => row.use === 'COMPANY').length, 0);
   assert.equal(all.filter(row => row.use === 'NEEDS_CLASSIFICATION').length, 0);
   assert.equal(all.filter(row => ['TRACTOR_ONLY', 'TRAILER_ONLY'].includes(row.category)).length, 0);
   assert.deepEqual([byNumber.get(164).use, byNumber.get(164).category, byNumber.get(164).publicBookable],
@@ -70,15 +69,15 @@ test('customer booking terms offer Weekly everywhere public while preserving Dai
       assert.deepEqual(eligibility, { customerEligible: false, daily: false, weekly: false, monthly: false });
       continue;
     }
-    const isDaily = (space.number >= 110 && space.number <= 148) || space.category === 'BOBTAIL';
+    const isDaily = (space.number >= 101 && space.number <= 129) || space.category === 'BOBTAIL';
     assert.equal(eligibility.daily, isDaily, `Unexpected Daily classification for Space ${space.number}`);
     assert.equal(eligibility.weekly, true, `Space ${space.number} must offer Weekly parking`);
-    assert.equal(eligibility.monthly, space.number < 110 || space.number > 148, `Unexpected Monthly classification for Space ${space.number}`);
+    assert.equal(eligibility.monthly, space.number < 101 || space.number > 129, `Unexpected Monthly classification for Space ${space.number}`);
     if (eligibility.daily) dailyCount += 1;
     if (eligibility.monthly) monthlyCount += 1;
   }
-  assert.equal(dailyCount, 97);
-  assert.equal(monthlyCount, 114);
+  assert.equal(dailyCount, 87);
+  assert.equal(monthlyCount, 133);
 });
 
 test('PDF-calibrated geometry preserves the original paired and stacked physical relationships', () => {
@@ -92,7 +91,7 @@ test('PDF-calibrated geometry preserves the original paired and stacked physical
   assert.equal(row('west-middle-bobtail').height < row('west-north-monthly').height, true);
   assert.equal(row('middle-197').y + row('middle-197').height, 57);
   assert.ok(row('middle-shop-south').y > row('middle-197').y);
-  assert.equal(row('east-company').numberDirection, 'DESCENDING');
+  assert.equal(row('east-daily-101').numberDirection, 'DESCENDING');
   assert.equal(row('west-shop').use, 'SHOP');
   assert.equal(row('east-north-approach'), undefined);
 });

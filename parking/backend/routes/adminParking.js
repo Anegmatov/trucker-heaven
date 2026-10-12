@@ -488,7 +488,7 @@ function vehicleType(value) {
 
 function expectedBookingTerm(label) {
   const number = Number(parkingNumber(label));
-  return number >= 110 && number <= 148 ? 'DAILY' : 'MONTHLY';
+  return number >= 101 && number <= 129 ? 'DAILY' : 'MONTHLY';
 }
 
 function elementBookingTerm(element) {
@@ -630,8 +630,8 @@ async function parkingManagementValidation(client, layoutId) {
         CASE WHEN element.label !~ '^[1-9][0-9]{0,3}$' THEN 'INVALID_SPACE_NUMBER' END,
         CASE WHEN element.parking_purpose='CUSTOMER' AND NOT element.space_public_bookable THEN 'CUSTOMER_ACCESS_DISABLED' END,
         CASE WHEN element.parking_purpose='CUSTOMER' AND element.active AND element.label ~ '^[1-9][0-9]{0,3}$' AND
-          (((CASE WHEN element.label ~ '^[1-9][0-9]{0,3}$' THEN element.label::int END) BETWEEN 110 AND 148 AND NOT element.daily_eligible)
-            OR (NOT ((CASE WHEN element.label ~ '^[1-9][0-9]{0,3}$' THEN element.label::int END) BETWEEN 110 AND 148) AND NOT element.monthly_eligible))
+          (((CASE WHEN element.label ~ '^[1-9][0-9]{0,3}$' THEN element.label::int END) BETWEEN 101 AND 129 AND NOT element.daily_eligible)
+            OR (NOT ((CASE WHEN element.label ~ '^[1-9][0-9]{0,3}$' THEN element.label::int END) BETWEEN 101 AND 129) AND NOT element.monthly_eligible))
           THEN 'BOOKING_TERM_NUMBER_MISMATCH' END,
         CASE WHEN element.parking_purpose='CUSTOMER' AND NOT element.weekly_eligible THEN 'WEEKLY_TERM_REQUIRED' END,
         CASE WHEN element.parking_purpose<>'CUSTOMER' AND
@@ -644,8 +644,8 @@ async function parkingManagementValidation(client, layoutId) {
         element.label !~ '^[1-9][0-9]{0,3}$'
         OR (element.parking_purpose='CUSTOMER' AND NOT element.space_public_bookable)
         OR (element.parking_purpose='CUSTOMER' AND element.active AND element.label ~ '^[1-9][0-9]{0,3}$' AND
-          (((CASE WHEN element.label ~ '^[1-9][0-9]{0,3}$' THEN element.label::int END) BETWEEN 110 AND 148 AND NOT element.daily_eligible)
-            OR (NOT ((CASE WHEN element.label ~ '^[1-9][0-9]{0,3}$' THEN element.label::int END) BETWEEN 110 AND 148) AND NOT element.monthly_eligible)))
+          (((CASE WHEN element.label ~ '^[1-9][0-9]{0,3}$' THEN element.label::int END) BETWEEN 101 AND 129 AND NOT element.daily_eligible)
+            OR (NOT ((CASE WHEN element.label ~ '^[1-9][0-9]{0,3}$' THEN element.label::int END) BETWEEN 101 AND 129) AND NOT element.monthly_eligible)))
         OR (element.parking_purpose='CUSTOMER' AND NOT element.weekly_eligible)
         OR (element.parking_purpose<>'CUSTOMER' AND
           (element.daily_eligible OR element.weekly_eligible OR element.monthly_eligible OR element.space_public_bookable))

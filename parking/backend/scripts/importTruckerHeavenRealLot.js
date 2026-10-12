@@ -62,7 +62,7 @@ function parseImporterOptions(argv = process.argv.slice(2), env = process.env) {
   if (options.databaseUrlFile) {
     try { connectionString = fs.readFileSync(options.databaseUrlFile, 'utf8').trim(); }
     catch (_) { throw new Error('Refusing import: unable to read --database-url-file.'); }
-  } else connectionString = String(env.DATABASE_URL || '').trim();
+  } else connectionString = String(env.PARKING_DATABASE_URL || env.DATABASE_URL || '').trim();
   if (!connectionString) throw new Error('Refusing import: provide an explicit ParkingOps DATABASE_URL or --database-url-file.');
   let parsed;
   try { parsed = parsePostgresUrl(connectionString); } catch (_) { throw new Error('Refusing import: database URL is invalid.'); }
@@ -159,7 +159,7 @@ function geometry(row) {
 function bookingEligibility(space) {
   const customerEligible = Boolean(space.publicBookable) && !['COMPANY', 'SHOP', 'SHOP_BOBTAIL', 'NEEDS_CLASSIFICATION'].includes(space.use);
   const bobtail = space.category === 'BOBTAIL';
-  const daily = customerEligible && (bobtail || (Number(space.number) >= 110 && Number(space.number) <= 148));
+  const daily = customerEligible && (bobtail || (Number(space.number) >= 101 && Number(space.number) <= 129));
   return { customerEligible, daily, weekly: customerEligible, monthly: customerEligible && (!daily || bobtail) };
 }
 function assertLayout() {
