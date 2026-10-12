@@ -848,10 +848,11 @@ router.post(['/positions', '/monthly-positions'], publicLimit(config.rateLimits.
       const request = await bookingInput(client, req.body);
       if (request.customerAssignmentMode !== 'CUSTOMER_SELECTED_SPOT') throw apiError('MONTHLY_TERM_REQUIRED', 'Choose Monthly Parking to select a numbered position.');
       const slots = await availability(client, request);
-      if (!slots.some(slot => slot.available)) throw apiError('PARKING_NOT_AVAILABLE', 'No parking space is available for these dates', 409);
+      // When every space is taken the lot is still returned, so the customer sees it full rather than an error.
       const selection = await selectableSpaceStates(client, request, req.body.quoteToken);
       return {
         assignmentMode: 'CUSTOMER_SELECTED_SPOT',
+        available: slots.some(slot => slot.available),
         positions: selection.positions,
         layout: await publishedLayout(client, request.locationId, null, selection)
       };

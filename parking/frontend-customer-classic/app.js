@@ -802,7 +802,9 @@
     const holdText = held ? `Held until ${core.humanTime(state.quote.data.hold.expiresAt, state.canonicalLot?.timezone)}.` : '';
     const term = durationName(state.trip.duration); const pick = state.trip.duration === 'MONTHLY';
     const openCount = elements.filter(element => pick ? element?.space?.selectable : element?.space?.available).length;
-    const headline = pick ? `<h3 id="monthlySelectorTitle">Pick your space</h3><p><strong>${openCount} green ${openCount === 1 ? 'space is' : 'spaces are'} open for your dates. Tap one.</strong></p>`
+    const headline = pick ? (openCount === 0
+        ? `<h3 id="monthlySelectorTitle">All ${escapeHtml(term)} spaces are taken</h3><p><strong>Every ${escapeHtml(term)} space is reserved right now. Red spaces are taken. Try Daily parking, different dates, or call the office.</strong></p>`
+        : `<h3 id="monthlySelectorTitle">Pick your space</h3><p><strong>${openCount} green ${openCount === 1 ? 'space is' : 'spaces are'} open for your dates. Tap one.</strong></p>`)
       : `<h3 id="monthlySelectorTitle">Where you can park</h3><p><strong>The highlighted spaces are the ${escapeHtml(term)} area for your truck. Park in any open one when you arrive.</strong></p>`;
     return `<section class="monthly-selector" aria-labelledby="monthlySelectorTitle"><div class="monthly-selector-head"><div><p class="card-kicker">${escapeHtml(term.toUpperCase())} PARKING</p>${headline}<p>The whole lot is drawn so you can see where you'll be. The Entrance / Exit is on Eastgate Blvd.</p></div>${selected ? `<div class="selected-monthly-position"><span>Your space</span><strong>✓ Space ${escapeHtml(selected.label)}</strong><small>${escapeHtml(holdText || 'Holding it for you…')}</small>${held ? `<span class="hold-countdown" data-hold-countdown>Space ${escapeHtml(selected.label)} held for you — ${holdCountdownText()}</span>` : ''}<button type="button" class="text-button" data-change-monthly>Pick a different space</button></div>` : ''}</div><div class="map-stage monthly-map-stage" data-map-stage tabindex="0" aria-label="Monthly parking position selector. Use plus and minus to zoom, and Fit lot to restore the whole property."><div class="map-controls" aria-label="Map controls"><button type="button" data-map-zoom="in" aria-label="Zoom in">+</button><button type="button" data-map-zoom="out" aria-label="Zoom out">−</button><button type="button" data-map-zoom="fit" aria-label="Fit entire lot">Fit lot</button></div><div class="plan-canvas" style="height:${Math.round(100 * state.mapZoom)}%">${lotPlanSvg(elements)}</div></div><div class="map-area-label">${escapeHtml(parkingAreaName(state.selected))}</div><div class="plan-legend">${pick ? '<span><i class="sw is-open"></i>Open</span><span><i class="sw is-mine"></i>Your pick</span><span><i class="sw is-taken"></i>Taken or held</span>' : '<span><i class="sw is-area"></i>Your parking area</span>'}<span><i class="sw is-off"></i>Not for this booking</span></div></section>`;
   }
@@ -829,7 +831,8 @@
   }
 
   function renderParkingInformation() {
-    if (!state.selected) { $('#parkingInformation').innerHTML = ''; return; }
+    // Nothing selectable (every space taken): still draw the lot so the customer sees what is reserved.
+    if (!state.selected) { $('#parkingInformation').innerHTML = state.trip?.duration === 'MONTHLY' && state.monthly.status === 'SUCCESS' ? renderMonthlySelector() : ''; return; }
     const count = offerCount(state.selected);
     const area = !exactMode(state.selected); const monthly = monthlySelectedMode(state.selected);
     const availabilityUnit = area ? `capacity unit${count === 1 ? '' : 's'}`
@@ -841,7 +844,7 @@
     if (!$('#parkingStep') || state.currentRoute !== 'offers') return;
     renderSearchOverview(); renderAvailability(); renderQuoteSummary(); renderParkingInformation();
     const canContinue = core.bookingCanContinue(state); $('#continueDriver').disabled = !canContinue;
-    $('#parkingSummary').textContent = state.search.status === core.SEARCH_STATUS.LOADING ? 'Checking your dates…' : state.search.status === core.SEARCH_STATUS.SUCCESS_EMPTY ? 'No parking is available for these dates.' : state.search.status === core.SEARCH_STATUS.ERROR ? 'Your search could not be completed.' : state.trip?.duration === 'MONTHLY' ? 'Tap a green space on the lot map.' : 'Your parking area is highlighted on the lot map.';
+    $('#parkingSummary').textContent = state.search.status === core.SEARCH_STATUS.LOADING ? 'Checking your dates…' : state.search.status === core.SEARCH_STATUS.SUCCESS_EMPTY ? (state.trip?.duration === 'MONTHLY' ? 'Every space for this parking is taken. The lot map shows what is reserved.' : 'No parking is available for these dates.') : state.search.status === core.SEARCH_STATUS.ERROR ? 'Your search could not be completed.' : state.trip?.duration === 'MONTHLY' ? 'Tap a green space on the lot map.' : 'Your parking area is highlighted on the lot map.';
     const pick = state.trip?.duration === 'MONTHLY';
     if ($('#parkingTitle')) $('#parkingTitle').textContent = pick ? 'Pick your space' : 'Where you can park';
     const waitingForMonthlySpot = pick && !state.selectedMonthlySpot;
