@@ -68,6 +68,35 @@ const loaders = {
   }
 };
 
+// Modules without their own <MOD>_DATABASE_URL share the instance behind API_DATABASE_URL (or the
+// food module's DATABASE_URL), each in a database named after the module. Missing databases are
+// created at startup, so one Postgres instance serves every module with no secrets to copy around.
+async function resolveDatabases(log) {
+  const shared = process.env.API_DATABASE_URL || process.env.DATABASE_URL;
+  const wanted = ENABLED.filter((m) => m !== "food").filter((m) => !process.env[`${m.toUpperCase()}_DATABASE_URL`]);
+  if (!wanted.length) return;
+  if (!shared) throw new Error(`Set ${wanted.map((m) => `${m.toUpperCase()}_DATABASE_URL`).join(", ")} or API_DATABASE_URL`);
+  const { Client } = require("pg");
+  const base = new URL(shared);
+  const ssl = /render\.com$|sslmode=require/.test(shared) ? { rejectUnauthorized: false } : undefined;
+  const admin = new Client({ connectionString: shared, ssl });
+  await admin.connect();
+  try {
+    for (const mod of wanted) {
+      const exists = await admin.query("SELECT 1 FROM pg_database WHERE datname = $1", [mod]);
+      if (!exists.rowCount) {
+        await admin.query(`CREATE DATABASE "${mod}"`);
+        log(`created database "${mod}" on the shared instance`);
+      }
+      const url = new URL(base); url.pathname = `/${mod}`;
+      process.env[`${mod.toUpperCase()}_DATABASE_URL`] = url.toString();
+      log(`${mod}: using database "${mod}" on the shared instance`);
+    }
+  } finally {
+    await admin.end();
+  }
+}
+
 function parseHosts(spec) {
   const map = new Map();
   for (const pair of spec.split(",")) {
@@ -113,8 +142,9 @@ function build() {
 }
 
 async function main() {
-  const { modules, hosts, router } = build();
   const log = (msg) => console.log(`[api] ${msg}`);
+  await resolveDatabases(log);
+  const { modules, hosts, router } = build();
   for (const [name, mod] of Object.entries(modules)) {
     await mod.start((m) => log(`${name}: ${m}`));
     log(`${name} ready`);
