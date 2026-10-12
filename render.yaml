@@ -1,0 +1,23 @@
+# Render blueprint for the shared backend. The live service is managed in the dashboard;
+# this file records the settings so they can be reproduced.
+services:
+  - type: web
+    name: trucker-heaven-backend
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_MODULES
+        value: parking,rentals,food
+      - key: API_HOSTS
+        sync: false   # <food api host>=food,parking-api.truckerheaven.com=parking,rentals-api.truckerheaven.com=rentals
+      - key: PARKING_DATABASE_URL
+        sync: false
+      - key: RENTALS_DATABASE_URL
+        sync: false
+      - key: FOOD_DATABASE_URL
+        sync: false
