@@ -351,7 +351,21 @@ async function availabilityMapStates(client, request, values) {
   const remainingFor = value => value.available_spots != null ? Number(value.available_spots)
     : (value.closed ? 0 : Math.max(0, Number(value.effective_capacity || 0) - Number(value.used || 0)));
   const remainingByInventory = new Map(values.map(value => [String(value.inventory_id), remainingFor(value)]));
-  const candidates = await client.query(`SELECT e.element_key,e.inventory_id
+  // Every space of the requested type and term is returned: free ones are marked available
+  // (while capacity lasts), taken ones are marked eligible-but-unavailable so the map can show
+  // them as taken. Spaces of another type or term are not marked at all.
+  const candidates = await client.query(`SELECT e.element_key,e.inventory_id,
+      (NOT EXISTS (SELECT 1 FROM parking_spot_blocks block
+        WHERE block.parking_spot_id=s.id AND block.released_at IS NULL
+          AND block.starts_at<($4::timestamptz + make_interval(mins=>l.turnaround_buffer_minutes))
+          AND COALESCE(block.ends_at,'infinity'::timestamptz)>$3)
+      AND NOT EXISTS (SELECT 1 FROM reservation_spot_assignments assignment
+        WHERE assignment.parking_spot_id=s.id AND assignment.released_at IS NULL
+          AND assignment.reserved_arrival_at<($4::timestamptz + make_interval(mins=>l.turnaround_buffer_minutes))
+          AND assignment.protected_until_at>$3)
+      AND NOT EXISTS (SELECT 1 FROM parking_closures closure
+        WHERE closure.active AND closure.closure_type='FULL_CLOSURE' AND closure.starts_at<$4 AND closure.ends_at>$3
+          AND (closure.location_id=s.location_id OR closure.zone_id=s.zone_id OR closure.inventory_id=e.inventory_id OR closure.category_id=i.category_id))) free
     FROM parking_lot_layouts layout
     JOIN parking_layout_elements e ON e.layout_id=layout.id
     JOIN parking_spots s ON s.id=e.parking_spot_id
@@ -365,24 +379,14 @@ async function availabilityMapStates(client, request, values) {
       AND e.space_public_bookable AND e.parking_purpose='CUSTOMER'
       AND (($5='DAILY' AND e.daily_eligible) OR ($5='WEEKLY' AND e.weekly_eligible)
         OR ($5='MONTHLY' AND e.monthly_eligible))
-      AND NOT EXISTS (SELECT 1 FROM parking_spot_blocks block
-        WHERE block.parking_spot_id=s.id AND block.released_at IS NULL
-          AND block.starts_at<($4::timestamptz + make_interval(mins=>l.turnaround_buffer_minutes))
-          AND COALESCE(block.ends_at,'infinity'::timestamptz)>$3)
-      AND NOT EXISTS (SELECT 1 FROM reservation_spot_assignments assignment
-        WHERE assignment.parking_spot_id=s.id AND assignment.released_at IS NULL
-          AND assignment.reserved_arrival_at<($4::timestamptz + make_interval(mins=>l.turnaround_buffer_minutes))
-          AND assignment.protected_until_at>$3)
-      AND NOT EXISTS (SELECT 1 FROM parking_closures closure
-        WHERE closure.active AND closure.closure_type='FULL_CLOSURE' AND closure.starts_at<$4 AND closure.ends_at>$3
-          AND (closure.location_id=s.location_id OR closure.zone_id=s.zone_id OR closure.inventory_id=e.inventory_id OR closure.category_id=i.category_id))
     ORDER BY e.inventory_id,e.layer_order,e.id`, [request.locationId, request.categoryCode, request.arrival, request.departure, duration]);
   const states = new Map();
   for (const candidate of candidates.rows) {
     const key = String(candidate.inventory_id);
     const remaining = remainingByInventory.get(key) || 0;
-    states.set(candidate.element_key, { available: remaining > 0 });
-    if (remaining > 0) remainingByInventory.set(key, remaining - 1);
+    const available = Boolean(candidate.free) && remaining > 0;
+    states.set(candidate.element_key, { eligible: true, available });
+    if (available) remainingByInventory.set(key, remaining - 1);
   }
   return { categoryCode: request.categoryCode, states };
 }

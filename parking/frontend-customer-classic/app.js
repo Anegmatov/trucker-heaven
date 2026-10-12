@@ -787,8 +787,8 @@
       ids.set(number, spot.id);
       // Daily / Weekly: green = your area and open, red = in your area but taken, grey = not for this booking.
       if (!pick) {
-        const eligible = spot.eligible !== undefined ? Boolean(spot.eligible) : state.trip?.duration === 'DAILY' ? Boolean(spot.dailyEligible) : Boolean(spot.publicBookable);
-        states.set(number, spot.available ? 'area' : eligible ? 'taken' : 'off'); continue;
+        // The server marks only spaces of the requested type and term (eligible); anything else is grey.
+        states.set(number, spot.available ? 'area' : spot.eligible ? 'taken' : 'off'); continue;
       }
       states.set(number, spot.selectable ? 'open' : /HELD|RESERVED|OCCUPIED|UNAVAILABLE/.test(selection) ? 'taken' : 'off');
     }
