@@ -14,7 +14,7 @@
   const slugify = (value) => String(value || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   const publicVisibility = (item) => ({ VISIBLE: "Visible on public menu", CATEGORY_INACTIVE: "Hidden because category is inactive", ITEM_INACTIVE: "Hidden because item is inactive", ITEM_UNAVAILABLE: "Hidden because item is unavailable" })[item.publicVisibility?.reason] || "Hidden from public menu";
   const dateTime = (value) => value ? new Date(value).toLocaleString() : "—";
-  const routes = { dashboard: ["Silk Road Grill", "Overview"], orders: ["Restaurant operations", "Orders"], kitchen: ["Restaurant operations", "Kitchen board"], catering: ["Group dining", "Catering"], menu: ["Menu management", "Items"], categories: ["Menu management", "Categories"], settings: ["Restaurant settings", "Ordering"], hours: ["Restaurant settings", "Hours & Contact"], gallery: ["Restaurant settings", "Gallery"], users: ["Restaurant settings", "Users"] };
+  const routes = { parking: ["Truck Parking", "Parking"], rentals: ["Car Rentals", "Rentals"], dashboard: ["Silk Road Grill", "Overview"], orders: ["Restaurant operations", "Orders"], kitchen: ["Restaurant operations", "Kitchen board"], catering: ["Group dining", "Catering"], menu: ["Menu management", "Items"], categories: ["Menu management", "Categories"], settings: ["Restaurant settings", "Ordering"], hours: ["Restaurant settings", "Hours & Contact"], gallery: ["Restaurant settings", "Gallery"], users: ["Restaurant settings", "Users"] };
   const primaryRoute = (route) => new Set(["categories"]).has(route) ? "menu" : new Set(["hours", "gallery", "users"]).has(route) ? "settings" : route;
   function sectionTabs(section, active) {
     const tabs = section === "orders" ? [["orders", "Kitchen Board"], ["orders-all", "All Orders"]]
@@ -54,6 +54,32 @@
   }
   function loading() { $("#page-content").innerHTML = '<div class="loading">Loading…</div>'; }
   function showLogin() { state.user = null; state.csrf = ""; $("#app-shell").hidden = true; $("#login-view").hidden = false; }
+  // Unified admin: one sign-in opens the parking and rentals staff sessions on this server too.
+  const unified = Boolean(config.unified);
+  document.body.classList.toggle("unified-admin", unified);
+  const sso = { parking: null, rentals: null };
+  function connectModule(name) {
+    if (!unified) return Promise.resolve(false);
+    if (!sso[name]) {
+      sso[name] = fetch(`${config.ssoBaseUrl}/${name}`, { method: "POST", credentials: "include", headers: { Accept: "application/json", "X-CSRF-Token": state.csrf } })
+        .then(async (response) => { if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body?.error?.message || `Could not open the ${name} staff session.`); } return true; })
+        .catch((error) => { sso[name] = null; throw error; });
+    }
+    return sso[name];
+  }
+  function connectModules() { if (!unified) return; for (const name of ["parking", "rentals"]) connectModule(name).catch(() => {}); }
+  async function disconnectModules() {
+    if (!unified) return;
+    sso.parking = null; sso.rentals = null;
+    await fetch(`${config.ssoBaseUrl}/logout`, { method: "POST", credentials: "include" }).catch(() => {});
+  }
+  async function renderModule(name) {
+    const url = name === "parking" ? config.parkingStaffUrl : config.rentalsStaffUrl;
+    let note = "";
+    try { await connectModule(name); }
+    catch (error) { note = `<p class="module-frame-note">${escapeHtml(error.message)} You can still sign in below with the ${escapeHtml(name)} staff login.</p>`; }
+    $("#page-content").innerHTML = `${note}<iframe class="module-frame" src="${escapeHtml(url)}" title="${escapeHtml(routes[name][1])} staff site"></iframe>`;
+  }
   function showApp() {
     $("#login-view").hidden = true; $("#app-shell").hidden = false;
     $("#user-name").textContent = state.user.displayName; $("#user-role").textContent = state.user.role;
@@ -62,7 +88,7 @@
     $$('[data-owner-only]').forEach((node) => { node.hidden = state.user.role !== "OWNER"; });
   }
   function openRoute(route, query = "") {
-    if (!routes[route] || (route === "users" && state.user.role !== "OWNER")) route = "dashboard";
+    if (!routes[route] || (route === "users" && state.user.role !== "OWNER") || (!unified && (route === "parking" || route === "rentals"))) route = "dashboard";
     if (route === "orders") { state.orderQuery = query; if (query) state.ordersView = "all"; }
     if (route === "catering") state.cateringQuery = query;
     state.route = route; history.replaceState(null, "", `#${route}`); clearTimeout(state.kitchenTimer);
@@ -73,7 +99,8 @@
       if (active) node.setAttribute("aria-current", "page"); else node.removeAttribute("aria-current");
     });
     closeSidebar(false); closeRecordDrawer(); loading();
-    const render = ({ dashboard: renderDashboard, orders: renderOrders, kitchen: renderKitchen, catering: () => renderCateringInline(state.cateringQuery), menu: renderMenuWorkspace,
+    $("#page-content").classList.toggle("module-frame-host", route === "parking" || route === "rentals");
+    const render = ({ parking: () => renderModule("parking"), rentals: () => renderModule("rentals"), dashboard: renderDashboard, orders: renderOrders, kitchen: renderKitchen, catering: () => renderCateringInline(state.cateringQuery), menu: renderMenuWorkspace,
       categories: renderCategoriesWorkspace, settings: renderSettings, hours: renderHours,
       gallery: renderGallery, users: renderUsers })[route];
     return render().then(() => {
@@ -426,11 +453,11 @@
   function bindAdminForms(){document.querySelectorAll("#page-content form").forEach((form)=>{if(form.dataset.submitBound)return;form.dataset.submitBound="true";form.addEventListener("submit",handleAdminSubmit,true);});}
   new MutationObserver(bindAdminForms).observe($("#page-content"),{childList:true,subtree:true});
   bindAdminForms();
-  $("#login-form").addEventListener("submit",async(event)=>{event.preventDefault();const form=event.currentTarget;const button=form.querySelector("button");const errorBox=$("#login-error");button.disabled=true;try{const data=Object.fromEntries(new FormData(form));const result=await request("/auth/login",{method:"POST",body:JSON.stringify(data)});state.user=result.user;state.csrf=result.csrfToken;form.reset();errorBox.hidden=true;showApp();openRoute(location.hash.slice(1)||"dashboard");}catch(error){errorBox.textContent=error.message;errorBox.hidden=false;}finally{button.disabled=false;}});
-  $("#sign-out").addEventListener("click",async()=>{try{await request("/auth/logout",{method:"POST"});}finally{showLogin();}});
+  $("#login-form").addEventListener("submit",async(event)=>{event.preventDefault();const form=event.currentTarget;const button=form.querySelector("button");const errorBox=$("#login-error");button.disabled=true;try{const data=Object.fromEntries(new FormData(form));const result=await request("/auth/login",{method:"POST",body:JSON.stringify(data)});state.user=result.user;state.csrf=result.csrfToken;form.reset();errorBox.hidden=true;showApp();connectModules();openRoute(location.hash.slice(1)||"dashboard");}catch(error){errorBox.textContent=error.message;errorBox.hidden=false;}finally{button.disabled=false;}});
+  $("#sign-out").addEventListener("click",async()=>{try{await disconnectModules();await request("/auth/logout",{method:"POST"});}finally{showLogin();}});
   $("#menu-toggle").addEventListener("click",openSidebar);$("#sidebar-close").addEventListener("click",()=>closeSidebar());$("#sidebar-scrim").addEventListener("click",()=>closeSidebar());
   document.addEventListener("keydown",(event)=>{const inlineOrder=event.target.closest?.("[data-inline-order]");const inlineCatering=event.target.closest?.("[data-inline-catering]");const interactive=event.target.matches?.("button,input,select,textarea,a");if((event.key==="Enter"||event.key===" ")&&inlineOrder&&!interactive){event.preventDefault();toggleInlineOrder(inlineOrder.dataset.inlineOrder,inlineOrder.dataset.orderContext).catch(e=>showAlert(e.message,true));}if((event.key==="Enter"||event.key===" ")&&inlineCatering&&!interactive){event.preventDefault();toggleInlineCatering(inlineCatering.dataset.inlineCatering).catch(e=>showAlert(e.message,true));}if(event.key==="Escape"&&state.expandedOrder){state.expandedOrder=null;state.expandedOrderContext="";state.expandedOrderData=null;renderOrders().catch(e=>showAlert(e.message,true));}if(event.key==="Escape"&&state.expandedCatering){state.expandedCatering=null;state.expandedCateringData=null;renderCateringInline(state.cateringQuery).catch(e=>showAlert(e.message,true));}});
   document.addEventListener("keydown",(event)=>{if(event.key==="Escape"){if($("#record-drawer")?.classList.contains("open"))closeRecordDrawer();else if($("#sidebar").classList.contains("open"))closeSidebar();}});
   $("#public-site-link").href=config.publicSiteUrl;
-  (async()=>{try{const session=await request("/auth/session");state.user=session.user;state.csrf=session.csrfToken;showApp();openRoute(location.hash.slice(1)||"dashboard");}catch{showLogin();}})();
+  (async()=>{try{const session=await request("/auth/session");state.user=session.user;state.csrf=session.csrfToken;showApp();connectModules();openRoute(location.hash.slice(1)||"dashboard");}catch{showLogin();}})();
 })();

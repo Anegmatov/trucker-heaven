@@ -15,5 +15,7 @@
     }
   }
 
-  window.DriveOpsAdminConfig = Object.freeze({ API_BASE: renderHosted ? window.location.origin : validApiUrl(supplied.API_BASE) });
+  // Served by the shared backend at /sites/rentals-staff (inside the unified admin): the rentals API is this origin's /rentals prefix.
+  const embedded = /^\/sites\/rentals-staff(\/|$)/.test(window.location.pathname);
+  window.DriveOpsAdminConfig = Object.freeze({ API_BASE: embedded ? `${window.location.origin}/rentals` : renderHosted ? window.location.origin : validApiUrl(supplied.API_BASE) });
 })();

@@ -57,6 +57,8 @@ const loaders = {
     const app = createApp({ database, config });
     return {
       app,
+      database,
+      config,
       async start() {
         fs.mkdirSync(config.uploadDirectory, { recursive: true });
         fs.mkdirSync(config.temporaryUploadDirectory, { recursive: true });
@@ -131,10 +133,23 @@ function build() {
   } };
   sites.use("/parking", express.static(path.join(__dirname, "..", "parking", "frontend-customer-classic", "dist"), staticOptions));
   sites.use("/rentals", express.static(path.join(__dirname, "..", "rentals", "frontend-customer"), staticOptions));
+  // Staff sites, and the unified admin (the food admin shell signing everyone in at once).
+  sites.use("/parking-staff", express.static(path.join(__dirname, "..", "parking", "frontend-admin"), staticOptions));
+  sites.use("/rentals-staff", express.static(path.join(__dirname, "..", "rentals", "frontend-admin"), staticOptions));
+  sites.use("/admin", express.static(path.join(__dirname, "..", "food", "frontend-admin"), staticOptions));
   sites.use((req, res) => { res.status(404).type("text/plain").send("Not found"); });
 
+  const { createAdminHub } = require("./adminHub");
+  const hub = createAdminHub({ modules, food: modules.food || null });
+
   function router(req, res) {
-    if (req.url === "/sites" || req.url.startsWith("/sites/")) { req.url = (req.url.slice(6) || "/").replace(/^\/(parking|rentals)(\?|$)/, "/$1/$2"); return sites(req, res); }
+    // A same-origin request (the unified admin and the staff sites live on this server) is not a
+    // cross-origin request: drop the Origin header so the modules' allowlists do not reject it.
+    const origin = req.headers.origin;
+    const selfHost = String(req.headers["x-forwarded-host"] || req.headers.host || "").split(",")[0].trim().toLowerCase();
+    if (origin && selfHost && origin.toLowerCase() === `${String(req.headers["x-forwarded-proto"] || "http").split(",")[0].trim()}://${selfHost}`) delete req.headers.origin;
+    if (req.url === "/sites" || req.url.startsWith("/sites/")) { req.url = (req.url.slice(6) || "/").replace(/^\/([a-z-]+)(\?|$)/, "/$1/$2"); return sites(req, res); }
+    if (req.url.startsWith("/api/v1/admin/sso/") || req.url === "/api/v1/admin/sso") { req.url = req.url.slice("/api/v1/admin/sso".length) || "/"; return hub(req, res); }
     // Single-link mode first: /parking/..., /rentals/..., /food/... work on any hostname
     // (the *.onrender.com URL, or a hostname that is mapped to one module). No module
     // serves routes under those prefixes itself, so this never shadows a real route.

@@ -110,4 +110,4 @@ async function login(username, password, res) {
   }
 }
 
-module.exports = { cookieName, settings, requireAdmin, csrf, permit, permissionsFor, userView, login };
+module.exports = { cookieName, settings, createSession, requireAdmin, csrf, permit, permissionsFor, userView, login };
