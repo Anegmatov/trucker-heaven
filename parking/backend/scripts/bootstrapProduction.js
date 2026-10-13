@@ -45,7 +45,8 @@ async function run({ databaseUrl = process.env.PARKING_DATABASE_URL, apiBase, lo
     const location = await pool.query("SELECT id FROM parking_locations WHERE name='Trucker Heaven Main Lot'");
     if (!location.rowCount) {
       log('creating the parking location and categories');
-      await runScript('seedDevelopment.js', [], env, log);
+      // the seed's base records (location, categories, zones) are exactly what a fresh install needs
+      await runScript('seedDevelopment.js', [], { ...env, PARKING_ALLOW_PRODUCTION_SEED: 'true' }, log);
       await pool.query(`UPDATE parking_locations SET
         public_description='Secure truck and bobtail parking at Trucker Heaven, Mt. Juliet, TN.',
         payment_instructions='Pay at the Trucker Heaven office. Daily and Weekly parking is paid when you leave; Monthly parking is due on the 1st of each month.'
