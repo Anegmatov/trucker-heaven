@@ -65,6 +65,9 @@ async function bookingInput(client, body) {
   const publicLocationId = String(body.locationId || '').trim();
   const categoryCode = String(body.categoryCode || '').trim().toUpperCase();
   assertPublicCategory(categoryCode);
+  const category = await client.query('SELECT id,name FROM parking_categories WHERE code=$1 AND active', [categoryCode]);
+  if (!category.rowCount) throw apiError('VALIDATION_ERROR', 'Choose a parking type');
+  const categoryId = Number(category.rows[0].id); const categoryName = category.rows[0].name;
   const select = `SELECT z.id zone_id,z.public_id zone_public_id,z.name zone_name,
       l.id, l.public_id, l.name, l.address, l.timezone, l.phone, l.booking_approval_mode,
       payment_instructions, cancellation_cutoff_hours,assignment_mode,exact_mode_active,self_service_enabled,
@@ -117,6 +120,8 @@ async function bookingInput(client, body) {
     canonicalLotRequest,
     canonicalAreaOnly,
     categoryCode,
+    categoryId,
+    categoryName,
     duration,
     customerAssignmentMode,
     arrival: businessInterval.start,
@@ -516,7 +521,7 @@ function applyCapacityHoldback(selection, slots) {
 function expose(row, credential) {
   const assignmentMode = row.assignment_mode_snapshot || (row.assignment_mode === 'EXACT_SPOT' && row.exact_mode_active ? 'EXACT_SPOT' : 'ZONE_CAPACITY');
   const assignedLabel = row.assignment_public_label || row.assigned_spot_label || null;
-  const areaName = publicCategoryName(row.category_code, row.category_name) || 'Parking Area';
+  const areaName = publicCategoryName(row.area_category_code || row.category_code, row.area_category_name || row.category_name) || 'Parking Area';
   const areaInstructions = customerParkingInstructions(assignmentMode, row.area_arrival_directions || row.arrival_instructions);
   return {
     reservationNumber: row.reservation_number,
@@ -578,7 +583,7 @@ async function bookingRecord(client, where, ...values) {
   const result = await client.query(`SELECT b.*, l.name location_name,l.address,l.phone,l.timezone,l.arrival_instructions,
       l.exit_instructions,l.road_directions_url,l.payment_instructions,l.cancellation_cutoff_hours,
       l.assignment_mode current_assignment_mode,l.exact_mode_active,l.self_service_enabled,l.check_in_early_minutes,l.check_in_late_minutes,
-      z.public_id zone_public_id,z.name zone_name,c.code category_code,c.name category_name,p.snapshot,a.parking_spot_id,s.public_label assignment_public_label,
+      z.public_id zone_public_id,z.name zone_name,c.code category_code,c.name category_name,ic.code area_category_code,ic.name area_category_name,p.snapshot,a.parking_spot_id,s.public_label assignment_public_label,
       z.arrival_directions area_arrival_directions,z.exit_directions area_exit_directions,
       COALESCE((SELECT json_agg(json_build_object('note', n.note, 'createdAt', n.created_at) ORDER BY n.created_at)
         FROM parking_booking_notes n WHERE n.booking_id=b.id AND n.visibility='CUSTOMER'), '[]'::json) customer_notes
@@ -587,6 +592,7 @@ async function bookingRecord(client, where, ...values) {
     JOIN parking_inventory i ON i.id=b.inventory_id
     JOIN parking_zones z ON z.id=i.zone_id
     JOIN parking_categories c ON c.id=b.category_id
+    JOIN parking_categories ic ON ic.id=i.category_id
     JOIN parking_booking_price_snapshots p ON p.booking_id=b.id
     LEFT JOIN reservation_spot_assignments a ON a.booking_id=b.id AND a.released_at IS NULL
     LEFT JOIN parking_spots s ON s.id=a.parking_spot_id
@@ -604,7 +610,7 @@ async function attachPublicMap(client, row) {
     ? (row.parking_spot_id ? await publishedLayout(client, row.location_id, row.parking_spot_id) : null)
     : await publishedLayout(client, row.location_id, null, null, {
       inventoryId: row.inventory_id,
-      name: publicCategoryName(row.category_code, row.category_name) || 'Parking Area',
+      name: publicCategoryName(row.area_category_code || row.category_code, row.area_category_name || row.category_name) || 'Parking Area',
       instructions: customerParkingInstructions(bookingAssignmentMode(row), row.area_arrival_directions || row.arrival_instructions),
       arrival: row.arrival_at,
       departure: row.departure_at
@@ -951,8 +957,8 @@ router.post('/quotes', publicLimit(config.rateLimits.quote), async (req, res, ne
         quote: publicQuote(quote),
         quoteToken,
         expiresAt,
-        categoryCode: slot.category_code,
-        category: slot.category_name,
+        categoryCode: request.categoryCode,
+        category: request.categoryName,
         parkingAreaId: request.canonicalLotRequest ? null : slot.zone_public_id,
         parkingArea: {
           id: slot.zone_public_id || null,
@@ -1150,7 +1156,7 @@ router.post('/booking-attempts', bookingLimit, async (req, res, next) => {
         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,'PENDING',$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,now(),now(),$25,'DRAFT',$26)
         RETURNING *`, [
         reservationNumber(), token(), await bcrypt.hash(credential, 12), keyHash, scopeHash, requestHash,
-        slot.inventory_id, request.locationId, slot.category_id, slot.assignment_mode, quote.expires_at,
+        slot.inventory_id, request.locationId, request.categoryId, slot.assignment_mode, quote.expires_at,
         request.arrival, request.bookingDeparture, customer.firstName, customer.lastName, customer.mobilePhone,
         customer.email, customer.companyName, customer.usdotNumber, customer.tractorUnitNumber,
         customer.licensePlate, customer.licensePlateState, customer.trailerNumber, customer.specialInstructions,
@@ -1435,7 +1441,7 @@ router.post('/bookings', bookingLimit, async (req, res, next) => {
         ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,now(),now(),$26,'NOT_REQUIRED',$27,$28)
         RETURNING *`, [
         reservationNumber(), token(), await bcrypt.hash(credential, 12), keyHash, scopeHash, requestHash,
-        slot.inventory_id, request.locationId, slot.category_id, status, slot.assignment_mode,
+        slot.inventory_id, request.locationId, request.categoryId, status, slot.assignment_mode,
         status === 'PENDING' ? selectedSpot?.id || null : null, status === 'PENDING' ? pendingExpiryAt() : null,
         request.arrival, storedDeparture,
         customer.firstName, customer.lastName, customer.mobilePhone, customer.email, customer.companyName,
@@ -1465,7 +1471,7 @@ router.post('/bookings', bookingLimit, async (req, res, next) => {
         VALUES($1,$2,'CUSTOMER',$3,1)`, [booking.id, status,
         status === 'CONFIRMED' ? 'Automatically confirmed pay-at-location booking' : 'Customer booking submitted for manual approval']);
       if (status === 'CONFIRMED' && customerId) {
-        await activateCustomerFromBooking(client, { ...booking, category_code: slot.category_code });
+        await activateCustomerFromBooking(client, { ...booking, category_code: request.categoryCode });
         await ensureOnSiteCharges(client, booking);
         await customerNotifications.enqueueForBooking(client, booking, 'RESERVATION_CONFIRMED', {
           manageUrl: `${config.customerAppUrl.replace(/\/$/, '')}/#r=${encodeURIComponent(booking.reservation_number)}&c=${encodeURIComponent(credential)}`
@@ -1489,8 +1495,10 @@ router.post('/bookings', bookingLimit, async (req, res, next) => {
         timezone: request.location.timezone,
         zone_name: slot.zone_name,
         zone_public_id: slot.zone_public_id,
-        category_code: slot.category_code,
-        category_name: slot.category_name,
+        category_code: request.categoryCode,
+        category_name: request.categoryName,
+        area_category_code: slot.category_code,
+        area_category_name: slot.category_name,
         arrival_instructions: request.location.arrival_instructions,
         area_arrival_directions: slot.arrival_directions,
         area_exit_directions: slot.exit_directions,

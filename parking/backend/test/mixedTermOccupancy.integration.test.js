@@ -202,9 +202,15 @@ test('when the truck area accepts bobtails, a Daily bobtail search also offers 1
     const offer = truckArea.body.results.find(r => r.available);
     assert.ok(offer, 'the truck Daily area is offered to a bobtail');
     assert.equal(offer.remainingCapacity, 2);
-    await publicBook({ parkingAreaId: truckZone.public_id, ...search,
+    const quote = await publicPost('/quotes', { parkingAreaId: truckZone.public_id, ...search });
+    assert.equal(quote.response.status, 200, JSON.stringify(quote.body));
+    assert.equal(quote.body.categoryCode, 'BOBTAIL', 'the quote keeps the driver\'s vehicle type even in the truck area');
+    const booked = await publicBook({ parkingAreaId: truckZone.public_id, ...search,
       firstName: 'Bob', lastName: 'Tail', mobilePhone: '+16155559002', email: `bob.${Date.now()}@example.test`, companyName: 'Bobtail Freight',
       tractorUnitNumber: 'BOB-1', licensePlate: `BT${Date.now() % 10000}`, licensePlateState: 'TN', termsAccepted: true, cancellationTermsAccepted: true });
+    const view = booked.booking || booked.bookingAttempt || booked;
+    assert.equal(view.parkingArea?.name, 'General Truck Parking', JSON.stringify(view).slice(0, 300));
+    assert.equal(view.category, 'Bobtail', JSON.stringify(view).slice(0, 600));
     const after = await publicPost('/availability', { parkingAreaId: truckZone.public_id, categoryCode: 'TRACTOR_TRAILER', duration: 'DAILY', arrivalLocal: search.arrivalLocal, departureLocal: search.departureLocal });
     assert.equal(after.body.results.find(r => r.categoryCode === 'TRACTOR_TRAILER').remainingCapacity, 1, 'the bobtail took one of the two truck Daily spaces');
   } finally {
