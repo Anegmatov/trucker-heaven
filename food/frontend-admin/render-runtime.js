@@ -2,6 +2,8 @@
   "use strict";
 
   if (!window.location.hostname.endsWith(".onrender.com")) return;
+  // The unified admin served by the shared backend (/sites/admin) configures itself in config.js.
+  if (/^\/sites\/admin(\/|$)/.test(window.location.pathname)) return;
 
   window.FOODOPS_ADMIN_CONFIG = Object.freeze({
     apiBaseUrl:
