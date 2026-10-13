@@ -155,11 +155,12 @@ test('Monthly bookings on Monthly spaces do not consume Daily truck capacity', a
   assert.equal(offer.remainingCapacity ?? offer.availableSpots ?? offer.available_spots, 2, 'both Daily-only spaces remain');
 });
 
-test('Daily truck layout marks only truck spaces: open Daily ones available, Monthly ones unmarked, never Bobtail', async () => {
+test('Daily truck layout marks only truck spaces: open Daily ones available, occupied Monthly ones taken, never Bobtail', async () => {
   const { body } = await publicPost('/availability', { parkingAreaId: truckZone.public_id, categoryCode: 'TRACTOR_TRAILER', duration: 'DAILY', ...dailyInterval });
   const space = spaceByNumber(body.layout);
   for (const n of ['101', '102']) { assert.equal(space.get(n).eligible, true, `${n} eligible`); assert.equal(space.get(n).available, true, `${n} available`); }
-  for (const n of ['130', '131']) assert.notEqual(space.get(n).eligible, true, `${n} is Monthly-only and must not be marked for Daily`);
+  // Amazon's Monthly spaces are not for sale on a Daily search, but they are shown as taken (red), not as empty grey spaces.
+  for (const n of ['130', '131']) { assert.notEqual(space.get(n).eligible, true, `${n} is Monthly-only and must not be marked for Daily`); assert.equal(space.get(n).selectionState, 'TAKEN', `${n} is occupied by Amazon`); }
   for (const n of ['20', '21']) { assert.notEqual(space.get(n).eligible, true, `Bobtail ${n} must never be marked on a truck search`); assert.notEqual(space.get(n).available, true); }
 });
 
@@ -181,4 +182,32 @@ test('a full Monthly lot comes back as a lot with every space taken, not an erro
   assert.equal(positions.body.positions.filter(p => p.available).length, 0);
   const space = spaceByNumber(positions.body.layout);
   for (const n of ['130', '131']) { assert.equal(space.get(n).selectable, false, `${n} is taken`); assert.match(String(space.get(n).selectionState), /RESERVED|OCCUPIED|HELD|UNAVAILABLE/); }
+});
+
+test('when the truck area accepts bobtails, a Daily bobtail search also offers 101-129 and a bobtail booking there uses truck Daily capacity', async () => {
+  await pool.query(`UPDATE parking_inventory SET accepts_category_codes='{BOBTAIL}' WHERE zone_id=$1 AND category_id=$2`, [truckZone.id, categories.TRACTOR_TRAILER.id]);
+  try {
+    const search = { categoryCode: 'BOBTAIL', duration: 'DAILY', arrivalLocal: '2035-04-01T09:00', departureLocal: '2035-04-02T09:00' };
+    // The customer app searches the whole lot (no area), so both the bobtail area and the truck Daily area come back.
+    const bobtail = await publicPost('/availability', { locationId: location.public_id, ...search });
+    assert.equal(bobtail.response.status, 200, JSON.stringify(bobtail.body));
+    const space = spaceByNumber(bobtail.body.layout);
+    for (const n of ['101', '102']) { assert.equal(space.get(n).eligible, true, `${n} is open to bobtails`); assert.equal(space.get(n).available, true); }
+    assert.equal(space.get('21').available, true, 'own bobtail space still open');
+    assert.deepEqual(bobtail.body.results.filter(r => r.available).map(r => r.zone).sort(), ['Bobtail Parking', 'General Truck Parking'], 'two areas offered');
+    for (const n of ['130', '131']) { assert.notEqual(space.get(n).eligible, true); assert.equal(space.get(n).selectionState, 'TAKEN', `${n} shows red for bobtails too`); }
+    // The truck zone itself offers Daily parking to a bobtail now.
+    const truckArea = await publicPost('/availability', { parkingAreaId: truckZone.public_id, ...search });
+    assert.equal(truckArea.response.status, 200, JSON.stringify(truckArea.body));
+    const offer = truckArea.body.results.find(r => r.available);
+    assert.ok(offer, 'the truck Daily area is offered to a bobtail');
+    assert.equal(offer.remainingCapacity, 2);
+    await publicBook({ parkingAreaId: truckZone.public_id, ...search,
+      firstName: 'Bob', lastName: 'Tail', mobilePhone: '+16155559002', email: `bob.${Date.now()}@example.test`, companyName: 'Bobtail Freight',
+      tractorUnitNumber: 'BOB-1', licensePlate: `BT${Date.now() % 10000}`, licensePlateState: 'TN', termsAccepted: true, cancellationTermsAccepted: true });
+    const after = await publicPost('/availability', { parkingAreaId: truckZone.public_id, categoryCode: 'TRACTOR_TRAILER', duration: 'DAILY', arrivalLocal: search.arrivalLocal, departureLocal: search.departureLocal });
+    assert.equal(after.body.results.find(r => r.categoryCode === 'TRACTOR_TRAILER').remainingCapacity, 1, 'the bobtail took one of the two truck Daily spaces');
+  } finally {
+    await pool.query(`UPDATE parking_inventory SET accepts_category_codes='{}' WHERE zone_id=$1`, [truckZone.id]);
+  }
 });

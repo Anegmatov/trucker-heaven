@@ -18,7 +18,7 @@ async function inventoryFor(client, { locationId, zoneId, categoryCode, arrival,
       l.assignment_mode, l.exact_mode_active, l.turnaround_buffer_minutes,
       EXISTS(SELECT 1 FROM parking_lot_layouts published
         WHERE published.location_id=l.id AND published.status='PUBLISHED') has_published_layout,
-      c.id category_id, c.code category_code,
+      c.id category_id, c.code category_code, i.accepts_category_codes,
       CASE WHEN c.code='BOBTAIL' AND EXISTS (SELECT 1 FROM parking_lot_layouts canonical
         WHERE canonical.location_id=l.id AND canonical.status='PUBLISHED' AND canonical.name LIKE 'Trucker Heaven physical lot ·%')
         THEN 'Bobtail'
@@ -28,8 +28,8 @@ async function inventoryFor(client, { locationId, zoneId, categoryCode, arrival,
     FROM parking_inventory i JOIN parking_zones z ON z.id=i.zone_id JOIN parking_locations l ON l.id=z.location_id
     JOIN parking_categories c ON c.id=i.category_id
     WHERE l.id=$1 AND ($2::bigint IS NULL OR z.id=$2) AND l.active AND z.active AND z.public_visible
-      AND i.active AND c.active AND c.code=$3
-    ORDER BY i.id`;
+      AND i.active AND c.active AND (c.code=$3 OR $3=ANY(i.accepts_category_codes))
+    ORDER BY (c.code=$3) DESC, i.id`;
   const { rows } = await client.query(query, [locationId, zoneId, categoryCode]);
   return { rows, start, end };
 }

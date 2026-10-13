@@ -346,6 +346,13 @@ async function applyRealLotTransaction(client, { location, owner, categoryByCode
     const allowed = zoneCategoryCodes.get(name);
     await client.query('UPDATE parking_inventory SET active=false WHERE zone_id=$1 AND category_id <> ALL($2::bigint[])', [zoneId, allowed.map(code => categoryByCode.get(code))]);
   }
+  // Inventories that accept another vehicle type (e.g. bobtails may use the truck daily area).
+  await client.query('UPDATE parking_inventory SET accepts_category_codes=\'{}\' WHERE zone_id=ANY($1::bigint[])', [[...zones.values()]]);
+  for (const share of data.inventorySharing || []) {
+    const inventoryId = inventory.get(`${zoneByUse[share.use]}:${share.category}`);
+    if (!inventoryId) throw new Error(`Refusing import: inventorySharing names unknown inventory ${share.use}/${share.category}.`);
+    await client.query('UPDATE parking_inventory SET accepts_category_codes=$1 WHERE id=$2', [share.accepts, inventoryId]);
+  }
   const ratePlans = await resolveImportRatePlans(client, location.id, zones, categoryByCode, zoneByUse);
   // The retired legacy unresolved zone is retained for historical foreign keys.
   // The explicit Unresolved (internal) zone above is the current nonpublic home

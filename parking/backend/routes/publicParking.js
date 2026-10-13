@@ -328,10 +328,14 @@ function publicAvailabilityResults(values, request) {
     ...publicRateOffer(value.rateOffer, selectedDuration)
   });
   if (!request.canonicalLotRequest) return values.map(present);
+  // The whole lot is one offer per vehicle type. An inventory of another type that accepts the
+  // requested type (bobtails in the truck Daily area) is folded into the requested type's offer.
+  const own = values.find(value => value.category_code === request.categoryCode);
   const categories = new Map();
   for (const value of values) {
-    const current = categories.get(value.category_code);
-    if (!current) { categories.set(value.category_code, { ...present(value), _sourceValues: [value] }); continue; }
+    const code = request.categoryCode;
+    const current = categories.get(code);
+    if (!current) { categories.set(code, { ...present(own ? { ...value, category_code: own.category_code, category_name: own.category_name } : value), _sourceValues: [value] }); continue; }
     current.available ||= value.available;
     if (current.numberedSpacesAvailable !== null) current.numberedSpacesAvailable += Number(value.available_spots || 0);
     if (current.remainingCapacity !== null) current.remainingCapacity += value.public_remaining_capacity ? (value.closed ? 0 : Math.max(0, value.effective_capacity - value.used)) : 0;
@@ -351,10 +355,11 @@ async function availabilityMapStates(client, request, values) {
   const remainingFor = value => value.available_spots != null ? Number(value.available_spots)
     : (value.closed ? 0 : Math.max(0, Number(value.effective_capacity || 0) - Number(value.used || 0)));
   const remainingByInventory = new Map(values.map(value => [String(value.inventory_id), remainingFor(value)]));
-  // Every space of the requested type and term is returned: free ones are marked available
-  // (while capacity lasts), taken ones are marked eligible-but-unavailable so the map can show
-  // them as taken. Spaces of another type or term are not marked at all.
+  // Every space of the requested type (or of an inventory that accepts it) is returned. For the
+  // requested term, free ones are marked available (while capacity lasts) and taken ones are
+  // marked eligible-but-unavailable. Spaces of another term are marked only when occupied.
   const candidates = await client.query(`SELECT e.element_key,e.inventory_id,
+      (($5='DAILY' AND e.daily_eligible) OR ($5='WEEKLY' AND e.weekly_eligible) OR ($5='MONTHLY' AND e.monthly_eligible)) term_eligible,
       (NOT EXISTS (SELECT 1 FROM parking_spot_blocks block
         WHERE block.parking_spot_id=s.id AND block.released_at IS NULL
           AND block.starts_at<($4::timestamptz + make_interval(mins=>l.turnaround_buffer_minutes))
@@ -375,14 +380,18 @@ async function availabilityMapStates(client, request, values) {
     JOIN parking_locations l ON l.id=s.location_id
     WHERE layout.location_id=$1 AND layout.status='PUBLISHED' AND e.active AND e.public_visible
       AND e.element_type='PARKING_SPOT' AND s.active AND z.active AND z.public_visible AND i.active AND c.active
-      AND c.code=$2 AND s.classification_state='COMPLETE'
+      AND (c.code=$2 OR $2=ANY(i.accepts_category_codes)) AND s.classification_state='COMPLETE'
       AND e.space_public_bookable AND e.parking_purpose='CUSTOMER'
-      AND (($5='DAILY' AND e.daily_eligible) OR ($5='WEEKLY' AND e.weekly_eligible)
-        OR ($5='MONTHLY' AND e.monthly_eligible))
     ORDER BY e.inventory_id,e.layer_order,e.id`, [request.locationId, request.categoryCode, request.arrival, request.departure, duration]);
   const states = new Map();
   for (const candidate of candidates.rows) {
     const key = String(candidate.inventory_id);
+    if (!candidate.term_eligible) {
+      // Not sold for this term (e.g. a Monthly space on a Daily search), but if someone is in it
+      // the driver should still see it as taken rather than as an empty grey space.
+      if (!candidate.free) states.set(candidate.element_key, { eligible: false, available: false, state: 'TAKEN' });
+      continue;
+    }
     const remaining = remainingByInventory.get(key) || 0;
     const available = Boolean(candidate.free) && remaining > 0;
     // A free space that cannot be sold is held back for a reservation that has no numbered
@@ -401,7 +410,7 @@ async function selectableSpaceStates(client, request, ownQuoteToken = null) {
       CASE $4 WHEN 'DAILY' THEN element.daily_eligible WHEN 'WEEKLY' THEN element.weekly_eligible
         ELSE element.monthly_eligible END term_eligible,
       element.space_public_bookable,element.parking_purpose,element.rate_plan_id,
-      spot.public_label,spot.active spot_active,spot.classification_state,category.code category_code,
+      spot.public_label,spot.active spot_active,spot.classification_state,category.code category_code,inventory.accepts_category_codes,
       CASE $4 WHEN 'DAILY' THEN plan.daily_rate_cents WHEN 'WEEKLY' THEN plan.weekly_rate_cents
         ELSE plan.monthly_rate_cents END term_rate_cents,
       block.id block_id,assignment.id assignment_id,assignment.booking_status,
@@ -459,7 +468,7 @@ async function selectableSpaceStates(client, request, ownQuoteToken = null) {
   const states = new Map();
   const positions = [];
   for (const row of rows.rows) {
-    const categoryMatches = row.category_code === request.categoryCode;
+    const categoryMatches = row.category_code === request.categoryCode || (row.accepts_category_codes || []).includes(request.categoryCode);
     const customerConfigured = row.spot_active && row.classification_state === 'COMPLETE'
       && row.parking_purpose === 'CUSTOMER' && row.space_public_bookable;
     const eligible = categoryMatches && customerConfigured && row.term_eligible
@@ -611,7 +620,7 @@ async function publishedLayout(client, locationId, assignedSpotId = null, availa
   const elements = await client.query(`SELECT e.element_type,e.element_key,e.label,e.x,e.y,e.width,e.height,e.rotation,e.layer_order,
       e.inventory_id,e.parking_spot_id,e.parking_purpose,e.daily_eligible,e.weekly_eligible,e.monthly_eligible,e.space_public_bookable,
       s.id spot_id,s.public_label spot_label,s.physical_section,s.parking_use,s.public_bookable,s.classification_state,
-      z.name zone_name,c.code category_code,c.name category_name
+      z.name zone_name,c.code category_code,c.name category_name,i.accepts_category_codes
     FROM parking_layout_elements e
     LEFT JOIN parking_spots s ON s.id=e.parking_spot_id
     LEFT JOIN parking_zones z ON z.id=COALESCE(e.zone_id,s.zone_id)
@@ -685,7 +694,7 @@ async function publishedLayout(client, locationId, assignedSpotId = null, availa
     const number = Number(String(element.spot_label || '').trim());
     const geometry = canonicalLayout ? canonicalSpaceGeometry(number) : null;
     const selection = availabilitySelection?.states.get(element.element_key);
-    const matchesSelection = Boolean(availabilitySelection && element.parking_spot_id && element.category_code === availabilitySelection.categoryCode);
+    const matchesSelection = Boolean(availabilitySelection && element.parking_spot_id && (element.category_code === availabilitySelection.categoryCode || (element.accepts_category_codes || []).includes(availabilitySelection.categoryCode)));
     const permitted = Boolean(parkingAreaSelection
       && String(element.inventory_id) === String(parkingAreaSelection.inventoryId)
       && !blockedAreaSpotIds.has(String(element.parking_spot_id)));

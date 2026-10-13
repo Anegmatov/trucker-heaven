@@ -782,8 +782,8 @@
       ids.set(number, spot.id);
       // Daily / Weekly: green = your area and open, red = in your area but taken, grey = not for this booking.
       if (!pick) {
-        // The server marks only spaces of the requested type and term (eligible); anything else is grey.
-        states.set(number, spot.available ? 'area' : !spot.eligible ? 'off' : selection === 'CAPACITY_HOLD' ? 'held' : 'taken'); continue;
+        // The server marks spaces of the requested type and term (eligible); other spaces are grey unless someone is parked there (red).
+        states.set(number, spot.available ? 'area' : !spot.eligible ? (selection === 'TAKEN' ? 'taken' : 'off') : selection === 'CAPACITY_HOLD' ? 'held' : 'taken'); continue;
       }
       states.set(number, spot.selectable ? 'open' : selection === 'CAPACITY_HOLD' ? 'held' : /HELD|RESERVED|OCCUPIED|UNAVAILABLE|BLOCKED/.test(selection) ? 'taken' : 'off');
     }

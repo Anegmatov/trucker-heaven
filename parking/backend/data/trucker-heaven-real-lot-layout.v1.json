@@ -1,5 +1,5 @@
 {
-  "version": 8,
+  "version": 9,
   "name": "Trucker Heaven physical lot \u00b7 parking management v7",
   "coordinateSystem": "portrait-percent-100",
   "viewBox": {
@@ -9,6 +9,9 @@
     "height": 100
   },
   "source": "Geometry is calibrated from TH PARKING LOT DIAGRAME - Copy (3).pdf. The approved Trucker Heaven Parking Lot Pricing & Lot Allocation map controls each numbered space's operational allocation and public parking term.",
+  "inventorySharing": [
+    { "use": "CUSTOMER", "category": "TRACTOR_TRAILER", "accepts": ["BOBTAIL"], "note": "Bobtails may park in the truck daily area (101-129); Monthly truck spaces stay truck-only in practice because they are not Daily-eligible." }
+  ],
   "spaceFamilies": [
     [
       10,
