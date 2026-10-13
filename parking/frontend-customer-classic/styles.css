@@ -886,3 +886,9 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus{outline:
   .th-mobile-panel { inset: 73px 0 auto 0; }
 }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* overflow lot note (search panel + offers) */
+.overflow-note { margin-top: 10px; border-color: #7a9a3d; background: #1d3a2a; }
+.overflow-note > span { background: #95b85a; color: #0c2214; }
+.overflow-note a { color: #cde6a0; font-weight: 700; text-decoration: underline; }
+#searchOverflowNote { margin-top: 10px; }

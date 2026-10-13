@@ -56,6 +56,7 @@
       const values = phoneValues(); link.href = values.href; link.hidden = !values.href;
       link.textContent = selector === '#heroSupportLink' ? `Call office ${values.display}` : selector === '#footerSupportLink' ? `Parking support ${values.display}` : selector === '#supportPhoneLink' || selector === '#mobileSupportLink' ? 'Call Now' : 'Contact';
     });
+    $$('[data-overflow-phone]').forEach(link => { const values = phoneValues(); link.href = values.href || '#'; link.textContent = values.display || 'the office'; });
     ['#parentSiteLink', '#mobileParentLink', '#footerParentLink'].forEach(selector => { const link = $(selector); if (link) { link.href = config.parentSiteUrl || '#'; link.hidden = !config.parentSiteUrl; } });
     // Main-site header: links to the big Trucker Heaven website pages.
     $$('[data-parent-page]').forEach(link => { link.href = parentPageUrl(link.dataset.parentPage); });
@@ -845,6 +846,11 @@
     if (!$('#parkingStep') || state.currentRoute !== 'offers') return;
     renderSearchOverview(); renderAvailability(); renderQuoteSummary(); renderParkingInformation();
     const canContinue = core.bookingCanContinue(state); $('#continueDriver').disabled = !canContinue;
+    // Lot full for these dates? Point drivers to the overflow lot 5 miles away.
+    const lotFull = state.search.status === core.SEARCH_STATUS.SUCCESS_EMPTY
+      || (state.search.status === core.SEARCH_STATUS.SUCCESS_RESULTS && !state.availability.some(result => result.available))
+      || (state.trip?.duration === 'MONTHLY' && state.monthly.status === 'SUCCESS' && !(state.monthly.positions || []).some(position => position.available));
+    if ($('#offersOverflowNote')) $('#offersOverflowNote').hidden = !lotFull;
     $('#parkingSummary').textContent = state.search.status === core.SEARCH_STATUS.LOADING ? 'Checking your dates…' : state.search.status === core.SEARCH_STATUS.SUCCESS_EMPTY ? (state.trip?.duration === 'MONTHLY' ? 'Every space for this parking is taken. The lot map shows what is reserved.' : 'No parking is available for these dates.') : state.search.status === core.SEARCH_STATUS.ERROR ? 'Your search could not be completed.' : state.trip?.duration === 'MONTHLY' ? 'Tap a green space on the lot map.' : 'Your parking area is highlighted on the lot map.';
     const pick = state.trip?.duration === 'MONTHLY';
     if ($('#parkingTitle')) $('#parkingTitle').textContent = pick ? 'Pick your space' : 'Where you can park';
