@@ -8,6 +8,7 @@ services:
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /health
+    autoDeploy: true   # every push to main deploys
     envVars:
       - key: NODE_ENV
         value: production
@@ -20,4 +21,11 @@ services:
       - key: RENTALS_DATABASE_URL
         sync: false
       - key: FOOD_DATABASE_URL
+        sync: false
+      # first-run parking setup (location, owner login, prices, real lot map, Amazon occupancy); idempotent
+      - key: PARKING_BOOTSTRAP
+        value: "true"
+      - key: PARKING_OWNER_USERNAME
+        value: owner
+      - key: PARKING_OWNER_PASSWORD
         sync: false

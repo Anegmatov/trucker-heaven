@@ -13,6 +13,8 @@ const { parsePostgresUrl, createDatabasePoolConfig } = require('../databaseConne
 
 const DEVELOPMENT_DATABASE = 'parkingops_dev_20260723_014831';
 const PRODUCTION_DATABASE = 'parkingops_prod';
+// The shared-instance database the production API creates for this module: a fresh install, set up like development.
+const FRESH_DATABASE = 'parking';
 const PRODUCTION_CONFIRMATION = 'REAL_LOT_IMPORT_APPROVED';
 const REQUIRED_PRODUCTION_TABLES = ['parking_locations', 'parking_zones', 'parking_spots', 'parking_lot_layouts', 'parking_layout_elements', 'parking_rate_rules'];
 const LEGACY_LOCATION_NAME = 'South Zone';
@@ -50,7 +52,7 @@ function parseImporterOptions(argv = process.argv.slice(2), env = process.env) {
   if (options.publish && !options.apply) throw new Error('--publish requires --apply');
   if (options.apply && !options.publish) throw new Error('Refusing unsafe apply-only real-lot import: --publish is required for public continuity.');
   options.expectedDatabase ||= DEVELOPMENT_DATABASE;
-  if (![DEVELOPMENT_DATABASE, PRODUCTION_DATABASE].includes(options.expectedDatabase)) throw new Error('Refusing import: expected database is not an approved ParkingOps target.');
+  if (![DEVELOPMENT_DATABASE, PRODUCTION_DATABASE, FRESH_DATABASE].includes(options.expectedDatabase)) throw new Error('Refusing import: expected database is not an approved ParkingOps target.');
   const productionTarget = options.expectedDatabase === PRODUCTION_DATABASE;
   if (productionTarget && !options.production) throw new Error('Refusing production import: --production is required.');
   if (!productionTarget && options.production) throw new Error('--production is only valid with --expected-database parkingops_prod.');

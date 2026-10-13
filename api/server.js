@@ -156,6 +156,14 @@ async function main() {
   log(`listening on ${PORT}`);
   for (const [host, mod] of hosts) log(`  ${host} -> ${mod}`);
 
+  // First-run parking setup (location, owner, prices, the real lot map, Amazon's occupancy).
+  // Idempotent: it records each step in the parking database and skips what is already done.
+  if (modules.parking && process.env.PARKING_BOOTSTRAP === "true") {
+    const bootstrap = require("../parking/backend/scripts/bootstrapProduction");
+    bootstrap.run({ apiBase: `http://127.0.0.1:${PORT}/parking`, log: (m) => log(`parking bootstrap: ${m}`) })
+      .catch((e) => console.error("[api] parking bootstrap failed:", e.message));
+  }
+
   let stopping = false;
   const stop = async (signal) => {
     if (stopping) return;
