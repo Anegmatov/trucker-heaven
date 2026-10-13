@@ -12,7 +12,12 @@
     <script src="./workflow-policy.js?v=driveops-admin-20260717-phase7c" defer></script>
     <script src="./app.js?v=driveops-admin-20260902-redesign" defer></script>
   <script>if (window.self !== window.top) document.documentElement.classList.add("is-embedded");</script>
-<style>.is-embedded [data-logout], .is-embedded #logoutButton { display: none !important; }</style>
+<style>
+/* Inside the Trucker Heaven Operations shell: the shell owns navigation and sign-out. */
+.is-embedded #logoutButton, .is-embedded .employee-summary, .is-embedded .admin-shell > aside.sidebar { display: none !important; }
+.is-embedded .admin-shell { grid-template-columns: minmax(0, 1fr); }
+.is-embedded .main-panel { padding: 0 28px 60px; }
+</style>
 </head>
   <body>
     <section class="login-gate" id="loginGate">

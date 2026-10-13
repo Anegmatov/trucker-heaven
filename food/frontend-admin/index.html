@@ -1,16 +1,85 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#122219">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#071820">
   <title>Trucker Heaven Operations</title>
-  <link rel="stylesheet" href="styles.css?v=th-ops-20261013"><script src="render-runtime.js?v=th-ops-20261013" defer></script><script src="config.js?v=th-ops-20261013" defer></script><script src="app.js?v=th-ops-20261013" defer></script>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css?v=th-ops-20261013b"><link rel="stylesheet" href="shell.css?v=th-ops-20261013b"><script src="render-runtime.js?v=th-ops-20261013" defer></script><script src="config.js?v=th-ops-20261013" defer></script><script src="app.js?v=th-ops-20261013b" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#admin-main">Skip to content</a>
-  <section id="login-view" class="login-view" aria-labelledby="login-title"><div class="login-brand"><div class="brand-mark">TH</div><div><strong>TRUCKER HEAVEN</strong><span>Operations / secure access</span></div></div><form id="login-form" class="login-card"><p class="eyebrow">Authorized access</p><h1 id="login-title">Operations sign in</h1><p>One sign-in for Silk Road Grill, Truck Parking and Car Rentals.</p><div id="login-error" class="alert error" role="alert" hidden></div><label>Username or email<input name="email" type="text" autocomplete="username" required></label><label>Password<input name="password" type="password" autocomplete="current-password" required></label><button class="button full" type="submit">Sign in</button><small>Authorized OWNER and STAFF accounts only.</small></form></section>
+  <section id="login-view" class="login-view" aria-labelledby="login-title">
+    <div class="login-brand"><img class="brand-logo" src="assets/logo.svg" alt="" width="52" height="52"><div><strong class="wordmark"><span>TRUCKER</span> <span>HEAVEN</span></strong><span>Operations</span></div></div>
+    <form id="login-form" class="login-card">
+      <p class="eyebrow">Staff access</p>
+      <h1 id="login-title">Sign in</h1>
+      <p>One sign-in runs the whole property: Silk Road Grill, Truck Parking and Car Rentals.</p>
+      <div id="login-error" class="alert error" role="alert" hidden></div>
+      <label>Username or email<input name="email" type="text" autocomplete="username" required></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+      <button class="button full" type="submit">Sign in</button>
+      <small>Owner and staff accounts only. 8037 Eastgate Blvd, Mt. Juliet, TN.</small>
+    </form>
+  </section>
   <div id="app-shell" class="app-shell" hidden>
-    <aside id="sidebar" class="sidebar"><div class="admin-brand"><div class="brand-mark">TH</div><div><strong>Trucker Heaven</strong><span>Operations</span></div><button id="sidebar-close" class="mobile-close" type="button" aria-label="Close navigation">×</button></div><nav aria-label="Primary administration"><span class="nav-group-label">Silk Road Grill</span><button data-route="dashboard" class="active" aria-current="page"><span class="nav-icon" aria-hidden="true">▦</span>Overview</button><button data-route="kitchen"><span class="nav-icon" aria-hidden="true">▥</span>Kitchen Board <b id="pending-badge" hidden>0</b></button><button data-route="orders"><span class="nav-icon" aria-hidden="true">▤</span>Orders</button><button data-route="catering"><span class="nav-icon" aria-hidden="true">♨</span>Catering</button><button data-route="menu"><span class="nav-icon" aria-hidden="true">≣</span>Menu</button><button data-route="settings"><span class="nav-icon" aria-hidden="true">⚙</span>Settings</button><span class="nav-group-label" data-unified>Truck Parking</span><button data-route="parking" data-unified><span class="nav-icon" aria-hidden="true">P</span>Parking</button><span class="nav-group-label" data-unified>Car Rentals</span><button data-route="rentals" data-unified><span class="nav-icon" aria-hidden="true">R</span>Rentals</button></nav><div class="sidebar-links"><p>Ordering <span id="sidebar-ordering-status">● OPEN</span></p><div class="sidebar-account"><strong id="sidebar-user-name">Owner</strong><small id="sidebar-user-role">OWNER</small></div><button id="sign-out" type="button">Sign out</button><a id="public-site-link" href="#" target="_blank" rel="noopener">View customer site ↗</a></div></aside>
-    <div id="sidebar-scrim" class="sidebar-scrim" hidden></div><main id="admin-main" class="admin-main"><header class="topbar"><button id="menu-toggle" class="menu-toggle" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">☰</button><div><p class="eyebrow" id="page-eyebrow">Trucker Heaven</p><h1 id="page-title">Overview</h1></div><div class="user-chip"><span id="user-initials">FO</span><div><strong id="user-name">Staff</strong><small id="user-role">STAFF</small></div></div></header><div id="global-alert" class="alert" role="status" hidden></div><div id="page-content" class="page-content" aria-live="polite"><div class="loading">Loading FoodOps…</div></div></main>
+    <aside id="sidebar" class="sidebar">
+      <div class="admin-brand"><img class="brand-logo" src="assets/logo.svg" alt="" width="40" height="40"><div><strong class="wordmark"><span>TRUCKER</span> <span>HEAVEN</span></strong><span>Operations</span></div><button id="sidebar-close" class="mobile-close" type="button" aria-label="Close navigation">×</button></div>
+      <nav aria-label="Primary administration">
+        <div class="nav-group" data-group="food">
+          <button class="nav-group-head" type="button" data-group-toggle="food" aria-expanded="true"><span class="group-mark">SR</span><span class="group-title">Silk Road Grill</span><b class="group-badge" id="pending-badge" hidden>0</b><i class="chev" aria-hidden="true"></i></button>
+          <div class="nav-group-items">
+            <button data-route="dashboard" class="active" aria-current="page">Overview</button>
+            <button data-route="kitchen">Kitchen board</button>
+            <button data-route="orders">Orders</button>
+            <button data-route="catering">Catering</button>
+            <button data-route="menu">Menu items</button>
+            <button data-route="categories">Menu categories</button>
+            <button data-route="settings">Ordering</button>
+            <button data-route="hours">Hours &amp; contact</button>
+            <button data-route="gallery">Gallery</button>
+            <button data-route="users" data-owner-only>Staff accounts</button>
+          </div>
+        </div>
+        <div class="nav-group" data-group="parking" data-unified>
+          <button class="nav-group-head" type="button" data-group-toggle="parking" aria-expanded="true"><span class="group-mark">P</span><span class="group-title">Truck Parking</span><i class="chev" aria-hidden="true"></i></button>
+          <div class="nav-group-items">
+            <button data-route="parking/Overview">Overview</button>
+            <button data-route="parking/Live Lot">Live lot</button>
+            <button data-route="parking/Reservations">Reservations</button>
+            <button data-route="parking/Reservation Desk">New booking</button>
+            <button data-route="parking/Customers">Customers</button>
+            <button data-route="parking/Summary">Summary</button>
+            <button data-route="parking/Lot Setup" data-owner-only>Lot setup</button>
+            <button data-route="parking/Business Settings" data-owner-only>Business settings</button>
+            <button data-route="parking/Team" data-owner-only>Team</button>
+          </div>
+        </div>
+        <div class="nav-group" data-group="rentals" data-unified>
+          <button class="nav-group-head" type="button" data-group-toggle="rentals" aria-expanded="true"><span class="group-mark">R</span><span class="group-title">Car Rentals</span><i class="chev" aria-hidden="true"></i></button>
+          <div class="nav-group-items">
+            <button data-route="rentals/dashboard">Overview</button>
+            <button data-route="rentals/fleet">Fleet</button>
+            <button data-route="rentals/reservations">Reservations</button>
+            <button data-route="rentals/employees" data-owner-only>Employee accounts</button>
+            <button data-route="rentals/settings">Settings</button>
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-links">
+        <p>Online ordering <span id="sidebar-ordering-status">● OPEN</span></p>
+        <div class="sidebar-account"><strong id="sidebar-user-name">Owner</strong><small id="sidebar-user-role">OWNER</small></div>
+        <button id="sign-out" type="button">Sign out</button>
+        <div class="site-links" data-unified><a href="https://truckerheaven.com" target="_blank" rel="noopener">truckerheaven.com ↗</a><a href="https://truckerheaven.com/parking" target="_blank" rel="noopener">Parking page ↗</a><a href="https://truckerheaven.com/rentals" target="_blank" rel="noopener">Rentals page ↗</a></div>
+        <a id="public-site-link" href="#" target="_blank" rel="noopener">Silk Road Grill site ↗</a>
+      </div>
+    </aside>
+    <div id="sidebar-scrim" class="sidebar-scrim" hidden></div>
+    <main id="admin-main" class="admin-main">
+      <header class="topbar"><button id="menu-toggle" class="menu-toggle" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">☰</button><div><p class="eyebrow" id="page-eyebrow">Trucker Heaven</p><h1 id="page-title">Overview</h1></div><div class="user-chip"><span id="user-initials">TH</span><div><strong id="user-name">Staff</strong><small id="user-role">STAFF</small></div></div></header>
+      <div id="global-alert" class="alert" role="status" hidden></div>
+      <div id="page-content" class="page-content" aria-live="polite"><div class="loading">Loading…</div></div>
+      <div id="module-frames" class="module-frames" hidden></div>
+    </main>
   </div><div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

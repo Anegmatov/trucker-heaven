@@ -14,8 +14,17 @@
   const slugify = (value) => String(value || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   const publicVisibility = (item) => ({ VISIBLE: "Visible on public menu", CATEGORY_INACTIVE: "Hidden because category is inactive", ITEM_INACTIVE: "Hidden because item is inactive", ITEM_UNAVAILABLE: "Hidden because item is unavailable" })[item.publicVisibility?.reason] || "Hidden from public menu";
   const dateTime = (value) => value ? new Date(value).toLocaleString() : "—";
-  const routes = { parking: ["Truck Parking", "Parking"], rentals: ["Car Rentals", "Rentals"], dashboard: ["Silk Road Grill", "Overview"], orders: ["Restaurant operations", "Orders"], kitchen: ["Restaurant operations", "Kitchen board"], catering: ["Group dining", "Catering"], menu: ["Menu management", "Items"], categories: ["Menu management", "Categories"], settings: ["Restaurant settings", "Ordering"], hours: ["Restaurant settings", "Hours & Contact"], gallery: ["Restaurant settings", "Gallery"], users: ["Restaurant settings", "Users"] };
-  const primaryRoute = (route) => new Set(["categories"]).has(route) ? "menu" : new Set(["hours", "gallery", "users"]).has(route) ? "settings" : route;
+  const routes = { dashboard: ["Silk Road Grill", "Overview"], orders: ["Silk Road Grill", "Orders"], kitchen: ["Silk Road Grill", "Kitchen board"], catering: ["Silk Road Grill", "Catering"], menu: ["Silk Road Grill", "Menu items"], categories: ["Silk Road Grill", "Menu categories"], settings: ["Silk Road Grill", "Online ordering"], hours: ["Silk Road Grill", "Hours & contact"], gallery: ["Silk Road Grill", "Gallery"], users: ["Silk Road Grill", "Staff accounts"] };
+  // Parking and rentals pages live in their own staff sites, shown in frames; the sidebar drives them.
+  const MODULES = {
+    parking: { group: "Truck Parking", labels: { Overview: "Overview", "Live Lot": "Live lot", Reservations: "Reservations", "Reservation Desk": "New booking", Customers: "Customers", Summary: "Summary", "Lot Setup": "Lot setup", "Business Settings": "Business settings", Team: "Team" },
+      select: (doc, key) => doc.querySelector(`.sidebar [data-nav="${key}"], [data-nav="${key}"]`), current: (doc) => doc.querySelector(".sidebar [data-nav].active")?.dataset.nav },
+    rentals: { group: "Car Rentals", labels: { dashboard: "Overview", fleet: "Fleet", reservations: "Reservations", employees: "Employee accounts", settings: "Settings" },
+      select: (doc, key) => doc.querySelector(`.sidebar [data-view="${key}"]`), current: (doc) => doc.querySelector(".sidebar .nav-item.active")?.dataset.view }
+  };
+  const moduleRoute = (route) => { const m = /^(parking|rentals)\/(.+)$/.exec(route || ""); return m && MODULES[m[1]] && MODULES[m[1]].labels[m[2]] ? { name: m[1], key: m[2] } : null; };
+  const routeMeta = (route) => { const m = moduleRoute(route); return m ? [MODULES[m.name].group, MODULES[m.name].labels[m.key]] : routes[route]; };
+  const primaryRoute = (route) => route;
   function sectionTabs(section, active) {
     const tabs = section === "orders" ? [["orders", "Kitchen Board"], ["orders-all", "All Orders"]]
       : section === "menu" ? [["menu", "Items"], ["categories", "Categories"]]
@@ -71,14 +80,60 @@
   async function disconnectModules() {
     if (!unified) return;
     sso.parking = null; sso.rentals = null;
+    for (const [name, frame] of Object.entries(frames)) { frame.remove(); delete frames[name]; }
     await fetch(`${config.ssoBaseUrl}/logout`, { method: "POST", credentials: "include" }).catch(() => {});
   }
-  async function renderModule(name) {
-    const url = name === "parking" ? config.parkingStaffUrl : config.rentalsStaffUrl;
-    let note = "";
+  const frames = {};
+  function moduleFrame(name) {
+    if (frames[name]) return frames[name];
+    const host = $("#module-frames");
+    const frame = document.createElement("iframe");
+    frame.className = "module-frame"; frame.title = `${MODULES[name].group} staff site`; frame.hidden = true;
+    frame.src = name === "parking" ? config.parkingStaffUrl : config.rentalsStaffUrl;
+    host.appendChild(frame); frames[name] = frame; return frame;
+  }
+  function frameDocument(name) { try { return frames[name]?.contentDocument || null; } catch { return null; } }
+  async function navigateModule(name, key) {
+    const frame = moduleFrame(name);
+    const spec = MODULES[name];
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+      const doc = frameDocument(name);
+      const target = doc && spec.select(doc, key);
+      if (target) { if (spec.current(doc) !== key) target.click(); return true; }
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    return false;
+  }
+  function showModule(name) {
+    $("#page-content").hidden = true; $("#module-frames").hidden = false;
+    for (const [other, frame] of Object.entries(frames)) frame.hidden = other !== name;
+    moduleFrame(name).hidden = false;
+  }
+  function hideModules() { $("#page-content").hidden = false; $("#module-frames").hidden = true; }
+  async function renderModule(name, key) {
+    const note = $("#module-frames").querySelector(".module-note"); if (note) note.remove();
     try { await connectModule(name); }
-    catch (error) { note = `<p class="module-frame-note">${escapeHtml(error.message)} You can still sign in below with the ${escapeHtml(name)} staff login.</p>`; }
-    $("#page-content").innerHTML = `${note}<iframe class="module-frame" src="${escapeHtml(url)}" title="${escapeHtml(routes[name][1])} staff site"></iframe>`;
+    catch (error) { $("#module-frames").insertAdjacentHTML("afterbegin", `<p class="module-note">${escapeHtml(error.message)} Sign in below with the ${escapeHtml(name)} staff login instead.</p>`); }
+    showModule(name);
+    await navigateModule(name, key);
+  }
+  // Keep the sidebar in step when someone navigates inside a staff site (a "New booking" button, say).
+  setInterval(() => {
+    const current = moduleRoute(state.route); if (!current) return;
+    const doc = frameDocument(current.name); const inner = doc && MODULES[current.name].current(doc);
+    if (inner && inner !== current.key && MODULES[current.name].labels[inner]) { state.route = `${current.name}/${inner}`; history.replaceState(null, "", `#${state.route}`); paintRoute(state.route); }
+  }, 1500);
+  function paintRoute(route) {
+    const [eyebrow, title] = routeMeta(route);
+    const group = moduleRoute(route)?.name || "food";
+    $$(".sidebar [data-group-toggle]").forEach((head) => { if (head.dataset.groupToggle === group) head.setAttribute("aria-expanded", "true"); });
+    $$(".sidebar .nav-group").forEach((node) => node.classList.toggle("is-current", node.dataset.group === group));
+    $("#page-eyebrow").textContent = eyebrow; $("#page-title").textContent = title;
+    $$('.sidebar [data-route]').forEach((node) => {
+      const active = node.dataset.route === route;
+      node.classList.toggle("active", active);
+      if (active) node.setAttribute("aria-current", "page"); else node.removeAttribute("aria-current");
+    });
   }
   function showApp() {
     $("#login-view").hidden = true; $("#app-shell").hidden = false;
@@ -88,24 +143,24 @@
     $$('[data-owner-only]').forEach((node) => { node.hidden = state.user.role !== "OWNER"; });
   }
   function openRoute(route, query = "") {
-    if (!routes[route] || (route === "users" && state.user.role !== "OWNER") || (!unified && (route === "parking" || route === "rentals"))) route = "dashboard";
+    const mod = moduleRoute(route);
+    if (mod && !unified) route = "dashboard";
+    else if (!mod && (!routes[route] || (route === "users" && state.user.role !== "OWNER"))) route = "dashboard";
+    if (mod && state.user.role !== "OWNER" && $(`.sidebar [data-route="${CSS.escape(route)}"][data-owner-only]`)) route = `${mod.name}/${mod.name === "parking" ? "Overview" : "dashboard"}`;
     if (route === "orders") { state.orderQuery = query; if (query) state.ordersView = "all"; }
     if (route === "catering") state.cateringQuery = query;
     state.route = route; history.replaceState(null, "", `#${route}`); clearTimeout(state.kitchenTimer);
-    $("#page-eyebrow").textContent = routes[route][0]; $("#page-title").textContent = routes[route][1];
-    $$('.sidebar [data-route]').forEach((node) => {
-      const active = node.dataset.route === primaryRoute(route);
-      node.classList.toggle("active", active);
-      if (active) node.setAttribute("aria-current", "page"); else node.removeAttribute("aria-current");
-    });
-    closeSidebar(false); closeRecordDrawer(); loading();
-    $("#page-content").classList.toggle("module-frame-host", route === "parking" || route === "rentals");
-    const render = ({ parking: () => renderModule("parking"), rentals: () => renderModule("rentals"), dashboard: renderDashboard, orders: renderOrders, kitchen: renderKitchen, catering: () => renderCateringInline(state.cateringQuery), menu: renderMenuWorkspace,
+    paintRoute(route);
+    closeSidebar(false); closeRecordDrawer();
+    const target = moduleRoute(route);
+    if (target) return renderModule(target.name, target.key);
+    hideModules(); loading();
+    const render = ({ dashboard: renderDashboard, orders: renderOrders, kitchen: renderKitchen, catering: () => renderCateringInline(state.cateringQuery), menu: renderMenuWorkspace,
       categories: renderCategoriesWorkspace, settings: renderSettings, hours: renderHours,
       gallery: renderGallery, users: renderUsers })[route];
     return render().then(() => {
       const section = primaryRoute(route);
-      if (new Set(["menu", "settings"]).has(section)) $("#page-content").insertAdjacentHTML("afterbegin", sectionTabs(section, route));
+      if (!unified && new Set(["menu", "settings"]).has(section)) $("#page-content").insertAdjacentHTML("afterbegin", sectionTabs(section, route));
       if (route === "settings") $("#settings-form [name=phone]")?.removeAttribute("required");
     }).catch((error) => { $("#page-content").innerHTML = `<div class="alert error">${escapeHtml(error.message)}</div>`; });
   }
@@ -455,6 +510,7 @@
   bindAdminForms();
   $("#login-form").addEventListener("submit",async(event)=>{event.preventDefault();const form=event.currentTarget;const button=form.querySelector("button");const errorBox=$("#login-error");button.disabled=true;try{const data=Object.fromEntries(new FormData(form));const result=await request("/auth/login",{method:"POST",body:JSON.stringify(data)});state.user=result.user;state.csrf=result.csrfToken;form.reset();errorBox.hidden=true;showApp();connectModules();openRoute(location.hash.slice(1)||"dashboard");}catch(error){errorBox.textContent=error.message;errorBox.hidden=false;}finally{button.disabled=false;}});
   $("#sign-out").addEventListener("click",async()=>{try{await disconnectModules();await request("/auth/logout",{method:"POST"});}finally{showLogin();}});
+  $$("[data-group-toggle]").forEach((head) => head.addEventListener("click", () => { const open = head.getAttribute("aria-expanded") !== "true"; head.setAttribute("aria-expanded", String(open)); }));
   $("#menu-toggle").addEventListener("click",openSidebar);$("#sidebar-close").addEventListener("click",()=>closeSidebar());$("#sidebar-scrim").addEventListener("click",()=>closeSidebar());
   document.addEventListener("keydown",(event)=>{const inlineOrder=event.target.closest?.("[data-inline-order]");const inlineCatering=event.target.closest?.("[data-inline-catering]");const interactive=event.target.matches?.("button,input,select,textarea,a");if((event.key==="Enter"||event.key===" ")&&inlineOrder&&!interactive){event.preventDefault();toggleInlineOrder(inlineOrder.dataset.inlineOrder,inlineOrder.dataset.orderContext).catch(e=>showAlert(e.message,true));}if((event.key==="Enter"||event.key===" ")&&inlineCatering&&!interactive){event.preventDefault();toggleInlineCatering(inlineCatering.dataset.inlineCatering).catch(e=>showAlert(e.message,true));}if(event.key==="Escape"&&state.expandedOrder){state.expandedOrder=null;state.expandedOrderContext="";state.expandedOrderData=null;renderOrders().catch(e=>showAlert(e.message,true));}if(event.key==="Escape"&&state.expandedCatering){state.expandedCatering=null;state.expandedCateringData=null;renderCateringInline(state.cateringQuery).catch(e=>showAlert(e.message,true));}});
   document.addEventListener("keydown",(event)=>{if(event.key==="Escape"){if($("#record-drawer")?.classList.contains("open"))closeRecordDrawer();else if($("#sidebar").classList.contains("open"))closeSidebar();}});

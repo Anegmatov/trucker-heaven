@@ -8,7 +8,15 @@
   <link rel="stylesheet" href="./advanced.css">
   <link rel="stylesheet" href="./reservation-desk.css">
 <script>if (window.self !== window.top) document.documentElement.classList.add("is-embedded");</script>
-<style>.is-embedded [data-logout], .is-embedded #logoutButton { display: none !important; }</style>
+<style>
+/* Inside the Trucker Heaven Operations shell: the shell owns navigation, sign-out and the page title. */
+.is-embedded [data-logout], .is-embedded #logoutButton { display: none !important; }
+.is-embedded .app { padding: 0; }
+.is-embedded .app-shell { max-width: none; }
+.is-embedded .app-shell > header.topbar, .is-embedded .layout > aside.sidebar { display: none !important; }
+.is-embedded .layout { grid-template-columns: minmax(0, 1fr) 300px !important; margin-top: 0; }
+@media (max-width: 1200px) { .is-embedded .layout { grid-template-columns: minmax(0, 1fr) !important; } .is-embedded .aside { grid-column: 1 / -1; } }
+</style>
 </head>
 <body>
   <div id="app"></div>
