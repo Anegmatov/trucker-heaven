@@ -120,7 +120,21 @@ function build() {
   const hosts = parseHosts(process.env.API_HOSTS || DEFAULT_HOSTS);
   for (const [host, mod] of hosts) if (!modules[mod]) hosts.delete(host);
 
+  // The customer booking pages, served as static files so truckerheaven.com can proxy
+  // /parking and /rentals to /sites/parking and /sites/rentals here (no extra services).
+  const express = require("express");
+  const sites = express();
+  sites.disable("x-powered-by");
+  const staticOptions = { index: "index.html", etag: true, redirect: false, setHeaders(res, file) {
+    // hashed build files are immutable; html and the small config/entry files must stay fresh
+    res.setHeader("cache-control", /\.[0-9a-f]{16}\.(js|css)$/.test(file) ? "public, max-age=31536000, immutable" : "no-cache");
+  } };
+  sites.use("/parking", express.static(path.join(__dirname, "..", "parking", "frontend-customer-classic", "dist"), staticOptions));
+  sites.use("/rentals", express.static(path.join(__dirname, "..", "rentals", "frontend-customer"), staticOptions));
+  sites.use((req, res) => { res.status(404).type("text/plain").send("Not found"); });
+
   function router(req, res) {
+    if (req.url === "/sites" || req.url.startsWith("/sites/")) { req.url = (req.url.slice(6) || "/").replace(/^\/(parking|rentals)(\?|$)/, "/$1/$2"); return sites(req, res); }
     // Single-link mode first: /parking/..., /rentals/..., /food/... work on any hostname
     // (the *.onrender.com URL, or a hostname that is mapped to one module). No module
     // serves routes under those prefixes itself, so this never shadows a real route.

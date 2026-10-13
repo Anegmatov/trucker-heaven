@@ -9,6 +9,8 @@
   "type": "commonjs",
   "scripts": {
     "start": "node api/server.js",
+    "build": "node parking/frontend-customer-classic/scripts/build.js",
+    "postinstall": "npm run build",
     "dev": "node --watch api/server.js",
     "migrate": "npm run migrate --prefix parking/backend && npm run migrate --prefix rentals/backend && npm run migrate --prefix food/backend",
     "check": "node --check api/server.js && npm run check --prefix parking/backend && npm run check --prefix rentals/backend && npm run check --prefix food/backend",
